@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
 import { z } from 'zod'
 import {
@@ -1156,11 +1156,29 @@ const RADIUS_MAP: Record<RadiusMode, string> = { none: '0px', md: '6px', lg: '12
 
 /* ─── App ────────────────────────────────────────────────────────────────── */
 
+const ALL_IDS = new Set(NAV.flatMap(g => g.items).map(i => i.id))
+
+function getHashSection() {
+  const id = window.location.hash.slice(1)
+  return ALL_IDS.has(id) ? id : 'overview'
+}
+
 export default function App() {
-  const [active, setActive] = useState('overview')
+  const [active, setActive] = useState(getHashSection)
   const [radius, setRadius] = useState<RadiusMode>('none')
   const [primary, setPrimary] = useState('#6366f1')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    const onHash = () => setActive(getHashSection())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  const navigate = (id: string) => {
+    window.location.hash = id
+    setMobileNavOpen(false)
+  }
 
   const applyTheme = (r: RadiusMode, p: string) => {
     document.documentElement.style.setProperty('--base-radius', RADIUS_MAP[r])
@@ -1261,7 +1279,7 @@ export default function App() {
                   {group.items.map(item => (
                     <li key={item.id}>
                       <button
-                        onClick={() => { setActive(item.id); setMobileNavOpen(false) }}
+                        onClick={() => navigate(item.id)}
                         className={cn(
                           'w-full text-left px-3 py-1.5 text-sm rounded-[var(--base-radius)] transition-colors',
                           active === item.id
