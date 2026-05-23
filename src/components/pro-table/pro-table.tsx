@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -6,12 +6,33 @@ import {
   flexRender,
   type SortingState,
   type PaginationState,
+  type RowSelectionState,
+  type ColumnDef,
 } from '@tanstack/react-table'
 import { cn } from '../../lib/cn'
 import { SearchForm } from './search-form'
 import { Toolbar } from './toolbar'
 import { buildColumns } from './build-columns'
 import type { ProTableProps, QueryParams } from './types'
+
+function IndeterminateCheckbox({
+  indeterminate,
+  className,
+  ...rest
+}: React.InputHTMLAttributes<HTMLInputElement> & { indeterminate?: boolean }) {
+  const ref = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate ?? false
+  }, [indeterminate])
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      className={cn('w-4 h-4 rounded border-gray-300 cursor-pointer accent-primary', className)}
+      {...rest}
+    />
+  )
+}
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
@@ -23,6 +44,8 @@ export function ProTable<T extends object>({
   toolBarRender,
   search = true,
   pagination: paginationConfig,
+  rowSelection,
+  bulkActions,
 }: ProTableProps<T>) {
   const [data, setData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
@@ -33,6 +56,7 @@ export function ProTable<T extends object>({
     pageIndex: 0,
     pageSize: paginationConfig?.defaultPageSize ?? 10,
   })
+  const [rowSelectionState, setRowSelectionState] = useState<RowSelectionState>({})
 
   const fetchData = useCallback(
     async (params: QueryParams) => {
@@ -70,18 +94,45 @@ export function ProTable<T extends object>({
     setSearchParams({})
   }, [])
 
-  const columns = buildColumns(columnDefs)
+  // Reset selection when data changes (page/search change)
+  useEffect(() => { setRowSelectionState({}) }, [data])
+
+  const selectionColumn: ColumnDef<T> = {
+    id: 'select',
+    size: 40,
+    enableSorting: false,
+    header: ({ table }) => (
+      <IndeterminateCheckbox
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={table.getIsSomePageRowsSelected()}
+        onChange={table.getToggleAllPageRowsSelectedHandler()}
+      />
+    ),
+    cell: ({ row }) => (
+      <IndeterminateCheckbox
+        checked={row.getIsSelected()}
+        disabled={!row.getCanSelect()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
+  }
+
+  const columns = rowSelection
+    ? [selectionColumn, ...buildColumns(columnDefs)]
+    : buildColumns(columnDefs)
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, pagination },
+    state: { sorting, pagination, rowSelection: rowSelectionState },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelectionState,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     rowCount: total,
+    enableRowSelection: !!rowSelection,
   })
 
   const getRowKey = (record: T, index: number): string => {
@@ -89,6 +140,15 @@ export function ProTable<T extends object>({
     const val = (record as Record<string, unknown>)[rowKey as string]
     return val != null ? String(val) : String(index)
   }
+
+  const selectedModelRows = table.getSelectedRowModel().rows
+  const selectedKeys = selectedModelRows.map((row, i) => getRowKey(row.original, i))
+  const selectedOriginals = selectedModelRows.map(r => r.original)
+
+  useEffect(() => {
+    rowSelection?.onChange?.(selectedKeys, selectedOriginals)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowSelectionState])
 
   const pageSizeOptions = paginationConfig?.pageSizeOptions ?? PAGE_SIZE_OPTIONS
   const pageCount = table.getPageCount()
@@ -138,6 +198,7 @@ export function ProTable<T extends object>({
                         key={header.id}
                         className={cn(
                           'px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap',
+                          header.id === 'select' && 'px-3 text-center',
                           align === 'center' && 'text-center',
                           align === 'right' && 'text-right',
                           canSort && 'cursor-pointer select-none hover:text-gray-700',
@@ -201,6 +262,7 @@ export function ProTable<T extends object>({
                           key={cell.id}
                           className={cn(
                             'px-4 py-3 text-gray-700',
+                            cell.column.id === 'select' && 'px-3 text-center',
                             align === 'center' && 'text-center',
                             align === 'right' && 'text-right',
                           )}
@@ -291,6 +353,40 @@ export function ProTable<T extends object>({
           </div>
         </div>
       </div>
+      {/* Bulk action bar — fixed bottom, visible when rows are selected */}
+      {rowSelection && selectedKeys.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3.5 bg-gray-900 text-white shadow-[0_-4px_24px_rgba(0,0,0,0.2)]">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-semibold">{selectedKeys.length} selected</span>
+            <button
+              type="button"
+              onClick={() => setRowSelectionState({})}
+              className="text-xs text-gray-400 hover:text-white transition-colors underline underline-offset-2"
+            >
+              Clear
+            </button>
+          </div>
+          {bulkActions && bulkActions.length > 0 && (
+            <div className="flex items-center gap-2">
+              {bulkActions.map((action, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => action.onClick(selectedKeys, selectedOriginals)}
+                  className={cn(
+                    'px-3.5 py-1.5 text-sm rounded-[var(--base-radius)] font-medium transition-colors',
+                    action.danger
+                      ? 'bg-red-500 hover:bg-red-400 text-white'
+                      : 'bg-white hover:bg-gray-100 text-gray-900',
+                  )}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

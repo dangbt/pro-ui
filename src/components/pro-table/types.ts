@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react'
 
+export interface BulkActionDef<T extends object = object> {
+  label: ReactNode
+  onClick: (selectedKeys: string[], selectedRows: T[]) => void
+  danger?: boolean
+}
+
 export type ValueType =
   | 'text'
   | 'number'
@@ -58,4 +64,8 @@ export interface ProTableProps<T extends object> {
     defaultPageSize?: number
     pageSizeOptions?: number[]
   }
+  rowSelection?: {
+    onChange?: (selectedKeys: string[], selectedRows: T[]) => void
+  }
+  bulkActions?: BulkActionDef<T>[]
 }
