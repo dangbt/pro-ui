@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Info, CheckCircle2, AlertTriangle, XCircle, X } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 type AlertVariant = 'info' | 'success' | 'warning' | 'danger'
@@ -20,26 +21,10 @@ const styles: Record<AlertVariant, { bg: string; border: string; title: string; 
 }
 
 const icons: Record<AlertVariant, React.ReactNode> = {
-  info: (
-    <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 16 16" fill="currentColor">
-      <circle cx="8" cy="8" r="7" className="opacity-20" /><path d="M8 7v5M8 5v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-    </svg>
-  ),
-  success: (
-    <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="7" className="opacity-20" fill="currentColor" stroke="none" /><polyline points="5,8 7,10 11,6" />
-    </svg>
-  ),
-  warning: (
-    <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M8 2L14 13H2L8 2Z" /><path d="M8 6v4M8 11v1" />
-    </svg>
-  ),
-  danger: (
-    <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <circle cx="8" cy="8" r="7" /><path d="M10 6L6 10M6 6l4 4" />
-    </svg>
-  ),
+  info:    <Info         className="w-4 h-4 shrink-0 mt-0.5" />,
+  success: <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />,
+  warning: <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />,
+  danger:  <XCircle      className="w-4 h-4 shrink-0 mt-0.5" />,
 }
 
 export function Alert({
@@ -76,9 +61,7 @@ export function Alert({
           className={cn('shrink-0 mt-0.5 hover:opacity-70 transition-opacity', s.text)}
           aria-label="Dismiss"
         >
-          <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M4 4l8 8M12 4l-8 8" />
-          </svg>
+          <X className="w-3.5 h-3.5" />
         </button>
       )}
     </div>

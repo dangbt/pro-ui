@@ -1,12 +1,6 @@
 import type { ReactNode } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { Button } from '../button'
-
-const RefreshIcon = () => (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M13.5 8a5.5 5.5 0 1 1-1-3.18" />
-    <path d="M13.5 2v3h-3" />
-  </svg>
-)
 
 interface ToolbarProps {
   title?: string
@@ -26,7 +20,7 @@ export function Toolbar({ title, actions, onRefresh }: ToolbarProps) {
         ))}
         {onRefresh && (
           <Button variant="ghost" size="sm" onPress={onRefresh} aria-label="Refresh">
-            <RefreshIcon />
+            <RefreshCw className="w-4 h-4" />
           </Button>
         )}
       </div>

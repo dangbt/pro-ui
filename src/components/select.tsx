@@ -8,6 +8,7 @@ import {
   ListBoxItem,
   type SelectProps as RASelectProps,
 } from 'react-aria-components'
+import { ChevronDown } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
@@ -43,9 +44,7 @@ export function Select({ label, placeholder, options, size = 'md', className, ..
         <SelectValue className="text-gray-700 data-[placeholder]:text-gray-400">
           {({ selectedText, isPlaceholder }) => isPlaceholder ? (placeholder ?? 'Select...') : selectedText}
         </SelectValue>
-        <svg className="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M4.5 6.5l3.5 3.5 3.5-3.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
       </Button>
       <Popover className="w-[var(--trigger-width)] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
         <ListBox className="py-1 max-h-60 overflow-auto outline-none">

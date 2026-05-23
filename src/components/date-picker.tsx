@@ -21,22 +21,9 @@ import {
   type DateValue,
   type DateRange,
 } from 'react-aria-components'
+import { Calendar as CalendarLucide, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
-
-const CalendarIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="1.5" y="2.5" width="13" height="12" rx="1.5" />
-    <path d="M1.5 6.5h13M5.5 1v3M10.5 1v3" />
-  </svg>
-)
-
-const ChevronLeft = () => (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M9.5 11L6.5 8l3-3"/></svg>
-)
-const ChevronRight = () => (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M6.5 11L9.5 8l-3-3"/></svg>
-)
 
 const getInputGroupCls = (size: Size) => cn(
   'flex items-center border border-gray-300 bg-white gap-1',
@@ -86,16 +73,16 @@ export function DatePicker<T extends DateValue>({ label, size = 'md', className,
           {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
         <Button className="ml-1 hover:text-primary transition-colors">
-          <CalendarIcon />
+          <CalendarLucide className="w-4 h-4 text-gray-400" />
         </Button>
       </Group>
       <Popover className={calendarPopoverCls}>
         <Dialog className="outline-none">
           <Calendar className="w-64">
             <div className="flex items-center justify-between mb-3">
-              <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronLeft /></Button>
+              <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronLeftIcon className="w-4 h-4" /></Button>
               <Heading className="text-sm font-semibold text-gray-700" />
-              <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
+              <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRightIcon className="w-4 h-4" /></Button>
             </div>
             <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
               <CalendarGridHeader>
@@ -142,16 +129,16 @@ export function DateRangePicker<T extends DateValue>({
           {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
         <Button className="ml-1 hover:text-primary transition-colors">
-          <CalendarIcon />
+          <CalendarLucide className="w-4 h-4 text-gray-400" />
         </Button>
       </Group>
       <Popover className={calendarPopoverCls}>
         <Dialog className="outline-none">
           <RangeCalendar className="w-64">
             <div className="flex items-center justify-between mb-3">
-              <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronLeft /></Button>
+              <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronLeftIcon className="w-4 h-4" /></Button>
               <Heading className="text-sm font-semibold text-gray-700" />
-              <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
+              <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRightIcon className="w-4 h-4" /></Button>
             </div>
             <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
               <CalendarGridHeader>

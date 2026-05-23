@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { Search, X, ChevronDown } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 import { Spinner } from './spinner'
@@ -30,28 +31,6 @@ interface AsyncSelectProps<T extends AsyncSelectOption = AsyncSelectOption> {
   isInvalid?: boolean
   onBlur?: () => void
 }
-
-const SearchIcon = () => (
-  <svg className="w-3.5 h-3.5 shrink-0 text-gray-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="6.5" cy="6.5" r="4" />
-    <path d="M10.5 10.5l3 3" />
-  </svg>
-)
-
-const ClearIcon = ({ className }: { className?: string }) => (
-  <svg className={cn('w-3 h-3', className)} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-    <path d="M2 2l8 8M10 2l-8 8" />
-  </svg>
-)
-
-const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg
-    className={cn('w-4 h-4 text-gray-400 shrink-0 transition-transform duration-150', open && 'rotate-180')}
-    viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-  >
-    <path d="M4.5 6.5l3.5 3.5 3.5-3.5" />
-  </svg>
-)
 
 export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   label,
@@ -227,7 +206,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
           'focus-within:border-primary focus-within:bg-white transition-colors',
           size === 'sm' ? 'h-7' : size === 'lg' ? 'h-10' : 'h-8',
         )}>
-          <SearchIcon />
+          <Search className="w-3.5 h-3.5 shrink-0 text-gray-400" />
           <input
             ref={searchRef}
             value={fetchParams.search}
@@ -241,7 +220,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
               onClick={() => setFetchParams({ search: '', page: 1 })}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <ClearIcon />
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -325,10 +304,10 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
               className="text-gray-300 hover:text-gray-500 transition-colors p-0.5 rounded"
               aria-label="Clear selection"
             >
-              <ClearIcon className="w-3 h-3" />
+              <X className="w-3 h-3" />
             </button>
           )}
-          <ChevronIcon open={isOpen} />
+          <ChevronDown className={cn('w-4 h-4 text-gray-400 shrink-0 transition-transform duration-150', isOpen && 'rotate-180')} />
         </div>
       </button>
       {createPortal(isOpen ? dropdown : null, document.body)}

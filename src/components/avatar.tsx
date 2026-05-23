@@ -1,3 +1,4 @@
+import { User } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -86,9 +87,7 @@ export function Avatar({ src, name, size = 'md', shape = 'circle', className }: 
         className,
       )}
     >
-      <svg viewBox="0 0 24 24" className="w-1/2 h-1/2" fill="currentColor">
-        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2 20c0-4 4.5-7 10-7s10 3 10 7" />
-      </svg>
+      <User className="w-1/2 h-1/2" />
     </div>
   )
 }

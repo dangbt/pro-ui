@@ -5,6 +5,7 @@ import {
   type CheckboxProps as RACheckboxProps,
   type CheckboxGroupProps as RACheckboxGroupProps,
 } from 'react-aria-components'
+import { Check, Minus } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 type CheckboxSize = 'sm' | 'md' | 'lg'
@@ -52,18 +53,14 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
           'group-hover:border-primary-400',
         )}
       >
-        <svg
+        <Check
           className={cn(cbIconSize[size], 'text-white hidden group-data-[selected]:block')}
-          viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-        >
-          <polyline points="1.5,5 4,7.5 8.5,2.5" />
-        </svg>
-        <svg
+          strokeWidth={3}
+        />
+        <Minus
           className={cn(cbIconSize[size], 'text-white hidden group-data-[indeterminate]:block')}
-          viewBox="0 0 10 10" fill="currentColor"
-        >
-          <rect x="1.5" y="4" width="7" height="2" rx="1" />
-        </svg>
+          strokeWidth={3}
+        />
       </div>
       {children && <span className={cn(cbLabelText[size], 'text-gray-700')}>{children}</span>}
     </RACheckbox>

@@ -1,4 +1,14 @@
 import { useState, useEffect, createContext, useContext } from 'react'
+import {
+  LayoutDashboard as IconDashboard,
+  Users           as IconUsers,
+  Settings        as IconSettings,
+  TrendingUp      as IconAnalytics,
+  Bell            as IconBell,
+  FileText        as IconDocs,
+  LogOut          as IconLogout,
+  Menu            as MenuIcon,
+} from 'lucide-react'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
 import { z } from 'zod'
 import {
@@ -1337,15 +1347,6 @@ function ColorSystemSection() {
   )
 }
 
-/* ─── Layout icons ───────────────────────────────────────────────────────── */
-
-const IconDashboard = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-const IconUsers    = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5"/><circle cx="12" cy="5" r="2"/><path d="M14.5 13c0-2-1.5-3.5-3.5-3.5"/></svg>
-const IconSettings = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
-const IconAnalytics= () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M2 12l3.5-4 3 3L13 4"/><path d="M10 4h3v3"/></svg>
-const IconBell     = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M8 2a4 4 0 0 1 4 4v2.5l1 2H3l1-2V6a4 4 0 0 1 4-4z"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0"/></svg>
-const IconDocs     = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M4 2h6l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M9 2v4h4"/><path d="M5 8h6M5 11h4"/></svg>
-const IconLogout   = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M13 8H6"/></svg>
 
 function LayoutSection() {
   const [activeNav, setActiveNav] = useState('dashboard')
@@ -1353,15 +1354,15 @@ function LayoutSection() {
   const [activeNav2, setActiveNav2] = useState('dashboard')
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard',  icon: <IconDashboard /> },
-    { id: 'analytics', label: 'Analytics',  icon: <IconAnalytics /> },
-    { id: 'users',     label: 'Users',      icon: <IconUsers />,     badge: <Badge size="sm" color="primary">24</Badge> },
-    { id: 'docs',      label: 'Docs',       icon: <IconDocs /> },
-    { id: 'notifs',    label: 'Alerts',     icon: <IconBell />,      badge: <Badge size="sm" color="danger">3</Badge> },
+    { id: 'dashboard', label: 'Dashboard',  icon: <IconDashboard className="w-4 h-4" /> },
+    { id: 'analytics', label: 'Analytics',  icon: <IconAnalytics className="w-4 h-4" /> },
+    { id: 'users',     label: 'Users',      icon: <IconUsers className="w-4 h-4" />,     badge: <Badge size="sm" color="primary">24</Badge> },
+    { id: 'docs',      label: 'Docs',       icon: <IconDocs className="w-4 h-4" /> },
+    { id: 'notifs',    label: 'Alerts',     icon: <IconBell className="w-4 h-4" />,      badge: <Badge size="sm" color="danger">3</Badge> },
   ]
   const settingsItems = [
-    { id: 'settings', label: 'Settings', icon: <IconSettings /> },
-    { id: 'logout',   label: 'Logout',   icon: <IconLogout /> },
+    { id: 'settings', label: 'Settings', icon: <IconSettings className="w-4 h-4" /> },
+    { id: 'logout',   label: 'Logout',   icon: <IconLogout className="w-4 h-4" /> },
   ]
 
   return (
@@ -1728,11 +1729,7 @@ export default function App() {
           onClick={() => setMobileNavOpen(o => !o)}
           aria-label="Toggle navigation"
         >
-          <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-            <rect x="2" y="4" width="16" height="2" rx="1"/>
-            <rect x="2" y="9" width="16" height="2" rx="1"/>
-            <rect x="2" y="14" width="16" height="2" rx="1"/>
-          </svg>
+          <MenuIcon className="w-5 h-5" />
         </button>
 
         {/* Logo */}

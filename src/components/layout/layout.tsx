@@ -1,4 +1,5 @@
 import { useState, createContext, useContext, type ReactNode, type CSSProperties } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
 /* ── Sider context ────────────────────────────────────────────────────────── */
@@ -12,14 +13,6 @@ interface SiderCtxValue {
 const SiderCtx = createContext<SiderCtxValue>({ collapsed: false, collapsedWidth: 64, width: 240 })
 
 export const useSider = () => useContext(SiderCtx)
-
-/* ── Icons ────────────────────────────────────────────────────────────────── */
-
-const ChevronLeftIcon = () => (
-  <svg className="w-4 h-4 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 4L6 8l4 4" />
-  </svg>
-)
 
 /* ── Layout (root) ────────────────────────────────────────────────────────── */
 
@@ -141,9 +134,7 @@ function Sider({
                   collapsed ? 'justify-center' : 'gap-2',
                 )}
               >
-                <span className={cn('transition-transform duration-300', collapsed && 'rotate-180')}>
-                  <ChevronLeftIcon />
-                </span>
+                <ChevronLeft className={cn('w-4 h-4 shrink-0 transition-transform duration-300', collapsed && 'rotate-180')} />
                 {!collapsed && <span className="text-xs whitespace-nowrap">Collapse</span>}
               </button>
             )}

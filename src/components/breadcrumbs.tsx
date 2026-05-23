@@ -4,6 +4,7 @@ import {
   Link,
   type BreadcrumbsProps,
 } from 'react-aria-components'
+import { ChevronRight } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 export interface BreadcrumbItem {
@@ -17,11 +18,6 @@ interface BreadcrumbsProps_ extends Omit<BreadcrumbsProps<BreadcrumbItem>, 'clas
   className?: string
 }
 
-const ChevronIcon = () => (
-  <svg className="w-3.5 h-3.5 text-gray-300" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <path d="M6 4l4 4-4 4" />
-  </svg>
-)
 
 export function Breadcrumbs({ items, className, ...props }: BreadcrumbsProps_) {
   return (
@@ -49,7 +45,7 @@ export function Breadcrumbs({ items, className, ...props }: BreadcrumbsProps_) {
                   {item.label}
                 </Link>
               )}
-              {!isCurrent && <ChevronIcon />}
+              {!isCurrent && <ChevronRight className="w-3.5 h-3.5 text-gray-300" />}
             </>
           )}
         </Breadcrumb>

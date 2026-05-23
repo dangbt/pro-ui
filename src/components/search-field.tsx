@@ -5,6 +5,7 @@ import {
   Button,
   type SearchFieldProps,
 } from 'react-aria-components'
+import { Search, X } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 interface SearchFieldProps_ extends Omit<SearchFieldProps, 'className' | 'children'> {
@@ -18,18 +19,7 @@ export function SearchField({ label, placeholder, className, ...props }: SearchF
     <RASearchField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
       <div className="relative">
-        <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="7" cy="7" r="4.5" />
-          <path d="M10.5 10.5 L13.5 13.5" />
-        </svg>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <Input
           placeholder={placeholder ?? 'Search...'}
           className={cn(
@@ -40,9 +30,7 @@ export function SearchField({ label, placeholder, className, ...props }: SearchF
           )}
         />
         <Button className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hidden group-data-[empty]:hidden data-[empty=false]:flex">
-          <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor">
-            <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <X className="w-3.5 h-3.5" />
         </Button>
       </div>
     </RASearchField>

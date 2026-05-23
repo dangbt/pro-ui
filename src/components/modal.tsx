@@ -5,6 +5,7 @@ import {
   Heading,
   type ModalOverlayProps,
 } from 'react-aria-components'
+import { X } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { Button } from './button'
 
@@ -70,9 +71,7 @@ export function Modal({
                     className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[var(--base-radius)] transition-colors"
                     aria-label="Close"
                   >
-                    <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                      <path d="M4 4l8 8M12 4l-8 8" />
-                    </svg>
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               )}
