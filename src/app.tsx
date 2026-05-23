@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
+import { z } from 'zod'
 import {
   Button, Input, Textarea, NumberField, SearchField,
   Select, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
@@ -7,6 +8,9 @@ import {
   Modal, ConfirmModal, Tooltip, Menu, Tabs, Breadcrumbs,
   ProgressBar, Alert, Spinner, Badge, Card,
   Avatar, AvatarGroup, Divider, Skeleton, ProTable,
+  ProForm, ProFormRow,
+  ProFormInput, ProFormTextarea, ProFormNumberField,
+  ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
 } from './components'
 import type { ProColumnType, QueryParams, TagItem } from './components'
 import { cn } from './lib/cn'
@@ -112,7 +116,10 @@ const NAV: NavGroup[] = [
   },
   {
     group: 'Data',
-    items: [{ id: 'protable', label: 'ProTable' }],
+    items: [
+      { id: 'protable', label: 'ProTable'  },
+      { id: 'proform',  label: 'ProForm'   },
+    ],
   },
 ]
 
@@ -1032,6 +1039,90 @@ function ColorSystemSection() {
   )
 }
 
+/* ─── ProForm demo ───────────────────────────────────────────────────────── */
+
+const profileSchema = z.object({
+  name:     z.string().min(2, 'At least 2 characters'),
+  email:    z.string().email('Invalid email'),
+  role:     z.enum(['admin', 'editor', 'viewer']).optional(),
+  salary:   z.number().min(0).optional(),
+  bio:      z.string().max(200, 'Max 200 characters').optional(),
+  startDate:z.string().optional(),
+  notify:   z.boolean().default(false),
+  active:   z.boolean().default(true),
+})
+
+const roleOptions = [
+  { value: 'admin',  label: 'Admin'  },
+  { value: 'editor', label: 'Editor' },
+  { value: 'viewer', label: 'Viewer' },
+]
+
+function ProFormSection() {
+  const [result, setResult] = useState<Record<string, unknown> | null>(null)
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="ProForm" description="Schema-driven forms with React Hook Form + Zod. Validation, error display, and all field types wired automatically." />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <Demo label="Vertical layout (default)" center={false}>
+          <ProForm
+            schema={profileSchema}
+            defaultValues={{ role: 'viewer', notify: false, active: true }}
+            onFinish={vals => setResult(vals)}
+            submitText="Save profile"
+            showReset
+          >
+            <ProFormRow>
+              <ProFormInput name="name"  label="Full name"  placeholder="Alice Nguyen" required />
+              <ProFormInput name="email" label="Email"      placeholder="alice@example.com" type="email" required />
+            </ProFormRow>
+            <ProFormRow>
+              <ProFormSelect       name="role"   label="Role"   options={roleOptions} required />
+              <ProFormNumberField  name="salary" label="Salary (₫)" min={0} formatOptions={{ style: 'decimal' }} />
+            </ProFormRow>
+            <ProFormDatePicker name="startDate" label="Start date" />
+            <ProFormTextarea   name="bio"       label="Bio" placeholder="A short bio…" rows={3} />
+            <ProFormRow>
+              <ProFormSwitch   name="active"  label="Active account" />
+              <ProFormCheckbox name="notify"  label="Email notifications" />
+            </ProFormRow>
+          </ProForm>
+        </Demo>
+
+        <Demo label="Horizontal layout" center={false}>
+          <ProForm
+            schema={z.object({
+              username: z.string().min(3, 'Min 3 chars'),
+              password: z.string().min(8, 'Min 8 chars'),
+              confirm:  z.string(),
+            }).refine(d => d.password === d.confirm, {
+              message: 'Passwords do not match',
+              path: ['confirm'],
+            })}
+            onFinish={vals => setResult(vals)}
+            layout="horizontal"
+            submitText="Sign up"
+          >
+            <ProFormInput name="username" label="Username" placeholder="alice" required />
+            <ProFormInput name="password" label="Password" type="password" placeholder="••••••••" required />
+            <ProFormInput name="confirm"  label="Confirm"  type="password" placeholder="••••••••" required />
+          </ProForm>
+        </Demo>
+
+      </div>
+
+      {result && (
+        <div className="bg-gray-900 rounded-[var(--base-radius)] p-4 text-sm font-mono text-green-400 overflow-auto">
+          <div className="text-gray-500 text-xs mb-2">onFinish output:</div>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── Section registry ───────────────────────────────────────────────────── */
 
 const SECTIONS: Record<string, React.ReactNode> = {
@@ -1055,6 +1146,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   progress:    <ProgressSection />,
   skeleton:    <SkeletonSection />,
   protable:    <ProTableSection />,
+  proform:     <ProFormSection />,
 }
 
 /* ─── Radius & color ─────────────────────────────────────────────────────── */

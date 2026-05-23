@@ -35,6 +35,13 @@ export { Skeleton }                     from './skeleton'
 /* ── ProTable ──────────────────────────────────────────── */
 export { ProTable }                     from './pro-table'
 
+/* ── ProForm ───────────────────────────────────────────── */
+export {
+  ProForm, ProFormItem, ProFormRow,
+  ProFormInput, ProFormTextarea, ProFormNumberField,
+  ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
+}                                       from './pro-form'
+
 /* ── Types ─────────────────────────────────────────────── */
 export type { SelectOption }            from './select'
 export type { ComboBoxOption }          from './combo-box'
@@ -43,3 +50,4 @@ export type { TabItem }                 from './tabs'
 export type { BreadcrumbItem }          from './breadcrumbs'
 export type { MenuItemDef }             from './menu'
 export type { ProTableProps, ProColumnType, QueryParams, RequestResult, ValueType, ValueEnum } from './pro-table'
+export type { ProFormLayout }           from './pro-form'

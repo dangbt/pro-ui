@@ -26,6 +26,7 @@ export function Textarea({ label, placeholder, rows = 3, className, ...props }: 
           'placeholder:text-gray-400',
           'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
           'disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed',
+          'data-[invalid]:border-danger data-[invalid]:focus:outline-danger',
           'w-full min-h-[72px]',
         )}
       />
