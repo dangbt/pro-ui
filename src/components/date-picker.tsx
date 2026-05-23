@@ -10,6 +10,7 @@ import {
   Dialog,
   Calendar,
   CalendarGrid,
+  CalendarGridBody,
   CalendarCell,
   Heading,
   CalendarGridHeader,
@@ -56,7 +57,7 @@ const calendarPopoverCls = cn(
 )
 
 const calendarCellCls = cn(
-  'w-8 h-8 text-sm flex items-center justify-center rounded-[var(--base-radius)] cursor-pointer outline-none',
+  'w-8 h-8 mx-auto text-sm flex items-center justify-center rounded-[var(--base-radius)] cursor-pointer outline-none',
   'text-gray-700',
   'hover:bg-primary-100',
   'focus-visible:ring-2 focus-visible:ring-primary',
@@ -93,17 +94,17 @@ export function DatePicker<T extends DateValue>({ label, className, ...props }: 
               <Heading className="text-sm font-semibold text-gray-700" />
               <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
             </div>
-            <CalendarGrid>
+            <CalendarGrid className="w-full">
               <CalendarGridHeader>
                 {day => (
-                  <CalendarHeaderCell className="w-8 h-7 text-xs font-medium text-gray-400 text-center">
+                  <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">
                     {day}
                   </CalendarHeaderCell>
                 )}
               </CalendarGridHeader>
-              <CalendarGrid>
+              <CalendarGridBody>
                 {date => <CalendarCell date={date} className={calendarCellCls} />}
-              </CalendarGrid>
+              </CalendarGridBody>
             </CalendarGrid>
           </Calendar>
         </Dialog>
@@ -147,15 +148,15 @@ export function DateRangePicker<T extends DateValue>({
               <Heading className="text-sm font-semibold text-gray-700" />
               <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
             </div>
-            <CalendarGrid>
+            <CalendarGrid className="w-full">
               <CalendarGridHeader>
                 {day => (
-                  <CalendarHeaderCell className="w-8 h-7 text-xs font-medium text-gray-400 text-center">
+                  <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">
                     {day}
                   </CalendarHeaderCell>
                 )}
               </CalendarGridHeader>
-              <CalendarGrid>
+              <CalendarGridBody>
                 {date => (
                   <CalendarCell
                     date={date}
@@ -167,7 +168,7 @@ export function DateRangePicker<T extends DateValue>({
                     )}
                   />
                 )}
-              </CalendarGrid>
+              </CalendarGridBody>
             </CalendarGrid>
           </RangeCalendar>
         </Dialog>

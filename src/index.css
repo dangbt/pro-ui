@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-react-aria-components";
 
 /* ============================================================
    THEME CONFIG — only change these 2 variables per project
