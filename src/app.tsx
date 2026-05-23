@@ -912,7 +912,7 @@ function Overview() {
             <span className="text-white text-sm font-bold">P</span>
           </div>
           <span className="font-bold text-gray-900 text-lg">pro-ui</span>
-          <Badge color="info" size={size}>v0.1</Badge>
+          <Badge color="info" size={size}>v{__APP_VERSION__}</Badge>
         </div>
         <p className="text-gray-600 text-sm max-w-lg mb-6">
           UI framework built on <strong>React Aria Components</strong> + <strong>Tailwind v4</strong>.
