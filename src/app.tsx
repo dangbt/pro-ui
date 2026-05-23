@@ -193,6 +193,12 @@ const NAV: NavGroup[] = [
       { id: 'layout', label: 'Layout & Sider' },
     ],
   },
+  {
+    group: 'Integration',
+    items: [
+      { id: 'llm-txt', label: 'LLM.txt' },
+    ],
+  },
 ]
 
 /* ─── Demo block ─────────────────────────────────────────────────────────── */
@@ -232,6 +238,460 @@ function SectionHeader({ title, description }: { title: string; description?: st
 }
 
 /* ─── Section content ────────────────────────────────────────────────────── */
+
+/* ─── LLM.txt content ───────────────────────────────────────────────────── */
+
+const LLM_TXT = `# @dangbt/pro-ui — UI Component Library
+
+React component library built on React Aria Components + Tailwind CSS v4.
+A single --primary CSS token drives the full color palette. All components are
+accessible (WCAG 2.1 AA), keyboard-navigable, and fully typed.
+
+## Install
+
+\`\`\`bash
+npm install @dangbt/pro-ui lucide-react react-aria-components \\
+  @tanstack/react-table react-hook-form @hookform/resolvers \\
+  zod @internationalized/date
+\`\`\`
+
+## Tailwind CSS setup (index.css)
+
+\`\`\`css
+@import "tailwindcss";
+/* Theme tokens — override in :root */
+--primary: #6366f1;   /* brand color, drives entire palette */
+--base-radius: 6px;   /* border-radius preset: 0px | 6px | 12px */
+\`\`\`
+
+## Import
+
+\`\`\`tsx
+import { Button, Input, Select, ProTable, ProForm, Layout } from '@dangbt/pro-ui'
+\`\`\`
+
+---
+
+## Components
+
+### Button
+\`\`\`tsx
+<Button variant="primary" size="md" onPress={() => {}}>Save</Button>
+// variant: 'primary' | 'secondary' | 'ghost' | 'danger'  (default: 'primary')
+// size: 'sm' | 'md' | 'lg'  (default: 'md')
+// isDisabled?, isLoading?, onPress?
+\`\`\`
+
+### Input
+\`\`\`tsx
+<Input label="Email" placeholder="user@example.com" type="email"
+  size="md" isInvalid={!!error} className="w-full" />
+// type: 'text'|'email'|'password'|'url'|'tel'  size: 'sm'|'md'|'lg'
+// isDisabled?, isReadOnly?, isInvalid?, value?, onChange?, onBlur?
+\`\`\`
+
+### Textarea
+\`\`\`tsx
+<Textarea label="Bio" placeholder="Write something..." rows={4}
+  size="md" className="w-full" />
+// rows?, size?, isDisabled?, isReadOnly?, isInvalid?, value?, onChange?
+\`\`\`
+
+### NumberField
+\`\`\`tsx
+<NumberField label="Quantity" defaultValue={1} minValue={0} maxValue={99}
+  step={1} size="md" className="w-full" />
+// minValue?, maxValue?, step?, formatOptions? (Intl.NumberFormatOptions)
+\`\`\`
+
+### SearchField
+\`\`\`tsx
+<SearchField label="Search" placeholder="Search anything..." className="w-full" />
+// label?, placeholder?, value?, onChange?
+\`\`\`
+
+### Select (static options)
+\`\`\`tsx
+<Select label="Role" placeholder="Select role..." size="md"
+  options={[{ value: 'admin', label: 'Admin' }, { value: 'viewer', label: 'Viewer' }]}
+  selectedKey={value} onSelectionChange={key => setValue(String(key))}
+  className="w-full" />
+// options: { value: string; label: string }[]
+// isDisabled?, isInvalid?, size?, selectedKey?, defaultSelectedKey?
+\`\`\`
+
+### AsyncSelect (server-side search + infinite scroll)
+\`\`\`tsx
+<AsyncSelect
+  label="User" placeholder="Search user..."
+  fetchOptions={async ({ search, page, pageSize }) => {
+    const res = await api.users({ search, page, pageSize })
+    return { options: res.data, hasMore: res.hasMore }
+  }}
+  pageSize={20} debounceMs={300}
+  value={value} onChange={(val, option) => setValue(val)}
+  size="md" className="w-full" />
+// fetchOptions: required. Returns { options: {value,label}[], hasMore: boolean }
+// isDisabled?, isInvalid?, onBlur?, defaultLabel?
+\`\`\`
+
+### ComboBox (autocomplete)
+\`\`\`tsx
+<ComboBox label="Language" placeholder="Type to filter..."
+  options={[{ value: 'ts', label: 'TypeScript' }]}
+  className="w-full" />
+\`\`\`
+
+### Checkbox & CheckboxGroup
+\`\`\`tsx
+<Checkbox size="md" defaultSelected>Accept terms</Checkbox>
+<Checkbox isIndeterminate>Partial</Checkbox>
+
+<CheckboxGroup label="Notifications" defaultValue={['email']}
+  options={[
+    { value: 'email', label: 'Email' },
+    { value: 'sms',   label: 'SMS', disabled: true },
+  ]} />
+\`\`\`
+
+### RadioGroup
+\`\`\`tsx
+<RadioGroup label="Plan" defaultValue="pro"
+  options={[
+    { value: 'free', label: 'Free', description: 'Up to 5 projects' },
+    { value: 'pro',  label: 'Pro',  description: 'Unlimited' },
+  ]} />
+\`\`\`
+
+### Switch
+\`\`\`tsx
+<Switch size="md" defaultSelected>Enable notifications</Switch>
+// size: 'sm'|'md'|'lg', isDisabled?, isSelected?, onChange?
+\`\`\`
+
+### Slider
+\`\`\`tsx
+<Slider label="Volume" defaultValue={65} minValue={0} maxValue={100} step={1} className="w-full" />
+\`\`\`
+
+### DatePicker / DateRangePicker
+\`\`\`tsx
+<DatePicker label="Start date" size="md" className="w-full"
+  minValue={today(getLocalTimeZone())}
+  isDateUnavailable={date => isWeekend(date, getLocalTimeZone())} />
+
+<DateRangePicker label="Period" size="md" className="w-full" />
+// value: CalendarDate | null, onChange?, minValue?, maxValue?
+\`\`\`
+
+### TagGroup
+\`\`\`tsx
+<TagGroup label="Tags" selectionMode="multiple"
+  items={[{ id: '1', label: 'React', color: 'primary' }]}
+  onRemove={keys => removeTag(keys)} />
+// color: 'default'|'primary'|'success'|'warning'|'danger'|'info'
+\`\`\`
+
+### Modal / ConfirmModal
+\`\`\`tsx
+<Modal isOpen={open} onOpenChange={setOpen} title="Edit Profile"
+  size="md"
+  footer={({ close }) => (
+    <><Button variant="secondary" onPress={close}>Cancel</Button>
+      <Button variant="primary" onPress={close}>Save</Button></>
+  )}>
+  <Input label="Name" />
+</Modal>
+
+<ConfirmModal isOpen={confirm} onOpenChange={setConfirm}
+  title="Delete?" description="This cannot be undone."
+  confirmLabel="Yes, delete" danger onConfirm={handleDelete} />
+// size: 'sm'|'md'|'lg'|'xl'|'full'
+\`\`\`
+
+### Tooltip
+\`\`\`tsx
+<Tooltip content="More info" placement="top" delay={400}>
+  <Button>Hover me</Button>
+</Tooltip>
+// placement: 'top'|'bottom'|'left'|'right'
+\`\`\`
+
+### Menu
+\`\`\`tsx
+<Menu
+  trigger={<Button>Actions ▾</Button>}
+  items={[
+    { id: 'edit',  label: 'Edit',   shortcut: '⌘E' },
+    { id: 'sep',   label: '',       separator: true },
+    { id: 'del',   label: 'Delete', danger: true },
+  ]}
+  onAction={key => handleAction(String(key))} />
+\`\`\`
+
+### Tabs
+\`\`\`tsx
+<Tabs defaultSelectedKey="general"
+  items={[
+    { id: 'general',  label: 'General',  content: <GeneralPanel /> },
+    { id: 'security', label: 'Security', content: <SecurityPanel /> },
+    { id: 'billing',  label: 'Billing',  disabled: true, content: null },
+  ]} />
+\`\`\`
+
+### Breadcrumbs
+\`\`\`tsx
+<Breadcrumbs items={[
+  { id: 'home',     label: 'Home',     href: '/' },
+  { id: 'settings', label: 'Settings', href: '/settings' },
+  { id: 'profile',  label: 'Profile' },
+]} />
+\`\`\`
+
+### Badge
+\`\`\`tsx
+<Badge color="success" size="md">Active</Badge>
+// color: 'default'|'primary'|'success'|'warning'|'danger'|'info'
+// size: 'sm'|'md'|'lg'
+\`\`\`
+
+### Alert
+\`\`\`tsx
+<Alert variant="success" title="Saved!" closable>Changes saved successfully.</Alert>
+// variant: 'info'|'success'|'warning'|'danger'
+// closable?, icon?, title?
+\`\`\`
+
+### Card
+\`\`\`tsx
+<Card title="Revenue" shadow
+  extra={<Badge color="primary">Live</Badge>}
+  footer={<Button size="sm">View all</Button>}>
+  <p>Card body content</p>
+</Card>
+\`\`\`
+
+### Avatar / AvatarGroup
+\`\`\`tsx
+<Avatar name="Alice Nguyen" size="md" shape="circle" />
+<Avatar src="/photo.jpg" size="lg" />
+
+<AvatarGroup size="sm" max={4}
+  avatars={users.map(u => ({ name: u.name }))} />
+// size: 'xs'|'sm'|'md'|'lg'|'xl'
+\`\`\`
+
+### ProgressBar
+\`\`\`tsx
+<ProgressBar label="Upload" value={65} maxValue={100}
+  variant="primary" size="md" showValue />
+// variant: 'primary'|'success'|'warning'|'danger'
+\`\`\`
+
+### Spinner
+\`\`\`tsx
+<Spinner size="md" label="Loading..." variant="primary" />
+// size: 'xs'|'sm'|'md'|'lg'   variant: 'primary'|'white'
+\`\`\`
+
+### Skeleton
+\`\`\`tsx
+<Skeleton variant="text" lines={3} />
+<Skeleton variant="circle" width={40} height={40} />
+<Skeleton height={120} />
+// variant: 'text'|'circle'|'rect'
+\`\`\`
+
+### Divider
+\`\`\`tsx
+<Divider label="OR" />
+<Divider orientation="vertical" />
+\`\`\`
+
+---
+
+## ProTable (data table)
+
+\`\`\`tsx
+type User = { id: string; name: string; status: 'active' | 'inactive' }
+
+const columns: ProColumnType<User>[] = [
+  { title: 'Name',   dataIndex: 'name',   sortable: true },
+  { title: 'Status', dataIndex: 'status', valueType: 'select',
+    valueEnum: { active: { text: 'Active', color: 'success' }, inactive: { text: 'Inactive', color: 'default' } } },
+  { title: 'Actions', key: 'actions', hideInSearch: true,
+    render: (_v, row) => <Button size="sm" onPress={() => edit(row)}>Edit</Button> },
+]
+
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  request={async ({ current, pageSize, ...search }) => {
+    const res = await api.users({ page: current, pageSize, ...search })
+    return { data: res.data, total: res.total, success: true }
+  }}
+  headerTitle="Users"
+  toolBarRender={() => [<Button key="add" variant="primary">+ Add</Button>]}
+  rowSelection={{ onChange: (keys, rows) => setSelected(rows) }}
+  bulkActions={[
+    { label: 'Export', onClick: (keys) => exportUsers(keys) },
+    { label: 'Delete', danger: true, onClick: (keys) => deleteUsers(keys) },
+  ]}
+/>
+// valueType: 'text'|'number'|'date'|'dateRange'|'select'|'money'|'custom'
+// hideInSearch?: hide column from auto search form
+// hideInTable?: hide column from table but keep in search form
+\`\`\`
+
+---
+
+## ProForm (schema-driven forms)
+
+\`\`\`tsx
+import { z } from 'zod'
+
+const schema = z.object({
+  name:  z.string().min(2),
+  email: z.string().email(),
+  role:  z.enum(['admin', 'editor', 'viewer']).optional(),
+})
+
+<ProForm
+  schema={schema}
+  defaultValues={{ role: 'viewer' }}
+  onFinish={values => console.log(values)}
+  submitText="Save"
+  showReset
+  layout="vertical"   // 'vertical' | 'horizontal'
+  size="md"
+>
+  <ProFormRow>
+    <ProFormInput  name="name"  label="Full name"  required placeholder="Alice" />
+    <ProFormInput  name="email" label="Email"       required type="email" />
+  </ProFormRow>
+  <ProFormSelect name="role" label="Role"
+    options={[{ value: 'admin', label: 'Admin' }]} />
+  <ProFormAsyncSelect name="userId" label="Assign to"
+    fetchOptions={({ search, page, pageSize }) =>
+      api.users({ search, page, pageSize }).then(r => ({ options: r.data, hasMore: r.hasMore }))} />
+  <ProFormNumberField name="salary" label="Salary" min={0} />
+  <ProFormTextarea   name="bio"    label="Bio" rows={3} />
+  <ProFormDatePicker name="startDate" label="Start date" />
+  <ProFormSwitch     name="active"    label="Active account" />
+  <ProFormCheckbox   name="notify"    label="Email notifications" />
+</ProForm>
+// All ProForm* fields: name (required), label?, required?, description?,
+//   placeholder?, size?, className?, isDisabled?
+\`\`\`
+
+---
+
+## Layout (app shell)
+
+\`\`\`tsx
+<Layout style={{ height: '100vh' }}>
+  <Layout.Header height={56} sticky bordered>
+    <Logo />
+    <div className="flex-1" />
+    <Avatar name="Alice" size="sm" />
+  </Layout.Header>
+
+  <Layout.Body>
+    <Layout.Sider
+      width={240}
+      collapsedWidth={64}
+      collapsible               // shows built-in collapse button
+      defaultCollapsed={false}
+      onCollapse={setCollapsed}
+    >
+      <Layout.Nav>
+        <Layout.Nav.Group label="Main">
+          <Layout.Nav.Item
+            icon={<LayoutDashboard className="w-4 h-4" />}
+            label="Dashboard"
+            active={active === 'dashboard'}
+            onClick={() => setActive('dashboard')}
+          />
+        </Layout.Nav.Group>
+      </Layout.Nav>
+    </Layout.Sider>
+
+    <Layout.Content padding>   {/* scrollable main area */}
+      <h1>Page content</h1>
+    </Layout.Content>
+
+    {/* Optional right panel */}
+    <Layout.Sider width={200} bordered>
+      <div className="p-3">Right panel</div>
+    </Layout.Sider>
+  </Layout.Body>
+
+  <Layout.Footer bordered>
+    <p className="text-xs text-gray-400">© 2026 My App</p>
+  </Layout.Footer>
+</Layout>
+
+// useSider() hook — read collapsed state inside Sider children
+import { useSider } from '@dangbt/pro-ui'
+const { collapsed } = useSider()
+\`\`\`
+`
+
+function LLMTxtSection() {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(LLM_TXT).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="LLM.txt — AI Integration Guide"
+        description="Copy this text and paste into any AI assistant (Claude, GPT, Cursor, etc.) to instantly get accurate usage of all components."
+      />
+
+      <div className="flex items-center gap-3 p-4 bg-primary-50 border border-primary-200 rounded-[var(--base-radius)]">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-primary-800">Quick integrate</p>
+          <p className="text-xs text-primary-600 mt-0.5">
+            Copy the full component API reference below → paste to AI → describe what UI you want → done.
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          size="md"
+          onPress={handleCopy}
+        >
+          {copied ? '✓ Copied!' : 'Copy LLM.txt'}
+        </Button>
+      </div>
+
+      <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-between px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
+          <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide">
+            llm.txt — {LLM_TXT.length.toLocaleString()} characters · {LLM_TXT.split('\n').length} lines
+          </span>
+          <button
+            onClick={handleCopy}
+            className="text-[11px] text-gray-400 hover:text-primary transition-colors font-mono"
+          >
+            {copied ? '✓ copied' : 'copy'}
+          </button>
+        </div>
+        <textarea
+          readOnly
+          value={LLM_TXT}
+          rows={30}
+          className="w-full px-5 py-4 text-xs font-mono text-gray-600 bg-gray-950 text-gray-300 resize-none outline-none leading-5"
+        />
+      </div>
+    </div>
+  )
+}
 
 /* ─── Icons showcase ─────────────────────────────────────────────────────── */
 
@@ -1883,6 +2343,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   protable:    <ProTableSection />,
   proform:     <ProFormSection />,
   layout:      <LayoutSection />,
+  'llm-txt':   <LLMTxtSection />,
 }
 
 /* ─── Radius & color ─────────────────────────────────────────────────────── */

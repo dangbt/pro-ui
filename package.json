@@ -1,34 +1,69 @@
 {
-  "name": "pro-ui",
-  "private": true,
+  "name": "@dangbt/pro-ui",
   "version": "0.1.0",
   "type": "module",
+  "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
+  "keywords": ["react", "ui", "components", "tailwind", "react-aria"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dangbt/pro-ui.git"
+  },
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:lib": "vite build -c vite.lib.config.ts",
     "preview": "vite preview"
   },
+  "peerDependencies": {
+    "@hookform/resolvers": ">=3",
+    "@internationalized/date": ">=3",
+    "@tanstack/react-table": ">=8",
+    "lucide-react": ">=0.400.0",
+    "react": ">=18",
+    "react-aria-components": ">=1",
+    "react-dom": ">=18",
+    "react-hook-form": ">=7",
+    "tailwindcss": ">=4",
+    "zod": ">=3"
+  },
   "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
-    "@tanstack/react-table": "^8.20.5",
     "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-react-aria-components": "^2.1.0"
+  },
+  "devDependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@internationalized/date": "^3.7.0",
+    "@tailwindcss/vite": "^4.1.6",
+    "@tanstack/react-table": "^8.20.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
     "lucide-react": "^1.16.0",
+    "playwright": "^1.60.0",
     "react": "^18.3.1",
     "react-aria-components": "^1.5.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.76.1",
-    "tailwind-merge": "^2.5.4",
-    "tailwindcss-react-aria-components": "^2.1.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.6",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.3",
-    "playwright": "^1.60.0",
     "tailwindcss": "^4.1.6",
     "typescript": "^5.6.3",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vite-plugin-dts": "^5.0.1",
+    "zod": "^4.4.3"
   }
 }
