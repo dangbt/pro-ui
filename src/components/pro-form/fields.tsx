@@ -36,6 +36,7 @@ export function ProFormInput({ name, label, required, description, placeholder, 
       <Controller
         name={name}
         control={control}
+        defaultValue=""
         render={({ field, fieldState }) => (
           <Input
             value={field.value ?? ''}
@@ -66,6 +67,7 @@ export function ProFormTextarea({ name, label, required, description, placeholde
       <Controller
         name={name}
         control={control}
+        defaultValue=""
         render={({ field, fieldState }) => (
           <Textarea
             value={field.value ?? ''}
@@ -99,9 +101,10 @@ export function ProFormNumberField({ name, label, required, description, placeho
       <Controller
         name={name}
         control={control}
+        defaultValue={undefined}
         render={({ field, fieldState }) => (
           <NumberField
-            value={field.value ?? undefined}
+            value={field.value}
             onChange={val => field.onChange(isNaN(val) ? undefined : val)}
             onBlur={field.onBlur}
             placeholder={placeholder}
@@ -132,10 +135,11 @@ export function ProFormSelect({ name, label, required, description, placeholder,
       <Controller
         name={name}
         control={control}
+        defaultValue={undefined}
         render={({ field }) => (
           <Select
             selectedKey={field.value ?? null}
-            onSelectionChange={key => field.onChange(key ? String(key) : null)}
+            onSelectionChange={key => field.onChange(key ? String(key) : undefined)}
             onBlur={field.onBlur}
             placeholder={placeholder ?? 'Select…'}
             isDisabled={isDisabled}
@@ -165,6 +169,7 @@ export function ProFormCheckbox({ name, label, description, className, isDisable
       <Controller
         name={name}
         control={control}
+        defaultValue={false}
         render={({ field }) => (
           <Checkbox
             isSelected={!!field.value}
@@ -196,6 +201,7 @@ export function ProFormSwitch({ name, label, description, className, isDisabled 
       <Controller
         name={name}
         control={control}
+        defaultValue={false}
         render={({ field }) => (
           <Switch
             isSelected={!!field.value}
@@ -225,10 +231,11 @@ export function ProFormDatePicker({ name, label, required, description, classNam
       <Controller
         name={name}
         control={control}
+        defaultValue={undefined}
         render={({ field }) => (
           <DatePicker
             value={field.value ? parseDate(field.value) : null}
-            onChange={(date: DateValue | null) => field.onChange(date ? date.toString() : null)}
+            onChange={(date: DateValue | null) => field.onChange(date ? date.toString() : undefined)}
             onBlur={field.onBlur}
             isDisabled={isDisabled}
             minValue={minValue}
