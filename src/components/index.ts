@@ -33,6 +33,9 @@ export { Avatar, AvatarGroup }          from './avatar'
 export { Divider }                      from './divider'
 export { Skeleton }                     from './skeleton'
 
+/* ── Layout ────────────────────────────────────────────── */
+export { Layout, useSider }             from './layout'
+
 /* ── ProTable ──────────────────────────────────────────── */
 export { ProTable }                     from './pro-table'
 
