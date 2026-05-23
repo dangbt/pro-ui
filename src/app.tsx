@@ -12,7 +12,7 @@ import {
   ProFormInput, ProFormTextarea, ProFormNumberField,
   ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
 } from './components'
-import type { ProColumnType, QueryParams, TagItem } from './components'
+import type { ProColumnType, QueryParams, TagItem, BulkActionDef } from './components'
 import { cn } from './lib/cn'
 import type { Size } from './lib/size'
 
@@ -50,11 +50,14 @@ function mockRequest(p: QueryParams) {
   }, 350))
 }
 
+const ROLE_ENUM   = { admin: { text: 'Admin', color: 'danger' as const }, editor: { text: 'Editor', color: 'warning' as const }, viewer: { text: 'Viewer', color: 'info' as const } }
+const STATUS_ENUM = { active: { text: 'Active', color: 'success' as const }, inactive: { text: 'Inactive', color: 'default' as const }, pending: { text: 'Pending', color: 'warning' as const } }
+
 const TABLE_COLS: ProColumnType<User>[] = [
   { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200 },
   { title: 'Email',   dataIndex: 'email',     width: 220 },
-  { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: { admin: { text: 'Admin', color: 'danger' }, editor: { text: 'Editor', color: 'warning' }, viewer: { text: 'Viewer', color: 'info' } } },
-  { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: { active: { text: 'Active', color: 'success' }, inactive: { text: 'Inactive', color: 'default' }, pending: { text: 'Pending', color: 'warning' } } },
+  { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM },
+  { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM },
   { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true },
   {
@@ -66,6 +69,15 @@ const TABLE_COLS: ProColumnType<User>[] = [
       </div>
     ),
   },
+]
+
+const TABLE_COLS_SELECT: ProColumnType<User>[] = [
+  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200 },
+  { title: 'Email',   dataIndex: 'email',     width: 220 },
+  { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM },
+  { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM },
+  { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true },
 ]
 
 /* ─── Navigation ─────────────────────────────────────────────────────────── */
@@ -915,19 +927,91 @@ function SkeletonSection() {
 
 function ProTableSection() {
   const size = useShowcaseSize()
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  const bulkActions: BulkActionDef<User>[] = [
+    {
+      label: 'Export CSV',
+      onClick: (keys) => showToast(`Exported ${keys.length} users as CSV`),
+    },
+    {
+      label: 'Change status',
+      onClick: (keys) => showToast(`Updated status for ${keys.length} users`),
+    },
+    {
+      label: 'Delete selected',
+      danger: true,
+      onClick: () => setConfirmDelete(true),
+    },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <SectionHeader title="ProTable" description="Data table with auto search form, server-side pagination, sorting, and valueType renderers." />
-      <ProTable<User>
-        columns={TABLE_COLS}
-        request={mockRequest}
-        rowKey="id"
-        headerTitle="User Management"
-        toolBarRender={() => [
-          <Button key="add" variant="primary" size={size}>+ Add User</Button>,
-          <Button key="exp" variant="secondary" size={size}>Export</Button>,
-        ]}
-      />
+
+      {/* Basic table */}
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-800">Basic — search, sort, pagination</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Individual row actions via render column</p>
+        </div>
+        <ProTable<User>
+          columns={TABLE_COLS}
+          request={mockRequest}
+          rowKey="id"
+          headerTitle="User Management"
+          toolBarRender={() => [
+            <Button key="add" variant="primary" size={size}>+ Add User</Button>,
+            <Button key="exp" variant="secondary" size={size}>Export</Button>,
+          ]}
+        />
+      </div>
+
+      {/* Row selection + bulk actions */}
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-800">With row selection & bulk actions</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Select rows → action bar appears fixed at the bottom</p>
+        </div>
+
+        {toast && (
+          <Alert variant="success" closable>{toast}</Alert>
+        )}
+
+        <ProTable<User>
+          columns={TABLE_COLS_SELECT}
+          request={mockRequest}
+          rowKey="id"
+          headerTitle="User Management"
+          toolBarRender={() => [
+            <Button key="add" variant="primary" size={size}>+ Add User</Button>,
+          ]}
+          rowSelection={{
+            onChange: (keys) => setSelectedKeys(keys),
+          }}
+          bulkActions={bulkActions}
+        />
+
+        <ConfirmModal
+          isOpen={confirmDelete}
+          onOpenChange={setConfirmDelete}
+          title="Delete selected users"
+          description={`Are you sure you want to delete ${selectedKeys.length} selected user${selectedKeys.length !== 1 ? 's' : ''}? This action cannot be undone.`}
+          confirmLabel="Yes, delete"
+          danger
+          onConfirm={() => {
+            showToast(`Deleted ${selectedKeys.length} users`)
+            setConfirmDelete(false)
+          }}
+        />
+      </div>
     </div>
   )
 }
