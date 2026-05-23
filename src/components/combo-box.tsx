@@ -52,7 +52,7 @@ export function ComboBox<T extends ComboBoxOption>({
           </svg>
         </Button>
       </div>
-      <Popover className="w-[--trigger-width] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
+      <Popover className="w-[var(--trigger-width)] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
         <ListBox<T>
           className="py-1 max-h-60 overflow-auto outline-none"
           renderEmptyState={() => (

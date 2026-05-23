@@ -47,7 +47,7 @@ export function Select({ label, placeholder, options, size = 'md', className, ..
           <path d="M4.5 6.5l3.5 3.5 3.5-3.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </Button>
-      <Popover className="w-[--trigger-width] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
+      <Popover className="w-[var(--trigger-width)] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
         <ListBox className="py-1 max-h-60 overflow-auto outline-none">
           {options.map(opt => (
             <ListBoxItem
