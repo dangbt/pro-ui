@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { cn } from '../../lib/cn'
 import { Button } from '../button'
+import { labelText, type Size } from '../../lib/size'
 
 /* ── Layout context ────────────────────────────────────────── */
 
@@ -20,6 +21,11 @@ type ProFormLayout = 'vertical' | 'horizontal'
 const LayoutCtx = createContext<ProFormLayout>('vertical')
 const useLayout = () => useContext(LayoutCtx)
 
+/* ── Size context ──────────────────────────────────────────── */
+
+const SizeCtx = createContext<Size>('md')
+export const useSize = () => useContext(SizeCtx)
+
 /* ── ProForm ────────────────────────────────────────────────── */
 
 interface ProFormProps<T extends FieldValues> {
@@ -27,6 +33,7 @@ interface ProFormProps<T extends FieldValues> {
   defaultValues?: DefaultValues<T>
   onFinish: (values: T) => void | Promise<void>
   layout?: ProFormLayout
+  size?: Size
   submitText?: string
   showReset?: boolean
   resetText?: string
@@ -39,6 +46,7 @@ export function ProForm<T extends FieldValues>({
   defaultValues,
   onFinish,
   layout = 'vertical',
+  size = 'md',
   submitText = 'Submit',
   showReset = false,
   resetText = 'Reset',
@@ -50,6 +58,7 @@ export function ProForm<T extends FieldValues>({
   const { handleSubmit, reset, formState: { isSubmitting } } = methods
 
   return (
+    <SizeCtx.Provider value={size}>
     <LayoutCtx.Provider value={layout}>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <FormProvider {...(methods as any)}>
@@ -73,6 +82,7 @@ export function ProForm<T extends FieldValues>({
         </form>
       </FormProvider>
     </LayoutCtx.Provider>
+    </SizeCtx.Provider>
   )
 }
 
@@ -87,9 +97,16 @@ interface ItemProps {
   children: React.ReactNode
 }
 
+const labelHorizontalPt: Record<Size, string> = {
+  sm: 'pt-1.5',
+  md: 'pt-2.5',
+  lg: 'pt-3.5',
+}
+
 export function ProFormItem({ name, label, required, description, className, children }: ItemProps) {
   const { formState: { errors } } = useFormContext()
   const layout = useLayout()
+  const size = useSize()
 
   // resolve nested paths like "address.city"
   const error = name.split('.').reduce<Record<string, unknown>>(
@@ -100,7 +117,7 @@ export function ProFormItem({ name, label, required, description, className, chi
   const field = (
     <div className={cn('flex flex-col gap-1', className)}>
       {layout === 'vertical' && label && (
-        <span className="text-xs font-medium text-gray-600">
+        <span className={cn('font-medium text-gray-600', labelText[size])}>
           {label}
           {required && <span className="text-danger ml-0.5">*</span>}
         </span>
@@ -118,7 +135,7 @@ export function ProFormItem({ name, label, required, description, className, chi
   if (layout === 'horizontal') {
     return (
       <div className="flex items-start gap-3">
-        <span className="w-28 shrink-0 text-xs font-medium text-gray-600 text-right pt-2.5 leading-none">
+        <span className={cn('w-28 shrink-0 font-medium text-gray-600 text-right leading-none', labelText[size], labelHorizontalPt[size])}>
           {required && <span className="text-danger mr-0.5">*</span>}
           {label}
         </span>

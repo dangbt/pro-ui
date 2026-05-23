@@ -1,10 +1,12 @@
 import { cn } from '../lib/cn'
 
 type BadgeColor = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
+type BadgeSize = 'sm' | 'md' | 'lg'
 
 interface BadgeProps {
   children: React.ReactNode
   color?: BadgeColor
+  size?: BadgeSize
   className?: string
 }
 
@@ -17,12 +19,19 @@ const colorCls: Record<BadgeColor, string> = {
   info:     'bg-info-100    text-info-700',
 }
 
-export function Badge({ children, color = 'default', className }: BadgeProps) {
+const sizeCls: Record<BadgeSize, string> = {
+  sm: 'px-1.5 py-px   text-[10px]',
+  md: 'px-2   py-0.5  text-xs',
+  lg: 'px-2.5 py-1    text-sm',
+}
+
+export function Badge({ children, color = 'default', size = 'md', className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-[var(--base-radius)]',
+        'inline-flex items-center font-medium rounded-[var(--base-radius)]',
         colorCls[color],
+        sizeCls[size],
         className,
       )}
     >

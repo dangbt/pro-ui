@@ -9,6 +9,7 @@ import {
   type SelectProps as RASelectProps,
 } from 'react-aria-components'
 import { cn } from '../lib/cn'
+import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
 export interface SelectOption {
   value: string
@@ -19,18 +20,20 @@ interface SelectProps extends Omit<RASelectProps<SelectOption>, 'children' | 'cl
   label?: string
   placeholder?: string
   options: SelectOption[]
+  size?: Size
   className?: string
 }
 
-export function Select({ label, placeholder, options, className, ...props }: SelectProps) {
+export function Select({ label, placeholder, options, size = 'md', className, ...props }: SelectProps) {
   return (
     <RASelect {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <Label className="text-xs font-medium text-gray-600">{label}</Label>
+        <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>
       )}
       <Button
         className={cn(
-          'flex items-center justify-between h-9 px-3 text-sm bg-white border border-gray-300',
+          'flex items-center justify-between bg-white border border-gray-300',
+          inputHeight[size], inputPx[size], inputText[size],
           'rounded-[var(--base-radius)] cursor-pointer w-full',
           'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-0',
           'hover:border-gray-400 transition-colors',
@@ -52,7 +55,8 @@ export function Select({ label, placeholder, options, className, ...props }: Sel
               id={opt.value}
               textValue={opt.label}
               className={cn(
-                'px-3 py-2 text-sm text-gray-700 cursor-pointer outline-none',
+                'px-3 py-2 cursor-pointer outline-none text-gray-700',
+                inputText[size],
                 'hover:bg-primary-50 hover:text-primary',
                 'focus:bg-primary-50 focus:text-primary',
                 'selected:bg-primary-100 selected:text-primary selected:font-medium',

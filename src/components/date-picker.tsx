@@ -22,6 +22,7 @@ import {
   type DateRange,
 } from 'react-aria-components'
 import { cn } from '../lib/cn'
+import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
 const CalendarIcon = () => (
   <svg className="w-4 h-4 text-gray-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -37,14 +38,15 @@ const ChevronRight = () => (
   <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M6.5 11L9.5 8l-3-3"/></svg>
 )
 
-const inputGroupCls = cn(
-  'flex items-center h-9 border border-gray-300 bg-white px-3 gap-1',
+const getInputGroupCls = (size: Size) => cn(
+  'flex items-center border border-gray-300 bg-white gap-1',
+  inputHeight[size], inputPx[size],
   'rounded-[var(--base-radius)]',
   'focus-within:outline focus-within:outline-2 focus-within:outline-primary focus-within:outline-offset-0 focus-within:border-transparent',
 )
 
-const segmentCls = cn(
-  'text-sm text-gray-700 tabular-nums rounded px-0.5 outline-none',
+const getSegmentCls = (size: Size) => cn(
+  inputText[size], 'text-gray-700 tabular-nums rounded px-0.5 outline-none',
   'focus:bg-primary focus:text-white',
   'data-[placeholder]:text-gray-400',
   'caret-transparent',
@@ -71,16 +73,17 @@ const calendarCellCls = cn(
 
 interface DatePickerProps_<T extends DateValue> extends Omit<DatePickerProps<T>, 'className'> {
   label?: string
+  size?: Size
   className?: string
 }
 
-export function DatePicker<T extends DateValue>({ label, className, ...props }: DatePickerProps_<T>) {
+export function DatePicker<T extends DateValue>({ label, size = 'md', className, ...props }: DatePickerProps_<T>) {
   return (
     <RADatePicker {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
-      <Group className={inputGroupCls}>
+      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
+      <Group className={getInputGroupCls(size)}>
         <DateInput className="flex items-center gap-px flex-1">
-          {segment => <DateSegment segment={segment} className={segmentCls} />}
+          {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
         <Button className="ml-1 hover:text-primary transition-colors">
           <CalendarIcon />
@@ -117,24 +120,26 @@ export function DatePicker<T extends DateValue>({ label, className, ...props }: 
 
 interface DateRangePickerProps_<T extends DateValue> extends Omit<DateRangePickerProps<T>, 'className'> {
   label?: string
+  size?: Size
   className?: string
 }
 
 export function DateRangePicker<T extends DateValue>({
   label,
+  size = 'md',
   className,
   ...props
 }: DateRangePickerProps_<T>) {
   return (
     <RADateRangePicker {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
-      <Group className={cn(inputGroupCls, 'gap-1')}>
+      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
+      <Group className={getInputGroupCls(size)}>
         <DateInput slot="start" className="flex items-center gap-px">
-          {segment => <DateSegment segment={segment} className={segmentCls} />}
+          {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
         <span className="text-gray-300 text-sm">–</span>
         <DateInput slot="end" className="flex items-center gap-px flex-1">
-          {segment => <DateSegment segment={segment} className={segmentCls} />}
+          {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
         <Button className="ml-1 hover:text-primary transition-colors">
           <CalendarIcon />

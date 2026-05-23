@@ -7,9 +7,10 @@ import { Select } from '../select'
 import { Checkbox } from '../checkbox'
 import { Switch } from '../switch'
 import { DatePicker } from '../date-picker'
-import { ProFormItem } from './pro-form'
+import { ProFormItem, useSize } from './pro-form'
 import type { SelectOption } from '../select'
 import type { DateValue } from '../date-picker'
+import type { Size } from '../../lib/size'
 
 /* ── shared base props ─────────────────────────────────────── */
 
@@ -19,6 +20,7 @@ interface BaseProps {
   required?: boolean
   description?: string
   placeholder?: string
+  size?: Size
   className?: string
   isDisabled?: boolean
 }
@@ -29,8 +31,10 @@ interface ProFormInputProps extends BaseProps {
   type?: 'text' | 'email' | 'password' | 'url' | 'tel'
 }
 
-export function ProFormInput({ name, label, required, description, placeholder, className, isDisabled, type = 'text' }: ProFormInputProps) {
+export function ProFormInput({ name, label, required, description, placeholder, size, className, isDisabled, type = 'text' }: ProFormInputProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -45,6 +49,7 @@ export function ProFormInput({ name, label, required, description, placeholder, 
             placeholder={placeholder}
             isDisabled={isDisabled}
             type={type}
+            size={effectiveSize}
             isInvalid={!!fieldState.error}
             className="w-full"
           />
@@ -60,8 +65,10 @@ interface ProFormTextareaProps extends BaseProps {
   rows?: number
 }
 
-export function ProFormTextarea({ name, label, required, description, placeholder, className, isDisabled, rows }: ProFormTextareaProps) {
+export function ProFormTextarea({ name, label, required, description, placeholder, size, className, isDisabled, rows }: ProFormTextareaProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -76,6 +83,7 @@ export function ProFormTextarea({ name, label, required, description, placeholde
             placeholder={placeholder}
             isDisabled={isDisabled}
             isInvalid={!!fieldState.error}
+            size={effectiveSize}
             rows={rows}
             className="w-full"
           />
@@ -94,8 +102,10 @@ interface ProFormNumberFieldProps extends BaseProps {
   formatOptions?: Intl.NumberFormatOptions
 }
 
-export function ProFormNumberField({ name, label, required, description, placeholder, className, isDisabled, min, max, step, formatOptions }: ProFormNumberFieldProps) {
+export function ProFormNumberField({ name, label, required, description, placeholder, size, className, isDisabled, min, max, step, formatOptions }: ProFormNumberFieldProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -110,6 +120,7 @@ export function ProFormNumberField({ name, label, required, description, placeho
             placeholder={placeholder}
             isDisabled={isDisabled}
             isInvalid={!!fieldState.error}
+            size={effectiveSize}
             minValue={min}
             maxValue={max}
             step={step}
@@ -128,8 +139,10 @@ interface ProFormSelectProps extends BaseProps {
   options: SelectOption[]
 }
 
-export function ProFormSelect({ name, label, required, description, placeholder, className, isDisabled, options }: ProFormSelectProps) {
+export function ProFormSelect({ name, label, required, description, placeholder, size, className, isDisabled, options }: ProFormSelectProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -143,6 +156,7 @@ export function ProFormSelect({ name, label, required, description, placeholder,
             onBlur={field.onBlur}
             placeholder={placeholder ?? 'Select…'}
             isDisabled={isDisabled}
+            size={effectiveSize}
             options={options}
             className="w-full"
           />
@@ -224,8 +238,10 @@ interface ProFormDatePickerProps extends BaseProps {
   isDateUnavailable?: (date: DateValue) => boolean
 }
 
-export function ProFormDatePicker({ name, label, required, description, className, isDisabled, minValue, maxValue, isDateUnavailable }: ProFormDatePickerProps) {
+export function ProFormDatePicker({ name, label, required, description, size, className, isDisabled, minValue, maxValue, isDateUnavailable }: ProFormDatePickerProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -238,6 +254,7 @@ export function ProFormDatePicker({ name, label, required, description, classNam
             onChange={(date: DateValue | null) => field.onChange(date ? date.toString() : undefined)}
             onBlur={field.onBlur}
             isDisabled={isDisabled}
+            size={effectiveSize}
             minValue={minValue}
             maxValue={maxValue}
             isDateUnavailable={isDateUnavailable}

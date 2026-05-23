@@ -5,23 +5,26 @@ import {
   type TextFieldProps,
 } from 'react-aria-components'
 import { cn } from '../lib/cn'
+import { inputText, inputPx, textareaPy, labelText, type Size } from '../lib/size'
 
 interface TextareaProps extends Omit<TextFieldProps, 'className'> {
   label?: string
   placeholder?: string
   rows?: number
+  size?: Size
   className?: string
 }
 
-export function Textarea({ label, placeholder, rows = 3, className, ...props }: TextareaProps) {
+export function Textarea({ label, placeholder, rows = 3, size = 'md', className, ...props }: TextareaProps) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
+      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
       <RATextArea
         placeholder={placeholder}
         rows={rows}
         className={cn(
-          'px-3 py-2 text-sm bg-white border border-gray-300 text-gray-900 resize-y',
+          inputPx[size], textareaPy[size], inputText[size],
+          'bg-white border border-gray-300 text-gray-900 resize-y',
           'rounded-[var(--base-radius)]',
           'placeholder:text-gray-400',
           'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
 import { z } from 'zod'
 import {
@@ -14,6 +14,10 @@ import {
 } from './components'
 import type { ProColumnType, QueryParams, TagItem } from './components'
 import { cn } from './lib/cn'
+import type { Size } from './lib/size'
+
+const ShowcaseSizeCtx = createContext<Size>('md')
+const useShowcaseSize = () => useContext(ShowcaseSizeCtx)
 
 /* ─── ProTable mock data ─────────────────────────────────────────────────── */
 
@@ -162,6 +166,7 @@ function SectionHeader({ title, description }: { title: string; description?: st
 /* ─── Section content ────────────────────────────────────────────────────── */
 
 function Overview() {
+  const size = useShowcaseSize()
   const stats = [
     { count: 13, label: 'Form',    color: 'bg-primary-50  text-primary-700'  },
     { count: 5,  label: 'Overlay', color: 'bg-info-50     text-info-700'     },
@@ -177,7 +182,7 @@ function Overview() {
             <span className="text-white text-sm font-bold">P</span>
           </div>
           <span className="font-bold text-gray-900 text-lg">pro-ui</span>
-          <Badge color="info">v0.1</Badge>
+          <Badge color="info" size={size}>v0.1</Badge>
         </div>
         <p className="text-gray-600 text-sm max-w-lg mb-6">
           UI framework built on <strong>React Aria Components</strong> + <strong>Tailwind v4</strong>.
@@ -197,16 +202,16 @@ function Overview() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="Button — 4 variants">
           <div className="flex flex-wrap gap-2">
-            <Button variant="primary">Primary</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="danger">Danger</Button>
+            <Button size={size} variant="primary">Primary</Button>
+            <Button size={size} variant="secondary">Secondary</Button>
+            <Button size={size} variant="ghost">Ghost</Button>
+            <Button size={size} variant="danger">Danger</Button>
           </div>
         </Demo>
         <Demo label="Badge — 6 colors">
           <div className="flex flex-wrap gap-2">
             {(['default','primary','success','warning','danger','info'] as const).map(c => (
-              <Badge key={c} color={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</Badge>
+              <Badge key={c} size={size} color={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</Badge>
             ))}
           </div>
         </Demo>
@@ -238,10 +243,10 @@ function Overview() {
         </Demo>
         <Demo label="Switch & Checkbox">
           <div className="space-y-3">
-            <Switch defaultSelected>Notifications</Switch>
-            <Switch>Dark mode</Switch>
-            <Checkbox defaultSelected>Remember me</Checkbox>
-            <Checkbox>Subscribe to updates</Checkbox>
+            <Switch size={size} defaultSelected>Notifications</Switch>
+            <Switch size={size}>Dark mode</Switch>
+            <Checkbox size={size} defaultSelected>Remember me</Checkbox>
+            <Checkbox size={size}>Subscribe to updates</Checkbox>
           </div>
         </Demo>
       </div>
@@ -250,28 +255,47 @@ function Overview() {
 }
 
 function TextInputsSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Text Inputs" description="Accessible text entry components built on React Aria TextField." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Demo label="Input" center={false}><Input label="Label" placeholder="Placeholder text..." className="w-full" /></Demo>
-        <Demo label="Input — disabled" center={false}><Input label="Disabled" placeholder="Not editable" isDisabled className="w-full" /></Demo>
-        <Demo label="Input — readonly" center={false}><Input label="Read only" defaultValue="Read-only value" isReadOnly className="w-full" /></Demo>
-        <Demo label="Textarea" center={false}><Textarea label="Message" placeholder="Write something..." rows={3} className="w-full" /></Demo>
-        <Demo label="NumberField" center={false}><NumberField label="Quantity" defaultValue={1} minValue={0} maxValue={99} className="w-full" /></Demo>
+        <Demo label="Input" center={false}><Input size={size} label="Label" placeholder="Placeholder text..." className="w-full" /></Demo>
+        <Demo label="Input — disabled" center={false}><Input size={size} label="Disabled" placeholder="Not editable" isDisabled className="w-full" /></Demo>
+        <Demo label="Input — readonly" center={false}><Input size={size} label="Read only" defaultValue="Read-only value" isReadOnly className="w-full" /></Demo>
+        <Demo label="Textarea" center={false}><Textarea size={size} label="Message" placeholder="Write something..." rows={3} className="w-full" /></Demo>
+        <Demo label="NumberField" center={false}><NumberField size={size} label="Quantity" defaultValue={1} minValue={0} maxValue={99} className="w-full" /></Demo>
         <Demo label="SearchField" center={false}><SearchField label="Search" placeholder="Search anything..." className="w-full" /></Demo>
+
+        <Demo label="Input — sizes" center={false} className="sm:col-span-2">
+          <div className="grid grid-cols-3 gap-4 w-full">
+            <Input size="sm" label="Small (sm)" placeholder="sm input" className="w-full" />
+            <Input size="md" label="Medium (md)" placeholder="md input" className="w-full" />
+            <Input size="lg" label="Large (lg)" placeholder="lg input" className="w-full" />
+          </div>
+        </Demo>
+
+        <Demo label="NumberField — sizes" center={false} className="sm:col-span-2">
+          <div className="grid grid-cols-3 gap-4 w-full">
+            <NumberField size="sm" label="Small (sm)" defaultValue={1} className="w-full" />
+            <NumberField size="md" label="Medium (md)" defaultValue={1} className="w-full" />
+            <NumberField size="lg" label="Large (lg)" defaultValue={1} className="w-full" />
+          </div>
+        </Demo>
       </div>
     </div>
   )
 }
 
 function SelectSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Select & ComboBox" description="Dropdown selection and autocomplete inputs." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="Select" center={false}>
           <Select
+            size={size}
             label="Framework"
             placeholder="Choose one..."
             className="w-full"
@@ -285,6 +309,7 @@ function SelectSection() {
         </Demo>
         <Demo label="Select — with default" center={false}>
           <Select
+            size={size}
             label="Status"
             defaultSelectedKey="active"
             className="w-full"
@@ -311,9 +336,28 @@ function SelectSection() {
           />
         </Demo>
         <Demo label="Select — disabled" center={false}>
-          <Select label="Region" placeholder="Select region..." isDisabled className="w-full"
+          <Select size={size} label="Region" placeholder="Select region..." isDisabled className="w-full"
             options={[{ value: 'vn', label: 'Vietnam' }]}
           />
+        </Demo>
+
+        <Demo label="Select — sizes" center={false} className="sm:col-span-2">
+          <div className="grid grid-cols-3 gap-4 w-full">
+            {(['sm', 'md', 'lg'] as const).map(s => (
+              <Select
+                key={s}
+                size={s}
+                label={`${s === 'sm' ? 'Small' : s === 'md' ? 'Medium' : 'Large'} (${s})`}
+                placeholder="Select..."
+                className="w-full"
+                options={[
+                  { value: 'react',  label: 'React'   },
+                  { value: 'vue',    label: 'Vue'     },
+                  { value: 'svelte', label: 'Svelte'  },
+                ]}
+              />
+            ))}
+          </div>
         </Demo>
       </div>
     </div>
@@ -323,17 +367,19 @@ function SelectSection() {
 function DateSection() {
   const tz = getLocalTimeZone()
   const todayDate = today(tz)
+  const size = useShowcaseSize()
 
   return (
     <div className="space-y-6">
       <SectionHeader title="Date & Time" description="Calendar-powered date pickers using React Aria & @internationalized/date." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="DatePicker — basic" center={false}>
-          <DatePicker label="Pick a date" className="w-full" />
+          <DatePicker size={size} label="Pick a date" className="w-full" />
         </Demo>
 
         <Demo label="DatePicker — no future dates" center={false}>
           <DatePicker
+            size={size}
             label="Up to today"
             maxValue={todayDate}
             className="w-full"
@@ -342,6 +388,7 @@ function DateSection() {
 
         <Demo label="DatePicker — min / max range" center={false}>
           <DatePicker
+            size={size}
             label="This month only"
             minValue={todayDate.set({ day: 1 })}
             maxValue={todayDate.set({ day: 1 }).add({ months: 1 }).subtract({ days: 1 })}
@@ -351,6 +398,7 @@ function DateSection() {
 
         <Demo label="DatePicker — block weekends" center={false}>
           <DatePicker
+            size={size}
             label="Weekdays only"
             isDateUnavailable={date => isWeekend(date, tz)}
             className="w-full"
@@ -359,6 +407,7 @@ function DateSection() {
 
         <Demo label="DatePicker — block specific dates" center={false}>
           <DatePicker
+            size={size}
             label="Holidays blocked"
             isDateUnavailable={date =>
               ['2025-01-01', '2025-04-30', '2025-05-01', '2025-09-02'].includes(date.toString())
@@ -368,15 +417,16 @@ function DateSection() {
         </Demo>
 
         <Demo label="DatePicker — disabled" center={false}>
-          <DatePicker label="Disabled" isDisabled className="w-full" />
+          <DatePicker size={size} label="Disabled" isDisabled className="w-full" />
         </Demo>
 
         <Demo label="DateRangePicker — basic" center={false} className="col-span-full">
-          <DateRangePicker label="Date range" className="w-full" />
+          <DateRangePicker size={size} label="Date range" className="w-full" />
         </Demo>
 
         <Demo label="DateRangePicker — no future" center={false} className="col-span-full">
           <DateRangePicker
+            size={size}
             label="Historical range"
             maxValue={todayDate}
             className="w-full"
@@ -388,20 +438,22 @@ function DateSection() {
 }
 
 function TogglesSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Toggles & Choices" description="Checkbox, radio, and switch components." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="Checkbox" center={false}>
           <div className="space-y-2.5">
-            <Checkbox>Accept terms and conditions</Checkbox>
-            <Checkbox defaultSelected>Receive notifications</Checkbox>
-            <Checkbox isIndeterminate>Indeterminate state</Checkbox>
-            <Checkbox isDisabled>Disabled</Checkbox>
+            <Checkbox size={size}>Accept terms and conditions</Checkbox>
+            <Checkbox size={size} defaultSelected>Receive notifications</Checkbox>
+            <Checkbox size={size} isIndeterminate>Indeterminate state</Checkbox>
+            <Checkbox size={size} isDisabled>Disabled</Checkbox>
           </div>
         </Demo>
         <Demo label="CheckboxGroup" center={false}>
           <CheckboxGroup
+            size={size}
             label="Notifications"
             defaultValue={['email']}
             options={[
@@ -425,10 +477,10 @@ function TogglesSection() {
         </Demo>
         <Demo label="Switch" center={false}>
           <div className="space-y-3">
-            <Switch defaultSelected>Enable dark mode</Switch>
-            <Switch>Auto-save drafts</Switch>
-            <Switch size="sm" defaultSelected>Compact mode (sm)</Switch>
-            <Switch isDisabled>Disabled</Switch>
+            <Switch size={size} defaultSelected>Enable dark mode</Switch>
+            <Switch size={size}>Auto-save drafts</Switch>
+            <Switch size={size} defaultSelected>Compact mode</Switch>
+            <Switch size={size} isDisabled>Disabled</Switch>
           </div>
         </Demo>
       </div>
@@ -492,35 +544,36 @@ function TagsSection() {
 function ModalSection() {
   const [open, setOpen] = useState(false)
   const [confirm, setConfirm] = useState(false)
+  const size = useShowcaseSize()
 
   return (
     <div className="space-y-6">
       <SectionHeader title="Modal & Dialog" description="Accessible dialogs with focus management via React Aria." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="Modal — form">
-          <Button variant="primary" onPress={() => setOpen(true)}>Open Modal</Button>
+          <Button size={size} variant="primary" onPress={() => setOpen(true)}>Open Modal</Button>
           <Modal
             isOpen={open}
             onOpenChange={setOpen}
             title="Edit Profile"
             footer={({ close }) => (
               <>
-                <Button variant="secondary" onPress={close}>Cancel</Button>
-                <Button variant="primary" onPress={close}>Save changes</Button>
+                <Button size={size} variant="secondary" onPress={close}>Cancel</Button>
+                <Button size={size} variant="primary" onPress={close}>Save changes</Button>
               </>
             )}
           >
             <div className="space-y-4">
-              <Input label="Display name" defaultValue="Alice Nguyen" />
-              <Input label="Email" defaultValue="alice@example.com" />
-              <Select label="Role" defaultSelectedKey="editor"
+              <Input size={size} label="Display name" defaultValue="Alice Nguyen" />
+              <Input size={size} label="Email" defaultValue="alice@example.com" />
+              <Select size={size} label="Role" defaultSelectedKey="editor"
                 options={[{ value: 'admin', label: 'Admin' }, { value: 'editor', label: 'Editor' }, { value: 'viewer', label: 'Viewer' }]}
               />
             </div>
           </Modal>
         </Demo>
         <Demo label="ConfirmModal — danger">
-          <Button variant="danger" onPress={() => setConfirm(true)}>Delete Account</Button>
+          <Button size={size} variant="danger" onPress={() => setConfirm(true)}>Delete Account</Button>
           <ConfirmModal
             isOpen={confirm}
             onOpenChange={setConfirm}
@@ -537,22 +590,23 @@ function ModalSection() {
 }
 
 function TooltipSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Tooltip" description="Hover-triggered informational overlays." />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Demo label="placement: top (default)">
-          <Tooltip content="Tooltip on top"><Button variant="secondary">Hover me</Button></Tooltip>
+          <Tooltip content="Tooltip on top"><Button size={size} variant="secondary">Hover me</Button></Tooltip>
         </Demo>
         <Demo label="placement: bottom">
-          <Tooltip content="Tooltip on bottom" placement="bottom"><Button variant="secondary">Bottom</Button></Tooltip>
+          <Tooltip content="Tooltip on bottom" placement="bottom"><Button size={size} variant="secondary">Bottom</Button></Tooltip>
         </Demo>
         <Demo label="delay: 0">
-          <Tooltip content="Instant tooltip" delay={0}><Button variant="secondary">No delay</Button></Tooltip>
+          <Tooltip content="Instant tooltip" delay={0}><Button size={size} variant="secondary">No delay</Button></Tooltip>
         </Demo>
         <Demo label="long content">
           <Tooltip content="This is a longer tooltip message that wraps across lines.">
-            <Button variant="ghost">Long content</Button>
+            <Button size={size} variant="ghost">Long content</Button>
           </Tooltip>
         </Demo>
         <Demo label="trigger: icon button">
@@ -566,13 +620,14 @@ function TooltipSection() {
 }
 
 function MenuSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Dropdown Menu" description="Contextual action menus with keyboard navigation." />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Demo label="Menu — with icons & shortcut">
           <Menu
-            trigger={<Button variant="secondary">Actions ▾</Button>}
+            trigger={<Button size={size} variant="secondary">Actions ▾</Button>}
             items={[
               { id: 'edit', label: 'Edit', shortcut: '⌘E' },
               { id: 'dup',  label: 'Duplicate', shortcut: '⌘D' },
@@ -584,7 +639,7 @@ function MenuSection() {
         </Demo>
         <Demo label="Menu — more options">
           <Menu
-            trigger={<Button variant="ghost">⋯ More</Button>}
+            trigger={<Button size={size} variant="ghost">⋯ More</Button>}
             items={[
               { id: 'share',  label: 'Share link'   },
               { id: 'export', label: 'Export as CSV' },
@@ -599,6 +654,7 @@ function MenuSection() {
 }
 
 function TabsSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Tabs" description="Keyboard-navigable tab panels." />
@@ -610,14 +666,14 @@ function TabsSection() {
               id: 'general', label: 'General',
               content: (
                 <div className="space-y-4">
-                  <Input label="Project name" defaultValue="pro-ui" />
-                  <Input label="Description" placeholder="Describe your project..." />
+                  <Input size={size} label="Project name" defaultValue="pro-ui" />
+                  <Input size={size} label="Description" placeholder="Describe your project..." />
                 </div>
               ),
             },
             {
               id: 'security', label: 'Security',
-              content: <div className="space-y-3"><Switch defaultSelected>Two-factor auth</Switch><Switch>Session timeout</Switch></div>,
+              content: <div className="space-y-3"><Switch size={size} defaultSelected>Two-factor auth</Switch><Switch size={size}>Session timeout</Switch></div>,
             },
             {
               id: 'billing', label: 'Billing',
@@ -648,6 +704,7 @@ function BreadcrumbsSection() {
 }
 
 function BadgeSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Badge" description="Small status indicators." />
@@ -655,16 +712,26 @@ function BadgeSection() {
         <Demo label="Badge — all colors">
           <div className="flex flex-wrap gap-2">
             {(['default','primary','success','warning','danger','info'] as const).map(c => (
-              <Badge key={c} color={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</Badge>
+              <Badge key={c} size={size} color={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</Badge>
             ))}
           </div>
         </Demo>
         <Demo label="Badge — in context">
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary">
-              Messages <Badge color="danger" className="ml-1">9+</Badge>
+            <Button size={size} variant="secondary">
+              Messages <Badge size={size} color="danger" className="ml-1">9+</Badge>
             </Button>
-            <span className="text-sm text-gray-700">Status: <Badge color="success" className="ml-1">Online</Badge></span>
+            <span className="text-sm text-gray-700">Status: <Badge size={size} color="success" className="ml-1">Online</Badge></span>
+          </div>
+        </Demo>
+        <Demo label="Badge — sizes" className="sm:col-span-2">
+          <div className="flex items-center gap-3">
+            <Badge size="sm" color="primary">Small</Badge>
+            <Badge size="md" color="primary">Medium</Badge>
+            <Badge size="lg" color="primary">Large</Badge>
+            <Badge size="sm" color="success">Small</Badge>
+            <Badge size="md" color="success">Medium</Badge>
+            <Badge size="lg" color="success">Large</Badge>
           </div>
         </Demo>
       </div>
@@ -703,12 +770,13 @@ function AlertSection() {
 }
 
 function CardSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="Card" description="Surface for grouping related content." />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Demo label="Card — with header" center={false}>
-          <Card title="Recent activity" extra={<Badge color="primary">Live</Badge>} className="w-full">
+          <Card title="Recent activity" extra={<Badge size={size} color="primary">Live</Badge>} className="w-full">
             <p className="text-sm text-gray-500">3 events in the last hour.</p>
           </Card>
         </Demo>
@@ -722,7 +790,7 @@ function CardSection() {
           </Card>
         </Demo>
         <Demo label="Card — with footer" center={false}>
-          <Card title="Confirm" footer={<div className="flex justify-end gap-2"><Button size="sm" variant="secondary">Cancel</Button><Button size="sm" variant="primary">Apply</Button></div>} className="w-full">
+          <Card title="Confirm" footer={<div className="flex justify-end gap-2"><Button size={size} variant="secondary">Cancel</Button><Button size={size} variant="primary">Apply</Button></div>} className="w-full">
             <p className="text-sm text-gray-500">Apply these settings to all projects?</p>
           </Card>
         </Demo>
@@ -846,6 +914,7 @@ function SkeletonSection() {
 }
 
 function ProTableSection() {
+  const size = useShowcaseSize()
   return (
     <div className="space-y-6">
       <SectionHeader title="ProTable" description="Data table with auto search form, server-side pagination, sorting, and valueType renderers." />
@@ -855,8 +924,8 @@ function ProTableSection() {
         rowKey="id"
         headerTitle="User Management"
         toolBarRender={() => [
-          <Button key="add" variant="primary" size="sm">+ Add User</Button>,
-          <Button key="exp" variant="secondary" size="sm">Export</Button>,
+          <Button key="add" variant="primary" size={size}>+ Add User</Button>,
+          <Button key="exp" variant="secondary" size={size}>Export</Button>,
         ]}
       />
     </div>
@@ -1060,6 +1129,7 @@ const roleOptions = [
 
 function ProFormSection() {
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
+  const size = useShowcaseSize()
 
   return (
     <div className="space-y-6">
@@ -1072,6 +1142,7 @@ function ProFormSection() {
             defaultValues={{ role: 'viewer', notify: false, active: true }}
             onFinish={vals => setResult(vals)}
             submitText="Save profile"
+            size={size}
             showReset
           >
             <ProFormRow>
@@ -1103,6 +1174,7 @@ function ProFormSection() {
             })}
             onFinish={vals => setResult(vals)}
             layout="horizontal"
+            size={size}
             submitText="Sign up"
           >
             <ProFormInput name="username" label="Username" placeholder="alice" required />
@@ -1112,6 +1184,21 @@ function ProFormSection() {
         </Demo>
 
       </div>
+
+      <Demo label="ProForm — size=sm" center={false}>
+        <ProForm
+          schema={z.object({ name: z.string().min(2), role: z.enum(['admin','editor','viewer']).optional() })}
+          defaultValues={{ role: 'viewer' }}
+          onFinish={() => {}}
+          size="sm"
+          submitText="Submit"
+        >
+          <ProFormRow>
+            <ProFormInput name="name" label="Full name" placeholder="Alice Nguyen" required />
+            <ProFormSelect name="role" label="Role" options={roleOptions} />
+          </ProFormRow>
+        </ProForm>
+      </Demo>
 
       {result && (
         <div className="bg-gray-900 rounded-[var(--base-radius)] p-4 text-sm font-mono text-green-400 overflow-auto">
@@ -1167,6 +1254,7 @@ export default function App() {
   const [active, setActive] = useState(getHashSection)
   const [radius, setRadius] = useState<RadiusMode>('none')
   const [primary, setPrimary] = useState('#6366f1')
+  const [size, setSize] = useState<Size>('md')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
@@ -1230,23 +1318,36 @@ export default function App() {
             </div>
           </label>
 
+          {/* Size */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-400 hidden sm:block">Size</span>
+            <Select
+              size="sm"
+              selectedKey={size}
+              onSelectionChange={k => setSize(k as Size)}
+              options={[
+                { value: 'sm', label: 'Small'  },
+                { value: 'md', label: 'Medium' },
+                { value: 'lg', label: 'Large'  },
+              ]}
+              className="w-24"
+            />
+          </div>
+
           {/* Radius */}
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-400 hidden sm:block mr-0.5">Radius</span>
-            {(['none','md','lg'] as RadiusMode[]).map(r => (
-              <button
-                key={r}
-                onClick={() => { setRadius(r); applyTheme(r, primary) }}
-                className={cn(
-                  'px-2.5 py-1 text-xs border rounded-[var(--base-radius)] transition-colors',
-                  radius === r
-                    ? 'bg-primary text-white border-primary'
-                    : 'text-gray-500 border-gray-200 hover:border-gray-400',
-                )}
-              >
-                {r}
-              </button>
-            ))}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-400 hidden sm:block">Radius</span>
+            <Select
+              size="sm"
+              selectedKey={radius}
+              onSelectionChange={k => { const r = k as RadiusMode; setRadius(r); applyTheme(r, primary) }}
+              options={[
+                { value: 'none', label: 'None'   },
+                { value: 'md',   label: 'Medium' },
+                { value: 'lg',   label: 'Large'  },
+              ]}
+              className="w-24"
+            />
           </div>
         </div>
       </header>
@@ -1298,19 +1399,21 @@ export default function App() {
         </aside>
 
         {/* Main content */}
-        <main className={cn(
-          'flex-1 min-w-0 md:ml-56',
-          active === 'protable' ? 'p-6' : 'px-6 py-8 max-w-4xl',
-        )}>
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs text-gray-400 mb-6">
-            <span>pro-ui</span>
-            <span>›</span>
-            <span className="text-gray-700 font-medium">{navLabel}</span>
-          </div>
+        <ShowcaseSizeCtx.Provider value={size}>
+          <main className={cn(
+            'flex-1 min-w-0 md:ml-56',
+            active === 'protable' ? 'p-6' : 'px-6 py-8 max-w-4xl',
+          )}>
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-xs text-gray-400 mb-6">
+              <span>pro-ui</span>
+              <span>›</span>
+              <span className="text-gray-700 font-medium">{navLabel}</span>
+            </div>
 
-          {SECTIONS[active]}
-        </main>
+            {SECTIONS[active]}
+          </main>
+        </ShowcaseSizeCtx.Provider>
       </div>
     </div>
   )

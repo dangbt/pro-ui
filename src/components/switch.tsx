@@ -1,7 +1,7 @@
 import { Switch as RASwitch, type SwitchProps as RASwitchProps } from 'react-aria-components'
 import { cn } from '../lib/cn'
 
-type SwitchSize = 'sm' | 'md'
+type SwitchSize = 'sm' | 'md' | 'lg'
 
 interface SwitchProps extends Omit<RASwitchProps, 'className' | 'children'> {
   children?: React.ReactNode
@@ -10,13 +10,21 @@ interface SwitchProps extends Omit<RASwitchProps, 'className' | 'children'> {
 }
 
 const trackSize: Record<SwitchSize, string> = {
-  sm: 'w-8 h-4',
+  sm: 'w-8  h-4',
   md: 'w-11 h-6',
+  lg: 'w-14 h-7',
 }
 
 const thumbSize: Record<SwitchSize, string> = {
   sm: 'w-3 h-3 group-data-[selected]:translate-x-4',
   md: 'w-4 h-4 group-data-[selected]:translate-x-5',
+  lg: 'w-5 h-5 group-data-[selected]:translate-x-8',
+}
+
+const switchLabelText: Record<SwitchSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
 }
 
 export function Switch({ children, size = 'md', className, ...props }: SwitchProps) {
@@ -45,7 +53,7 @@ export function Switch({ children, size = 'md', className, ...props }: SwitchPro
           )}
         />
       </div>
-      {children && <span className="text-sm text-gray-700">{children}</span>}
+      {children && <span className={`${switchLabelText[size]} text-gray-700`}>{children}</span>}
     </RASwitch>
   )
 }

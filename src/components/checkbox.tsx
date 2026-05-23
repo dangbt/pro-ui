@@ -7,12 +7,31 @@ import {
 } from 'react-aria-components'
 import { cn } from '../lib/cn'
 
+type CheckboxSize = 'sm' | 'md' | 'lg'
+
 interface CheckboxProps extends Omit<RACheckboxProps, 'className' | 'children'> {
   children?: React.ReactNode
+  size?: CheckboxSize
   className?: string
 }
 
-export function Checkbox({ children, className, ...props }: CheckboxProps) {
+const cbBoxSize: Record<CheckboxSize, string> = {
+  sm: 'w-3.5 h-3.5',
+  md: 'w-4   h-4',
+  lg: 'w-5   h-5',
+}
+const cbIconSize: Record<CheckboxSize, string> = {
+  sm: 'w-2   h-2',
+  md: 'w-2.5 h-2.5',
+  lg: 'w-3   h-3',
+}
+const cbLabelText: Record<CheckboxSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+}
+
+export function Checkbox({ children, size = 'md', className, ...props }: CheckboxProps) {
   return (
     <RACheckbox
       {...props}
@@ -24,7 +43,8 @@ export function Checkbox({ children, className, ...props }: CheckboxProps) {
     >
       <div
         className={cn(
-          'w-4 h-4 border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-colors',
+          'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-colors',
+          cbBoxSize[size],
           'border-gray-300 bg-white',
           'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
           'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
@@ -32,28 +52,20 @@ export function Checkbox({ children, className, ...props }: CheckboxProps) {
           'group-hover:border-primary-400',
         )}
       >
-        {/* checkmark */}
         <svg
-          className="w-2.5 h-2.5 text-white hidden group-data-[selected]:block"
-          viewBox="0 0 10 10"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          className={cn(cbIconSize[size], 'text-white hidden group-data-[selected]:block')}
+          viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
         >
           <polyline points="1.5,5 4,7.5 8.5,2.5" />
         </svg>
-        {/* indeterminate dash */}
         <svg
-          className="w-2.5 h-2.5 text-white hidden group-data-[indeterminate]:block"
-          viewBox="0 0 10 10"
-          fill="currentColor"
+          className={cn(cbIconSize[size], 'text-white hidden group-data-[indeterminate]:block')}
+          viewBox="0 0 10 10" fill="currentColor"
         >
           <rect x="1.5" y="4" width="7" height="2" rx="1" />
         </svg>
       </div>
-      {children && <span className="text-sm text-gray-700">{children}</span>}
+      {children && <span className={cn(cbLabelText[size], 'text-gray-700')}>{children}</span>}
     </RACheckbox>
   )
 }
@@ -62,6 +74,7 @@ interface CheckboxGroupProps extends Omit<RACheckboxGroupProps, 'className' | 'c
   label?: string
   options: { value: string; label: string; disabled?: boolean }[]
   orientation?: 'horizontal' | 'vertical'
+  size?: CheckboxSize
   className?: string
 }
 
@@ -69,13 +82,14 @@ export function CheckboxGroup({
   label,
   options,
   orientation = 'vertical',
+  size = 'md',
   className,
   ...props
 }: CheckboxGroupProps) {
   return (
     <RACheckboxGroup {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <Label className="text-xs font-medium text-gray-600 mb-0.5">{label}</Label>
+        <Label className={cn('font-medium text-gray-600 mb-0.5', cbLabelText[size])}>{label}</Label>
       )}
       <div
         className={cn(
@@ -83,7 +97,7 @@ export function CheckboxGroup({
         )}
       >
         {options.map(opt => (
-          <Checkbox key={opt.value} value={opt.value} isDisabled={opt.disabled}>
+          <Checkbox key={opt.value} value={opt.value} size={size} isDisabled={opt.disabled}>
             {opt.label}
           </Checkbox>
         ))}
