@@ -5,6 +5,7 @@ export { Textarea }                     from './textarea'
 export { NumberField }                  from './number-field'
 export { SearchField }                  from './search-field'
 export { Select }                       from './select'
+export { AsyncSelect }                  from './async-select'
 export { ComboBox }                     from './combo-box'
 export { Checkbox, CheckboxGroup }      from './checkbox'
 export { RadioGroup }                   from './radio-group'
@@ -39,11 +40,12 @@ export { ProTable }                     from './pro-table'
 export {
   ProForm, ProFormItem, ProFormRow,
   ProFormInput, ProFormTextarea, ProFormNumberField,
-  ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
+  ProFormSelect, ProFormAsyncSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
 }                                       from './pro-form'
 
 /* ── Types ─────────────────────────────────────────────── */
 export type { SelectOption }            from './select'
+export type { AsyncSelectOption, AsyncSelectFetchResult } from './async-select'
 export type { ComboBoxOption }          from './combo-box'
 export type { TagItem }                 from './tag-group'
 export type { TabItem }                 from './tabs'

@@ -4,11 +4,13 @@ import { Input } from '../input'
 import { Textarea } from '../textarea'
 import { NumberField } from '../number-field'
 import { Select } from '../select'
+import { AsyncSelect } from '../async-select'
 import { Checkbox } from '../checkbox'
 import { Switch } from '../switch'
 import { DatePicker } from '../date-picker'
 import { ProFormItem, useSize } from './pro-form'
 import type { SelectOption } from '../select'
+import type { AsyncSelectOption, AsyncSelectFetchResult } from '../async-select'
 import type { DateValue } from '../date-picker'
 import type { Size } from '../../lib/size'
 
@@ -158,6 +160,49 @@ export function ProFormSelect({ name, label, required, description, placeholder,
             isDisabled={isDisabled}
             size={effectiveSize}
             options={options}
+            className="w-full"
+          />
+        )}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormAsyncSelect ──────────────────────────────────────── */
+
+interface ProFormAsyncSelectProps<T extends AsyncSelectOption = AsyncSelectOption> extends BaseProps {
+  fetchOptions: (params: { search: string; page: number; pageSize: number }) => Promise<AsyncSelectFetchResult<T>>
+  pageSize?: number
+  debounceMs?: number
+  defaultLabel?: string
+}
+
+export function ProFormAsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
+  name, label, required, description, placeholder, size, className, isDisabled,
+  fetchOptions, pageSize, debounceMs, defaultLabel,
+}: ProFormAsyncSelectProps<T>) {
+  const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={undefined}
+        render={({ field, fieldState }) => (
+          <AsyncSelect<T>
+            value={field.value ?? null}
+            onChange={(val) => field.onChange(val ?? undefined)}
+            onBlur={field.onBlur}
+            placeholder={placeholder ?? 'Select…'}
+            isDisabled={isDisabled}
+            isInvalid={!!fieldState.error}
+            size={effectiveSize}
+            fetchOptions={fetchOptions}
+            pageSize={pageSize}
+            debounceMs={debounceMs}
+            defaultLabel={defaultLabel}
             className="w-full"
           />
         )}

@@ -4,6 +4,7 @@ export {
   ProFormTextarea,
   ProFormNumberField,
   ProFormSelect,
+  ProFormAsyncSelect,
   ProFormCheckbox,
   ProFormSwitch,
   ProFormDatePicker,

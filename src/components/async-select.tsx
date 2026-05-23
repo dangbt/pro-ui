@@ -28,6 +28,7 @@ interface AsyncSelectProps<T extends AsyncSelectOption = AsyncSelectOption> {
   debounceMs?: number
   isDisabled?: boolean
   isInvalid?: boolean
+  onBlur?: () => void
 }
 
 const SearchIcon = () => (
@@ -66,6 +67,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   debounceMs = 300,
   isDisabled = false,
   isInvalid = false,
+  onBlur,
 }: AsyncSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
   const [fetchParams, setFetchParams] = useState({ search: '', page: 1 })
@@ -75,6 +77,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   const [loadingMore, setLoadingMore] = useState(false)
   const [selectedOption, setSelectedOption] = useState<T | null>(null)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const prevValueRef = useRef(value)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -83,6 +86,18 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   const sentinelRef = useRef<HTMLDivElement>(null)
   const fetchRef = useRef(fetchOptions)
   fetchRef.current = fetchOptions
+
+  /* ── Sync selectedOption when controlled value changes ── */
+  useEffect(() => {
+    if (value !== prevValueRef.current) {
+      prevValueRef.current = value
+      if (!value) {
+        setSelectedOption(null)
+      } else if (selectedOption?.value !== value) {
+        setSelectedOption(null)
+      }
+    }
+  }, [value, selectedOption?.value])
 
   /* ── Fetch effect ──────────────────────────────────────── */
   useEffect(() => {
@@ -180,6 +195,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
     setIsOpen(false)
     setOptions([])
     setHasMore(false)
+    onBlur?.()
   }
 
   const handleSelect = (opt: T) => {
@@ -303,12 +319,14 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
         </span>
         <div className="flex items-center gap-1 shrink-0 ml-1">
           {displayLabel && (
-            <span
+            <button
+              type="button"
               onClick={handleClear}
               className="text-gray-300 hover:text-gray-500 transition-colors p-0.5 rounded"
+              aria-label="Clear selection"
             >
               <ClearIcon className="w-3 h-3" />
-            </span>
+            </button>
           )}
           <ChevronIcon open={isOpen} />
         </div>
