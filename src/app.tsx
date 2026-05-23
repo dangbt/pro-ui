@@ -3,7 +3,7 @@ import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
 import { z } from 'zod'
 import {
   Button, Input, Textarea, NumberField, SearchField,
-  Select, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
+  Select, AsyncSelect, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
   Switch, Slider, DatePicker, DateRangePicker, TagGroup,
   Modal, ConfirmModal, Tooltip, Menu, Tabs, Breadcrumbs,
   ProgressBar, Alert, Spinner, Badge, Card,
@@ -79,6 +79,43 @@ const TABLE_COLS_SELECT: ProColumnType<User>[] = [
   { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true },
 ]
+
+/* ─── AsyncSelect mock data ──────────────────────────────────────────────── */
+
+const COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Bangladesh',
+  'Belgium','Bolivia','Brazil','Cambodia','Canada','Chile','China','Colombia',
+  'Croatia','Czech Republic','Denmark','Ecuador','Egypt','Ethiopia','Finland',
+  'France','Germany','Ghana','Greece','Guatemala','Hungary','India','Indonesia',
+  'Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kenya','Kuwait',
+  'Malaysia','Mexico','Morocco','Myanmar','Netherlands','New Zealand','Nigeria',
+  'Norway','Pakistan','Panama','Peru','Philippines','Poland','Portugal','Romania',
+  'Russia','Saudi Arabia','Senegal','Singapore','South Africa','South Korea',
+  'Spain','Sri Lanka','Sweden','Switzerland','Thailand','Turkey','Ukraine',
+  'United Arab Emirates','United Kingdom','United States','Uruguay','Venezuela',
+  'Vietnam','Zimbabwe',
+].map((label, i) => ({ value: `c${i}`, label }))
+
+const USERS_ASYNC = Array.from({ length: 120 }, (_, i) => ({
+  value: `u${i}`,
+  label: ['Alice','Bob','Carol','David','Eva','Frank','Grace','Hank','Iris','Jack'][i % 10]! + ` ${['Nguyen','Tran','Le','Pham','Hoang','Do','Bui','Vu','Dang','Cao'][i % 10]!} #${i + 1}`,
+}))
+
+function fakeSearch<T extends { value: string; label: string }>(
+  list: T[],
+  { search, page, pageSize }: { search: string; page: number; pageSize: number },
+  delay = 400,
+) {
+  return new Promise<{ options: T[]; hasMore: boolean }>(resolve =>
+    setTimeout(() => {
+      const filtered = search
+        ? list.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+        : list
+      const start = (page - 1) * pageSize
+      resolve({ options: filtered.slice(start, start + pageSize), hasMore: start + pageSize < filtered.length })
+    }, delay),
+  )
+}
 
 /* ─── Navigation ─────────────────────────────────────────────────────────── */
 
@@ -301,76 +338,177 @@ function TextInputsSection() {
 
 function SelectSection() {
   const size = useShowcaseSize()
-  return (
-    <div className="space-y-6">
-      <SectionHeader title="Select & ComboBox" description="Dropdown selection and autocomplete inputs." />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Demo label="Select" center={false}>
-          <Select
-            size={size}
-            label="Framework"
-            placeholder="Choose one..."
-            className="w-full"
-            options={[
-              { value: 'react', label: 'React' },
-              { value: 'vue', label: 'Vue' },
-              { value: 'svelte', label: 'Svelte' },
-              { value: 'angular', label: 'Angular' },
-            ]}
-          />
-        </Demo>
-        <Demo label="Select — with default" center={false}>
-          <Select
-            size={size}
-            label="Status"
-            defaultSelectedKey="active"
-            className="w-full"
-            options={[
-              { value: 'active', label: 'Active' },
-              { value: 'inactive', label: 'Inactive' },
-              { value: 'pending', label: 'Pending' },
-            ]}
-          />
-        </Demo>
-        <Demo label="ComboBox — autocomplete" center={false}>
-          <ComboBox
-            label="Language"
-            placeholder="Type to filter..."
-            className="w-full"
-            options={[
-              { value: 'js', label: 'JavaScript' },
-              { value: 'ts', label: 'TypeScript' },
-              { value: 'py', label: 'Python' },
-              { value: 'rs', label: 'Rust' },
-              { value: 'go', label: 'Go' },
-              { value: 'kt', label: 'Kotlin' },
-            ]}
-          />
-        </Demo>
-        <Demo label="Select — disabled" center={false}>
-          <Select size={size} label="Region" placeholder="Select region..." isDisabled className="w-full"
-            options={[{ value: 'vn', label: 'Vietnam' }]}
-          />
-        </Demo>
+  const [controlled, setControlled] = useState<string | null>(null)
 
-        <Demo label="Select — sizes" center={false} className="sm:col-span-2">
-          <div className="grid grid-cols-3 gap-4 w-full">
-            {(['sm', 'md', 'lg'] as const).map(s => (
-              <Select
-                key={s}
-                size={s}
-                label={`${s === 'sm' ? 'Small' : s === 'md' ? 'Medium' : 'Large'} (${s})`}
-                placeholder="Select..."
+  return (
+    <div className="space-y-8">
+      <SectionHeader title="Select & ComboBox" description="Dropdown selection and autocomplete inputs." />
+
+      {/* Static Select */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-gray-700">Select</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Demo label="Select" center={false}>
+            <Select
+              size={size}
+              label="Framework"
+              placeholder="Choose one..."
+              className="w-full"
+              options={[
+                { value: 'react', label: 'React' },
+                { value: 'vue', label: 'Vue' },
+                { value: 'svelte', label: 'Svelte' },
+                { value: 'angular', label: 'Angular' },
+              ]}
+            />
+          </Demo>
+          <Demo label="Select — with default" center={false}>
+            <Select
+              size={size}
+              label="Status"
+              defaultSelectedKey="active"
+              className="w-full"
+              options={[
+                { value: 'active', label: 'Active' },
+                { value: 'inactive', label: 'Inactive' },
+                { value: 'pending', label: 'Pending' },
+              ]}
+            />
+          </Demo>
+          <Demo label="ComboBox — autocomplete" center={false}>
+            <ComboBox
+              label="Language"
+              placeholder="Type to filter..."
+              className="w-full"
+              options={[
+                { value: 'js', label: 'JavaScript' },
+                { value: 'ts', label: 'TypeScript' },
+                { value: 'py', label: 'Python' },
+                { value: 'rs', label: 'Rust' },
+                { value: 'go', label: 'Go' },
+                { value: 'kt', label: 'Kotlin' },
+              ]}
+            />
+          </Demo>
+          <Demo label="Select — disabled" center={false}>
+            <Select size={size} label="Region" placeholder="Select region..." isDisabled className="w-full"
+              options={[{ value: 'vn', label: 'Vietnam' }]}
+            />
+          </Demo>
+          <Demo label="Select — sizes" center={false} className="sm:col-span-2">
+            <div className="grid grid-cols-3 gap-4 w-full">
+              {(['sm', 'md', 'lg'] as const).map(s => (
+                <Select
+                  key={s}
+                  size={s}
+                  label={`${s === 'sm' ? 'Small' : s === 'md' ? 'Medium' : 'Large'} (${s})`}
+                  placeholder="Select..."
+                  className="w-full"
+                  options={[
+                    { value: 'react',  label: 'React'   },
+                    { value: 'vue',    label: 'Vue'     },
+                    { value: 'svelte', label: 'Svelte'  },
+                  ]}
+                />
+              ))}
+            </div>
+          </Demo>
+        </div>
+      </div>
+
+      {/* AsyncSelect */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700">AsyncSelect</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Server-side search with debounce and infinite scroll pagination.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Demo label="AsyncSelect — country (75+ options, infinite scroll)" center={false}>
+            <AsyncSelect
+              size={size}
+              label="Country"
+              placeholder="Select country..."
+              className="w-full"
+              fetchOptions={p => fakeSearch(COUNTRIES, p)}
+              pageSize={15}
+            />
+          </Demo>
+
+          <Demo label="AsyncSelect — user search (120 records)" center={false}>
+            <AsyncSelect
+              size={size}
+              label="Assign to"
+              placeholder="Search user..."
+              searchPlaceholder="Type name..."
+              className="w-full"
+              fetchOptions={p => fakeSearch(USERS_ASYNC, p, 300)}
+              pageSize={10}
+            />
+          </Demo>
+
+          <Demo label="AsyncSelect — controlled + reset" center={false}>
+            <div className="space-y-3 w-full">
+              <AsyncSelect
+                size={size}
+                label="Country"
+                placeholder="Select country..."
                 className="w-full"
-                options={[
-                  { value: 'react',  label: 'React'   },
-                  { value: 'vue',    label: 'Vue'     },
-                  { value: 'svelte', label: 'Svelte'  },
-                ]}
+                value={controlled}
+                onChange={val => setControlled(val)}
+                fetchOptions={p => fakeSearch(COUNTRIES, p)}
+                pageSize={15}
               />
-            ))}
-          </div>
-        </Demo>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="secondary" onPress={() => setControlled('c66')}>
+                  Set → United States
+                </Button>
+                <Button size="sm" variant="ghost" onPress={() => setControlled(null)}>
+                  Reset
+                </Button>
+              </div>
+              {controlled && (
+                <p className="text-xs text-gray-400">value: <code className="text-primary">{controlled}</code></p>
+              )}
+            </div>
+          </Demo>
+
+          <Demo label="AsyncSelect — sizes" center={false}>
+            <div className="space-y-3 w-full">
+              {(['sm', 'md', 'lg'] as const).map(s => (
+                <AsyncSelect
+                  key={s}
+                  size={s}
+                  placeholder={`${s === 'sm' ? 'Small' : s === 'md' ? 'Medium' : 'Large'} (${s})`}
+                  className="w-full"
+                  fetchOptions={p => fakeSearch(COUNTRIES, p)}
+                  pageSize={10}
+                />
+              ))}
+            </div>
+          </Demo>
+
+          <Demo label="AsyncSelect — disabled" center={false}>
+            <AsyncSelect
+              size={size}
+              label="Region"
+              placeholder="Disabled"
+              className="w-full"
+              isDisabled
+              fetchOptions={p => fakeSearch(COUNTRIES, p)}
+            />
+          </Demo>
+
+          <Demo label="AsyncSelect — invalid state" center={false}>
+            <AsyncSelect
+              size={size}
+              label="Required field"
+              placeholder="Select country..."
+              className="w-full"
+              isInvalid
+              fetchOptions={p => fakeSearch(COUNTRIES, p)}
+            />
+          </Demo>
+        </div>
       </div>
     </div>
   )
