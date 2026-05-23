@@ -60,7 +60,7 @@ export function ProForm<T extends FieldValues>({
           className={cn('flex flex-col gap-4', className)}
         >
           {children}
-          <div className="flex items-center gap-2 pt-1">
+          <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'ml-[calc(7rem+0.75rem)]')}>
             <Button type="submit" variant="primary" isDisabled={isSubmitting}>
               {isSubmitting ? 'Submitting…' : submitText}
             </Button>
