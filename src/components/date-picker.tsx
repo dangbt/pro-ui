@@ -94,7 +94,7 @@ export function DatePicker<T extends DateValue>({ label, className, ...props }: 
               <Heading className="text-sm font-semibold text-gray-700" />
               <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
             </div>
-            <CalendarGrid className="w-full">
+            <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
               <CalendarGridHeader>
                 {day => (
                   <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">
@@ -148,7 +148,7 @@ export function DateRangePicker<T extends DateValue>({
               <Heading className="text-sm font-semibold text-gray-700" />
               <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer"><ChevronRight /></Button>
             </div>
-            <CalendarGrid className="w-full">
+            <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
               <CalendarGridHeader>
                 {day => (
                   <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">

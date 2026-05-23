@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
 import {
   Button, Input, Textarea, NumberField, SearchField,
   Select, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
@@ -313,14 +314,66 @@ function SelectSection() {
 }
 
 function DateSection() {
+  const tz = getLocalTimeZone()
+  const todayDate = today(tz)
+
   return (
     <div className="space-y-6">
       <SectionHeader title="Date & Time" description="Calendar-powered date pickers using React Aria & @internationalized/date." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Demo label="DatePicker" center={false}><DatePicker label="Pick a date" className="w-full" /></Demo>
-        <Demo label="DatePicker — disabled" center={false}><DatePicker label="Disabled" isDisabled className="w-full" /></Demo>
-        <Demo label="DateRangePicker" center={false} className="col-span-full">
+        <Demo label="DatePicker — basic" center={false}>
+          <DatePicker label="Pick a date" className="w-full" />
+        </Demo>
+
+        <Demo label="DatePicker — no future dates" center={false}>
+          <DatePicker
+            label="Up to today"
+            maxValue={todayDate}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="DatePicker — min / max range" center={false}>
+          <DatePicker
+            label="This month only"
+            minValue={todayDate.set({ day: 1 })}
+            maxValue={todayDate.set({ day: 1 }).add({ months: 1 }).subtract({ days: 1 })}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="DatePicker — block weekends" center={false}>
+          <DatePicker
+            label="Weekdays only"
+            isDateUnavailable={date => isWeekend(date, tz)}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="DatePicker — block specific dates" center={false}>
+          <DatePicker
+            label="Holidays blocked"
+            isDateUnavailable={date =>
+              ['2025-01-01', '2025-04-30', '2025-05-01', '2025-09-02'].includes(date.toString())
+            }
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="DatePicker — disabled" center={false}>
+          <DatePicker label="Disabled" isDisabled className="w-full" />
+        </Demo>
+
+        <Demo label="DateRangePicker — basic" center={false} className="col-span-full">
           <DateRangePicker label="Date range" className="w-full" />
+        </Demo>
+
+        <Demo label="DateRangePicker — no future" center={false} className="col-span-full">
+          <DateRangePicker
+            label="Historical range"
+            maxValue={todayDate}
+            className="w-full"
+          />
         </Demo>
       </div>
     </div>
