@@ -44,6 +44,7 @@ export {
   ProForm, ProFormItem, ProFormRow,
   ProFormInput, ProFormTextarea, ProFormNumberField,
   ProFormSelect, ProFormAsyncSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
+  useFormContext, Controller,
 }                                       from './pro-form'
 
 /* ── Types ─────────────────────────────────────────────── */
@@ -55,4 +56,4 @@ export type { TabItem }                 from './tabs'
 export type { BreadcrumbItem }          from './breadcrumbs'
 export type { MenuItemDef }             from './menu'
 export type { ProTableProps, ProColumnType, QueryParams, RequestResult, ValueType, ValueEnum, BulkActionDef } from './pro-table'
-export type { ProFormLayout }           from './pro-form'
+export type { ProFormLayout, FieldPath, FieldValues } from './pro-form'

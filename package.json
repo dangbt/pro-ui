@@ -1,9 +1,15 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
-  "keywords": ["react", "ui", "components", "tailwind", "react-aria"],
+  "keywords": [
+    "react",
+    "ui",
+    "components",
+    "tailwind",
+    "react-aria"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/dangbt/pro-ui.git"
@@ -12,12 +18,12 @@
   "packageManager": "pnpm@10.33.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/components/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/components/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
   "files": [
@@ -27,7 +33,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build -c vite.lib.config.ts",
+    "build:lib": "vite build -c vite.lib.config.ts && tsc -p tsconfig.lib.json",
+    "prepublishOnly": "pnpm build:lib",
     "preview": "vite preview"
   },
   "peerDependencies": {
@@ -68,6 +75,8 @@
     "zod": "4.4.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
