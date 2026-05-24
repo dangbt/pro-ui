@@ -353,38 +353,43 @@ export function ProTable<T extends object>({
           </div>
         </div>
       </div>
-      {/* Bulk action bar — fixed bottom, visible when rows are selected */}
+      {/* Bulk action bar — sticky island */}
       {rowSelection && selectedKeys.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3.5 bg-gray-900 text-white shadow-[0_-4px_24px_rgba(0,0,0,0.2)]">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-semibold">{selectedKeys.length} selected</span>
-            <button
-              type="button"
-              onClick={() => setRowSelectionState({})}
-              className="text-xs text-gray-400 hover:text-white transition-colors underline underline-offset-2"
-            >
-              Clear
-            </button>
-          </div>
-          {bulkActions && bulkActions.length > 0 && (
-            <div className="flex items-center gap-2">
-              {bulkActions.map((action, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => action.onClick(selectedKeys, selectedOriginals)}
-                  className={cn(
-                    'px-3.5 py-1.5 text-sm rounded-[var(--base-radius)] font-medium transition-colors',
-                    action.danger
-                      ? 'bg-red-500 hover:bg-red-400 text-white'
-                      : 'bg-white hover:bg-gray-100 text-gray-900',
-                  )}
-                >
-                  {action.label}
-                </button>
-              ))}
+        <div className="sticky bottom-4 z-10 flex justify-center pointer-events-none">
+          <div className="pointer-events-auto inline-flex items-center gap-4 px-5 py-3 rounded-2xl bg-gray-900 text-white shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold">{selectedKeys.length} selected</span>
+              <button
+                type="button"
+                onClick={() => setRowSelectionState({})}
+                className="text-xs text-gray-400 hover:text-white transition-colors underline underline-offset-2"
+              >
+                Clear
+              </button>
             </div>
-          )}
+            {bulkActions && bulkActions.length > 0 && (
+              <>
+                <div className="w-px h-4 bg-white/20" />
+                <div className="flex items-center gap-2">
+                  {bulkActions.map((action, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => action.onClick(selectedKeys, selectedOriginals)}
+                      className={cn(
+                        'px-3.5 py-1.5 text-sm rounded-xl font-medium transition-colors',
+                        action.danger
+                          ? 'bg-red-500 hover:bg-red-400 text-white'
+                          : 'bg-white hover:bg-gray-100 text-gray-900',
+                      )}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
