@@ -6,6 +6,9 @@ import { readFileSync } from 'fs'
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig({
+   server: {
+    port: 3000,
+  },
   plugins: [react(), tailwindcss()],
   define: {
     __APP_VERSION__: JSON.stringify(version),

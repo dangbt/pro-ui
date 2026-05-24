@@ -68,7 +68,7 @@ export function Toolbar({ title, actions, onRefresh, columnToggles }: ToolbarPro
   if (!hasContent) return null
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+    <div className="flex flex-wrap items-center justify-between gap-y-2 px-4 py-3 border-b border-border">
       <h3 className="text-sm font-semibold text-gray-800">{title ?? ''}</h3>
       <div className="flex items-center gap-2">
         {actions?.map((action, i) => (

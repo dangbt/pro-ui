@@ -69,7 +69,7 @@ export function ProForm<T extends FieldValues>({
           className={cn('flex flex-col gap-4', className)}
         >
           {children}
-          <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'ml-[calc(7rem+0.75rem)]')}>
+          <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'sm:ml-[calc(7rem+0.75rem)]')}>
             <Button type="submit" variant="primary" isDisabled={isSubmitting}>
               {isSubmitting ? 'Submitting…' : submitText}
             </Button>
@@ -98,9 +98,9 @@ interface ItemProps {
 }
 
 const labelHorizontalPt: Record<Size, string> = {
-  sm: 'pt-1.5',
-  md: 'pt-2.5',
-  lg: 'pt-3.5',
+  sm: 'sm:pt-1.5',
+  md: 'sm:pt-2.5',
+  lg: 'sm:pt-3.5',
 }
 
 export function ProFormItem({ name, label, required, description, className, children }: ItemProps) {
@@ -134,8 +134,8 @@ export function ProFormItem({ name, label, required, description, className, chi
 
   if (layout === 'horizontal') {
     return (
-      <div className="flex items-start gap-3">
-        <span className={cn('w-28 shrink-0 font-medium text-gray-600 text-right leading-none', labelText[size], labelHorizontalPt[size])}>
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-3">
+        <span className={cn('shrink-0 font-medium text-gray-600 leading-none sm:w-28 sm:text-right', labelText[size], labelHorizontalPt[size])}>
           {required && <span className="text-danger mr-0.5">*</span>}
           {label}
         </span>
@@ -159,7 +159,7 @@ export function ProFormItem({ name, label, required, description, className, chi
 
 export function ProFormRow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('grid grid-cols-2 gap-4', className)}>
+    <div className={cn('grid grid-cols-1 sm:grid-cols-2 gap-4', className)}>
       {children}
     </div>
   )

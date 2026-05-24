@@ -66,14 +66,14 @@ const ROLE_ENUM   = { admin: { text: 'Admin', color: 'danger' as const }, editor
 const STATUS_ENUM = { active: { text: 'Active', color: 'success' as const }, inactive: { text: 'Inactive', color: 'default' as const }, pending: { text: 'Pending', color: 'warning' as const } }
 
 const TABLE_COLS: ProColumnType<User>[] = [
-  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200 },
+  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200, disableHiding: true, pinnable: true },
   { title: 'Email',   dataIndex: 'email',     width: 220 },
   { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM },
   { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM },
   { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true },
   {
-    title: 'Actions', key: 'actions', hideInSearch: true, align: 'center', width: 120,
+    title: 'Actions', key: 'actions', hideInSearch: true, align: 'center', width: 120, pinnable: true,
     render: (_v, r) => (
       <div className="flex items-center justify-center gap-1">
         <button onClick={() => alert(`Edit ${r.name}`)} className="text-primary text-xs font-medium px-2 py-1 hover:bg-primary-50 rounded-[var(--base-radius)] transition-colors">Edit</button>
@@ -84,12 +84,12 @@ const TABLE_COLS: ProColumnType<User>[] = [
 ]
 
 const TABLE_COLS_SELECT: ProColumnType<User>[] = [
-  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200 },
+  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200, disableHiding: true, pinnable: true },
   { title: 'Email',   dataIndex: 'email',     width: 220 },
   { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM },
   { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM },
   { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
-  { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true, pinnable: true },
 ]
 
 /* ─── AsyncSelect mock data ──────────────────────────────────────────────── */
@@ -1773,13 +1773,13 @@ function ProTableSection() {
 
   return (
     <div className="space-y-10">
-      <SectionHeader title="ProTable" description="Data table with auto search form, server-side pagination, sorting, and valueType renderers." />
+      <SectionHeader title="ProTable" description="Data table with auto search form, server-side pagination, sorting, column visibility toggle, column pinning, and valueType renderers." />
 
       {/* Basic table */}
       <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-800">Basic — search, sort, pagination</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Individual row actions via render column</p>
+          <h3 className="text-sm font-semibold text-gray-800">Basic — search, sort, pagination, column visibility & pinning</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Hover column header to pin left/right · toolbar icon to show/hide columns · Name column is always visible</p>
         </div>
         <ProTable<User>
           columns={TABLE_COLS}
@@ -1797,7 +1797,7 @@ function ProTableSection() {
       <div className="space-y-3">
         <div>
           <h3 className="text-sm font-semibold text-gray-800">With row selection & bulk actions</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Select rows → action bar appears fixed at the bottom</p>
+          <p className="text-xs text-gray-400 mt-0.5">Select rows → sticky action bar appears · Name pinnable left, Created pinnable right</p>
         </div>
 
         {toast && (
