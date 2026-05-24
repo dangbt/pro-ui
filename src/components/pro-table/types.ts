@@ -29,8 +29,12 @@ export interface ProColumnType<T> {
   valueEnum?: ValueEnum
   /** hide from search form */
   hideInSearch?: boolean
-  /** hide from table */
+  /** hide from table by default */
   hideInTable?: boolean
+  /** prevent this column from being hidden via the column toggle */
+  disableHiding?: boolean
+  /** allow this column to be pinned left/right */
+  pinnable?: boolean
   /** custom cell renderer — overrides valueType */
   render?: (value: unknown, record: T, index: number) => ReactNode
   sortable?: boolean
