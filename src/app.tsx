@@ -777,7 +777,7 @@ const ICON_GROUPS: { group: string; names: string[] }[] = [
 
 function IconCard({ name }: { name: string }) {
   const [copied, setCopied] = useState(false)
-  const Icon = (LucideIcons as Record<string, LucideIcon>)[name]
+  const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[name]
   if (!Icon) return null
 
   const handleCopy = () => {
