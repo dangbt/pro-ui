@@ -1,0 +1,6 @@
+/* @dangbt/pro-ui — Tailwind v4 integration
+   @import this file in your CSS entry point to automatically configure
+   source scanning and variants for all pro-ui components. */
+
+@source "./src/components";
+@plugin "tailwindcss-react-aria-components";
