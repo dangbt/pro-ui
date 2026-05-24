@@ -120,7 +120,7 @@ export function SearchForm<T>({ columns, onSearch, onReset }: SearchFormProps<T>
       </div>
 
       <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
-        <Button variant="ghost" size="sm" onPress={handleReset}>
+        <Button variant="secondary" size="sm" onPress={handleReset}>
           Reset
         </Button>
         <Button variant="primary" size="sm" onPress={handleSearch}>
