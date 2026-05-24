@@ -72,4 +72,6 @@ export interface ProTableProps<T extends object> {
     onChange?: (selectedKeys: string[], selectedRows: T[]) => void
   }
   bulkActions?: BulkActionDef<T>[]
+  /** render additional content below a row when expanded; row becomes clickable to toggle */
+  expandedRowRender?: (record: T) => ReactNode
 }

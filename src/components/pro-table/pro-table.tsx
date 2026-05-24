@@ -12,7 +12,7 @@ import {
   type ColumnDef,
   type Column,
 } from '@tanstack/react-table'
-import { Pin, PinOff } from 'lucide-react'
+import { Pin, PinOff, ChevronRight, ChevronDown } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { SearchForm } from './search-form'
 import { Toolbar, buildColumnToggles } from './toolbar'
@@ -132,7 +132,17 @@ export function ProTable<T extends object>({
   pagination: paginationConfig,
   rowSelection,
   bulkActions,
+  expandedRowRender,
 }: ProTableProps<T>) {
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
+
+  const toggleExpand = (key: string) => {
+    setExpandedKeys(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
   const [data, setData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -208,9 +218,31 @@ export function ProTable<T extends object>({
     ),
   }
 
-  const columns = rowSelection
-    ? [selectionColumn, ...buildColumns(columnDefs)]
-    : buildColumns(columnDefs)
+  const expandColumn: ColumnDef<T> = {
+    id: 'expand',
+    size: 40,
+    enableSorting: false,
+    enableHiding: false,
+    enablePinning: false,
+    header: () => null,
+    cell: ({ row }) => {
+      const key = getRowKey(row.original, row.index)
+      const expanded = expandedKeys.has(key)
+      return (
+        <span className="flex items-center justify-center text-gray-400">
+          {expanded
+            ? <ChevronDown className="w-4 h-4" />
+            : <ChevronRight className="w-4 h-4" />}
+        </span>
+      )
+    },
+  }
+
+  const columns = [
+    ...(expandedRowRender ? [expandColumn] : []),
+    ...(rowSelection ? [selectionColumn] : []),
+    ...buildColumns(columnDefs),
+  ]
 
   const table = useReactTable({
     data,
@@ -341,29 +373,50 @@ export function ProTable<T extends object>({
                   </td>
                 </tr>
               ) : (
-                table.getRowModel().rows.map((row, i) => (
-                  <tr key={getRowKey(row.original, i)} className="hover:bg-gray-50 transition-colors">
-                    {row.getVisibleCells().map(cell => {
-                      const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                      const pinned = cell.column.getIsPinned()
-                      return (
-                        <td
-                          key={cell.id}
-                          className={cn(
-                            'px-4 py-3 text-gray-700',
-                            cell.column.id === 'select' && 'px-3 text-center',
-                            align === 'center' && 'text-center',
-                            align === 'right' && 'text-right',
-                            getPinnedCls(pinned, 'bg-white'),
-                          )}
-                          style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))
+                table.getRowModel().rows.map((row, i) => {
+                  const key = getRowKey(row.original, i)
+                  const expanded = expandedKeys.has(key)
+                  return (
+                    <>
+                      <tr
+                        key={key}
+                        onClick={expandedRowRender ? () => toggleExpand(key) : undefined}
+                        className={cn(
+                          'hover:bg-gray-50 transition-colors',
+                          expandedRowRender && 'cursor-pointer',
+                        )}
+                      >
+                        {row.getVisibleCells().map(cell => {
+                          const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                          const pinned = cell.column.getIsPinned()
+                          return (
+                            <td
+                              key={cell.id}
+                              className={cn(
+                                'px-4 py-3 text-gray-700',
+                                cell.column.id === 'select' && 'px-3 text-center',
+                                cell.column.id === 'expand' && 'px-2 text-center',
+                                align === 'center' && 'text-center',
+                                align === 'right' && 'text-right',
+                                getPinnedCls(pinned, 'bg-white'),
+                              )}
+                              style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                      {expandedRowRender && expanded && (
+                        <tr key={`${key}-expanded`} className="bg-gray-50">
+                          <td colSpan={columns.length} className="px-0 py-0">
+                            {expandedRowRender(row.original)}
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -384,16 +437,22 @@ export function ProTable<T extends object>({
             </select>
           </div>
 
-          <div className="flex items-center gap-1">
-            <button className={paginationBtnCls} onClick={() => table.firstPage()} disabled={!canPrev} title="First page">«</button>
+          <div className="flex flex-wrap items-center gap-1">
+            <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => table.firstPage()} disabled={!canPrev} title="First page">«</button>
             <button className={paginationBtnCls} onClick={() => table.previousPage()} disabled={!canPrev} title="Previous page">‹</button>
             {Array.from({ length: Math.min(pageCount, 5) }, (_, i) => {
-              const base = Math.max(0, Math.min(pagination.pageIndex - 2, pageCount - 5))
+              const total5 = Math.min(pageCount, 5)
+              const base = Math.max(0, Math.min(pagination.pageIndex - 2, pageCount - total5))
               const page = base + i
+              const isOuter = total5 === 5 && (i === 0 || i === total5 - 1)
               return (
                 <button
                   key={page}
-                  className={cn(paginationBtnCls, page === pagination.pageIndex && 'bg-primary text-white border-primary hover:bg-primary-600')}
+                  className={cn(
+                    paginationBtnCls,
+                    page === pagination.pageIndex && 'bg-primary text-white border-primary hover:bg-primary-600',
+                    isOuter && page !== pagination.pageIndex && 'hidden sm:inline-flex',
+                  )}
                   onClick={() => setPagination(prev => ({ ...prev, pageIndex: page }))}
                 >
                   {page + 1}
@@ -401,7 +460,7 @@ export function ProTable<T extends object>({
               )
             })}
             <button className={paginationBtnCls} onClick={() => table.nextPage()} disabled={!canNext} title="Next page">›</button>
-            <button className={paginationBtnCls} onClick={() => table.lastPage()} disabled={!canNext} title="Last page">»</button>
+            <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => table.lastPage()} disabled={!canNext} title="Last page">»</button>
           </div>
         </div>
       </div>
@@ -409,7 +468,7 @@ export function ProTable<T extends object>({
       {/* Bulk action bar — sticky island */}
       {rowSelection && selectedKeys.length > 0 && (
         <div className="sticky bottom-4 z-10 flex justify-center pointer-events-none">
-          <div className="pointer-events-auto inline-flex items-center gap-4 px-5 py-3 rounded-2xl bg-gray-900 text-white shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+          <div className="pointer-events-auto flex flex-wrap items-center gap-3 px-5 py-3 rounded-2xl bg-gray-900 text-white shadow-[0_8px_32px_rgba(0,0,0,0.25)] max-w-[calc(100vw-2rem)]">
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold">{selectedKeys.length} selected</span>
               <button
@@ -422,8 +481,8 @@ export function ProTable<T extends object>({
             </div>
             {bulkActions && bulkActions.length > 0 && (
               <>
-                <div className="w-px h-4 bg-white/20" />
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:block w-px h-4 bg-white/20" />
+                <div className="flex flex-wrap items-center gap-2">
                   {bulkActions.map((action, i) => (
                     <button
                       key={i}
