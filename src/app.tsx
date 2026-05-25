@@ -97,6 +97,24 @@ const TABLE_COLS_SELECT: ProColumnType<User>[] = [
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true, pinnable: true },
 ]
 
+/* columns for Theme Builder preview — every column is sortable + pinnable */
+const THEME_PREVIEW_COLS: ProColumnType<User>[] = [
+  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 180, disableHiding: true, pinnable: true },
+  { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM,   sortable: true, pinnable: true },
+  { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM, sortable: true, pinnable: true },
+  { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money',  sortable: true, align: 'right', hideInSearch: true, pinnable: true },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date',   sortable: true, hideInSearch: true, pinnable: true },
+  {
+    title: 'Actions', key: 'actions', hideInSearch: true, align: 'center', width: 100, pinnable: true,
+    render: (_v, r) => (
+      <div className="flex items-center justify-center gap-1">
+        <button className="text-primary text-xs font-medium px-2 py-1 hover:bg-primary-50 rounded-[var(--base-radius)] transition-colors">Edit</button>
+        <button className="text-danger text-xs font-medium px-2 py-1 hover:bg-danger-50 rounded-[var(--base-radius)] transition-colors">Del</button>
+      </div>
+    ),
+  },
+]
+
 /* ─── AsyncSelect mock data ──────────────────────────────────────────────── */
 
 const COUNTRIES = [
@@ -3566,19 +3584,21 @@ const CtlLabel = ({ children }: { children: React.ReactNode }) => (
           </div>
         </div>
 
-        {/* Users table — ProTable with sort, visibility, pin, row selection, bulk actions */}
+        {/* Users table — full ProTable: sort, pin, visibility, row selection, bulk actions */}
         <ProTable<User>
-          columns={TABLE_COLS}
+          columns={THEME_PREVIEW_COLS}
           request={mockRequest}
           rowKey="id"
           headerTitle="Team members"
           size={s}
           toolBarRender={() => [
             <Button key="inv" variant="primary" size={s} icon={<Plus className="w-3.5 h-3.5" />}>Invite</Button>,
+            <Button key="exp" variant="secondary" size={s}>Export</Button>,
           ]}
           rowSelection={{ onChange: () => {} }}
           bulkActions={[
             { label: 'Export CSV', onClick: () => {} },
+            { label: 'Change role', onClick: () => {} },
             { label: 'Remove', danger: true, onClick: () => {} },
           ]}
         />
