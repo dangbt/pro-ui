@@ -3441,34 +3441,36 @@ const CtlLabel = ({ children }: { children: React.ReactNode }) => (
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Minimal header */}
-      <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 shrink-0 z-10">
+      <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-2 shrink-0 z-10">
         <button onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors shrink-0"
         >
-          <span className="text-base leading-none">←</span> Docs
+          <span className="text-base leading-none">←</span>
+          <span className="hidden sm:inline">Docs</span>
         </button>
-        <div className="w-px h-5 bg-gray-200" />
-        <div className="flex items-center gap-2">
+        <div className="w-px h-5 bg-gray-200 shrink-0" />
+        <div className="flex items-center gap-2 min-w-0">
           <div className="w-6 h-6 rounded bg-primary flex items-center justify-center shrink-0">
             <span className="text-white text-xs font-bold">P</span>
           </div>
-          <span className="font-semibold text-sm text-gray-900">Theme Builder</span>
+          <span className="font-semibold text-sm text-gray-900 truncate hidden sm:block">Theme Builder</span>
         </div>
         <div className="flex-1" />
-        <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5">
+        <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5 shrink-0">
           {(['sm', 'md', 'lg'] as Size[]).map(sz => (
             <button key={sz} onClick={() => setPreviewSize(sz)}
-              className={cn('px-3 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
+              className={cn('px-2.5 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
                 previewSize === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
             >{sz}</button>
           ))}
         </div>
         <button onClick={copy}
-          className="hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary hover:bg-primary-600 transition-colors"
-        >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
+          className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary hover:bg-primary-600 transition-colors shrink-0"
+        >{copied ? '✓' : '⎘ Copy CSS'}</button>
         <button onClick={() => setSettingsOpen(true)}
-          className="lg:hidden flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
-        >⚙ Customize</button>
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors shrink-0 text-base"
+          aria-label="Customize"
+        >⚙</button>
       </header>
 
       {/* Body */}
