@@ -3913,50 +3913,34 @@ export default function App() {
         </div>
 
         {/* Theme controls */}
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-2">
           {/* Primary color */}
-          <label className="flex items-center gap-1.5 cursor-pointer" title="Primary color">
-            <span className="text-xs text-gray-400 hidden sm:block">Color</span>
-            <div className="relative">
-              <input
-                type="color"
-                value={primary}
-                onChange={e => { setPrimary(e.target.value); applyTheme(radius, e.target.value) }}
-                className="w-7 h-7 border border-gray-200 rounded-[var(--base-radius)] cursor-pointer p-0.5 bg-white"
-              />
-            </div>
-          </label>
+          <input
+            type="color"
+            value={primary}
+            title="Primary color"
+            onChange={e => { setPrimary(e.target.value); applyTheme(radius, e.target.value) }}
+            className="w-7 h-7 border border-gray-200 rounded cursor-pointer p-0.5 bg-white shrink-0"
+          />
 
-          {/* Size */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400 hidden sm:block">Size</span>
-            <Select
-              size="sm"
-              selectedKey={size}
-              onSelectionChange={k => setSize(k as Size)}
-              options={[
-                { value: 'sm', label: 'Small'  },
-                { value: 'md', label: 'Medium' },
-                { value: 'lg', label: 'Large'  },
-              ]}
-              className="w-24"
-            />
+          {/* Size toggle */}
+          <div className="flex items-center border border-gray-200 rounded-lg p-0.5 shrink-0">
+            {(['sm', 'md', 'lg'] as Size[]).map(sz => (
+              <button key={sz} onClick={() => setSize(sz)}
+                className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
+                  size === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+              >{sz}</button>
+            ))}
           </div>
 
-          {/* Radius */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400 hidden sm:block">Radius</span>
-            <Select
-              size="sm"
-              selectedKey={radius}
-              onSelectionChange={k => { const r = k as RadiusMode; setRadius(r); applyTheme(r, primary) }}
-              options={[
-                { value: 'none', label: 'None'   },
-                { value: 'md',   label: 'Medium' },
-                { value: 'lg',   label: 'Large'  },
-              ]}
-              className="w-24"
-            />
+          {/* Radius toggle */}
+          <div className="flex items-center border border-gray-200 rounded-lg p-0.5 shrink-0">
+            {([['0','none'],['M','md'],['L','lg']] as [string, RadiusMode][]).map(([label, val]) => (
+              <button key={val} onClick={() => { setRadius(val); applyTheme(val, primary) }}
+                className={cn('px-2 py-1 text-[11px] font-semibold rounded-md transition-all',
+                  radius === val ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+              >{label}</button>
+            ))}
           </div>
         </div>
       </header>
