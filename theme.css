@@ -12,12 +12,13 @@
 :root {
   --primary: #6366f1;
   --base-radius: 8px;
+  --card-radius: min(var(--base-radius), 16px);
   --border: #e5e7eb;
 
   /* Size scale — control heights of inputs, buttons, and similar interactive elements */
-  --sz-sm: 1.75rem;   /* 28px */
-  --sz-md: 2.25rem;   /* 36px */
-  --sz-lg: 2.75rem;   /* 44px */
+  --sz-sm: 28px;
+  --sz-md: 36px;
+  --sz-lg: 44px;
 }
 
 /* ============================================================

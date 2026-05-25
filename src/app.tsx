@@ -157,6 +157,7 @@ const NAV: NavGroup[] = [
       { id: 'text-inputs',   label: 'Text inputs'         },
       { id: 'select',        label: 'Select & ComboBox'   },
       { id: 'datetime',      label: 'Date & Time'         },
+      { id: 'checkbox',      label: 'Checkbox'            },
       { id: 'toggles',       label: 'Toggles & Choices'   },
       { id: 'slider',        label: 'Slider & Range'      },
       { id: 'tags',          label: 'Tags'                },
@@ -1570,6 +1571,66 @@ function DateSection() {
   )
 }
 
+function CheckboxSection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Checkbox" description="Accessible checkbox built on React Aria — supports indeterminate state, sizes, groups, and press animation." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="States" center={false}>
+          <div className="space-y-2.5">
+            <Checkbox size={size}>Unchecked</Checkbox>
+            <Checkbox size={size} defaultSelected>Checked</Checkbox>
+            <Checkbox size={size} isIndeterminate>Indeterminate</Checkbox>
+            <Checkbox size={size} isDisabled>Disabled</Checkbox>
+            <Checkbox size={size} isDisabled defaultSelected>Disabled + checked</Checkbox>
+          </div>
+        </Demo>
+
+        <Demo label="Sizes" center={false}>
+          <div className="space-y-3">
+            <Checkbox size="sm" defaultSelected>Small (sm)</Checkbox>
+            <Checkbox size="md" defaultSelected>Medium (md)</Checkbox>
+            <Checkbox size="lg" defaultSelected>Large (lg)</Checkbox>
+          </div>
+        </Demo>
+
+        <Demo label="CheckboxGroup — vertical" center={false}>
+          <CheckboxGroup
+            size={size}
+            label="Notify me about"
+            defaultValue={['email', 'push']}
+            options={[
+              { value: 'email', label: 'Email' },
+              { value: 'sms',   label: 'SMS' },
+              { value: 'push',  label: 'Push notifications' },
+              { value: 'slack', label: 'Slack', disabled: true },
+            ]}
+          />
+        </Demo>
+
+        <Demo label="CheckboxGroup — horizontal" center={false}>
+          <CheckboxGroup
+            size={size}
+            label="Days available"
+            defaultValue={['mon', 'wed', 'fri']}
+            orientation="horizontal"
+            options={[
+              { value: 'mon', label: 'Mon' },
+              { value: 'tue', label: 'Tue' },
+              { value: 'wed', label: 'Wed' },
+              { value: 'thu', label: 'Thu' },
+              { value: 'fri', label: 'Fri' },
+            ]}
+          />
+        </Demo>
+
+      </div>
+    </div>
+  )
+}
+
 function TogglesSection() {
   const size = useShowcaseSize()
   return (
@@ -2269,67 +2330,49 @@ function ProTableSection() {
   ]
 
   return (
-    <div className="space-y-10">
-      <SectionHeader title="ProTable" description="Data table with auto search form, server-side pagination, sorting, column visibility toggle, column pinning, and valueType renderers." />
+    <div className="space-y-6">
+      <SectionHeader
+        title="ProTable"
+        description="Data table with auto search form, server-side pagination, sorting, column visibility toggle, column pinning, row selection, and bulk actions."
+      />
 
-      {/* Basic table */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-800">Basic — search, sort, pagination, column visibility & pinning</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Hover column header to pin left/right · toolbar icon to show/hide columns · Name column is always visible</p>
-        </div>
-        <ProTable<User>
-          columns={TABLE_COLS}
-          request={mockRequest}
-          rowKey="id"
-          headerTitle="User Management"
-          size={size}
-          toolBarRender={() => [
-            <Button key="add" variant="primary" size={size}>+ Add User</Button>,
-            <Button key="exp" variant="secondary" size={size}>Export</Button>,
-          ]}
-        />
+      <div className="text-xs text-gray-500 space-y-0.5">
+        <p>· <strong>Sort</strong> — click column headers</p>
+        <p>· <strong>Pin</strong> — hover a header → pin left/right</p>
+        <p>· <strong>Visibility</strong> — toolbar eye icon to show/hide columns</p>
+        <p>· <strong>Select rows</strong> → sticky bulk action bar appears</p>
       </div>
 
-      {/* Row selection + bulk actions */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-800">With row selection & bulk actions</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Select rows → sticky action bar appears · Name pinnable left, Created pinnable right</p>
-        </div>
+      {toast && <Alert variant="success" closable>{toast}</Alert>}
 
-        {toast && (
-          <Alert variant="success" closable>{toast}</Alert>
-        )}
+      <ProTable<User>
+        columns={TABLE_COLS}
+        request={mockRequest}
+        rowKey="id"
+        headerTitle="User Management"
+        size={size}
+        toolBarRender={() => [
+          <Button key="add" variant="primary" size={size}>+ Add User</Button>,
+          <Button key="exp" variant="secondary" size={size}>Export</Button>,
+        ]}
+        rowSelection={{
+          onChange: (keys) => setSelectedKeys(keys),
+        }}
+        bulkActions={bulkActions}
+      />
 
-        <ProTable<User>
-          columns={TABLE_COLS_SELECT}
-          request={mockRequest}
-          rowKey="id"
-          headerTitle="User Management"
-          size={size}
-          toolBarRender={() => [
-            <Button key="add" variant="primary" size={size}>+ Add User</Button>,
-          ]}
-          rowSelection={{
-            onChange: (keys) => setSelectedKeys(keys),
-          }}
-          bulkActions={bulkActions}
-        />
-
-        <ConfirmModal
-          isOpen={confirmDelete}
-          onOpenChange={setConfirmDelete}
-          title="Delete selected users"
-          description={`Are you sure you want to delete ${selectedKeys.length} selected user${selectedKeys.length !== 1 ? 's' : ''}? This action cannot be undone.`}
-          confirmLabel="Yes, delete"
-          danger
-          onConfirm={() => {
-            showToast(`Deleted ${selectedKeys.length} users`)
-            setConfirmDelete(false)
-          }}
-        />
-      </div>
+      <ConfirmModal
+        isOpen={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete selected users"
+        description={`Are you sure you want to delete ${selectedKeys.length} selected user${selectedKeys.length !== 1 ? 's' : ''}? This action cannot be undone.`}
+        confirmLabel="Yes, delete"
+        danger
+        onConfirm={() => {
+          showToast(`Deleted ${selectedKeys.length} users`)
+          setConfirmDelete(false)
+        }}
+      />
     </div>
   )
 }
@@ -2371,11 +2414,22 @@ function ColorSystemSection() {
           <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide">src/index.css — the complete formula</span>
         </div>
         <pre className="px-5 py-4 text-xs font-mono text-gray-600 leading-6 bg-gray-950 overflow-x-auto">
-          <span className="text-gray-500">{"/* ── 1. Only these 2 lines need changing per project ─────────── */"}{'\n'}</span>
+          <span className="text-gray-500">{"/* ── 1. Customize these tokens per project ────────────────────── */"}{'\n'}</span>
           <span className="text-emerald-400">{"--primary"}</span>
-          <span className="text-gray-300">{": #6366f1;"}{'\n'}</span>
+          <span className="text-gray-300">{":     #6366f1;   "}</span>
+          <span className="text-gray-500">{"/* brand color */"}{'\n'}</span>
           <span className="text-emerald-400">{"--base-radius"}</span>
-          <span className="text-gray-300">{": 0px;"}{'\n\n'}</span>
+          <span className="text-gray-300">{": 8px;       "}</span>
+          <span className="text-gray-500">{"/* corner radius */"}{'\n'}</span>
+          <span className="text-emerald-400">{"--sz-sm"}</span>
+          <span className="text-gray-300">{"      : 28px;      "}</span>
+          <span className="text-gray-500">{"/* small input/button height */"}{'\n'}</span>
+          <span className="text-emerald-400">{"--sz-md"}</span>
+          <span className="text-gray-300">{"      : 36px;      "}</span>
+          <span className="text-gray-500">{"/* medium input/button height */"}{'\n'}</span>
+          <span className="text-emerald-400">{"--sz-lg"}</span>
+          <span className="text-gray-300">{"      : 44px;      "}</span>
+          <span className="text-gray-500">{"/* large input/button height */"}{'\n\n'}</span>
 
           <span className="text-gray-500">{"/* ── 2. Primary scale — same formula, different % ─────────────── */"}{'\n'}</span>
           <span className="text-blue-300">{"--primary-50"}</span>
@@ -3170,16 +3224,21 @@ const RADIUS_PRESETS = [
   { label: 'Full', value: '9999px' },
 ]
 
-function ThemeBuilderSection() {
+function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
   const [primary, setPrimary] = useState('#6366f1')
-  const [radius, setRadius] = useState('8px')
+  const [radius, setRadius] = useState('0px')
   const [szSm, setSzSm] = useState(28)
   const [szMd, setSzMd] = useState(36)
   const [szLg, setSzLg] = useState(44)
   const [copied, setCopied] = useState(false)
+  const [previewSize, setPreviewSize] = useState<Size>('md')
+  const [successColor, setSuccessColor] = useState<string | null>(null)
+  const [warningColor, setWarningColor] = useState<string | null>(null)
+  const [dangerColor,  setDangerColor]  = useState<string | null>(null)
+  const [infoColor,    setInfoColor]    = useState<string | null>(null)
+  const [borderColor,  setBorderColor]  = useState<string | null>(null)
 
-  // Map pixel values → sm/md/lg prop for components (uses md as preview tier)
-  const s: Size = 'md'
+  const s = previewSize
 
   const apply = (p: string, r: string, sm: number, md: number, lg: number) => {
     document.documentElement.style.setProperty('--primary', p)
@@ -3188,12 +3247,32 @@ function ThemeBuilderSection() {
     document.documentElement.style.setProperty('--sz-md', `${md}px`)
     document.documentElement.style.setProperty('--sz-lg', `${lg}px`)
   }
-  const handleColor  = (hex: string) => { setPrimary(hex); apply(hex, radius, szSm, szMd, szLg) }
-  const handleRadius = (r: string)   => { setRadius(r);    apply(primary, r, szSm, szMd, szLg) }
-  const handleSzSm   = (v: number)   => { setSzSm(v);      apply(primary, radius, v, szMd, szLg) }
-  const handleSzMd   = (v: number)   => { setSzMd(v);      apply(primary, radius, szSm, v, szLg) }
-  const handleSzLg   = (v: number)   => { setSzLg(v);      apply(primary, radius, szSm, szMd, v) }
+  const applyStatus = (sc: string | null, wc: string | null, dc: string | null, ic: string | null, bc: string | null) => {
+    const el = document.documentElement
+    const set = (k: string, v: string | null) => v ? el.style.setProperty(k, v) : el.style.removeProperty(k)
+    set('--success', sc); set('--warning', wc); set('--danger', dc); set('--info', ic); set('--border', bc)
+  }
 
+  const handleColor   = (hex: string) => { setPrimary(hex); apply(hex, radius, szSm, szMd, szLg) }
+  const handleRadius  = (r: string)   => { setRadius(r);    apply(primary, r, szSm, szMd, szLg) }
+  const handleSzSm    = (v: number)   => { setSzSm(v);      apply(primary, radius, v, szMd, szLg) }
+  const handleSzMd    = (v: number)   => { setSzMd(v);      apply(primary, radius, szSm, v, szLg) }
+  const handleSzLg    = (v: number)   => { setSzLg(v);      apply(primary, radius, szSm, szMd, v) }
+  const handleSuccess = (v: string | null) => { setSuccessColor(v); applyStatus(v, warningColor, dangerColor, infoColor, borderColor) }
+  const handleWarning = (v: string | null) => { setWarningColor(v); applyStatus(successColor, v, dangerColor, infoColor, borderColor) }
+  const handleDanger  = (v: string | null) => { setDangerColor(v);  applyStatus(successColor, warningColor, v, infoColor, borderColor) }
+  const handleInfo    = (v: string | null) => { setInfoColor(v);    applyStatus(successColor, warningColor, dangerColor, v, borderColor) }
+  const handleBorder  = (v: string | null) => { setBorderColor(v);  applyStatus(successColor, warningColor, dangerColor, infoColor, v) }
+
+  const statusOverrides = [
+    { label: 'Success', cssVar: '--success', defaultHex: '#22c55e', color: successColor, handle: handleSuccess },
+    { label: 'Warning', cssVar: '--warning', defaultHex: '#f59e0b', color: warningColor, handle: handleWarning },
+    { label: 'Danger',  cssVar: '--danger',  defaultHex: '#ef4444', color: dangerColor,  handle: handleDanger  },
+    { label: 'Info',    cssVar: '--info',    defaultHex: '#3b82f6', color: infoColor,    handle: handleInfo    },
+    { label: 'Border',  cssVar: '--border',  defaultHex: '#e5e7eb', color: borderColor,  handle: handleBorder  },
+  ]
+
+  const overriddenVars = statusOverrides.filter(o => o.color !== null)
   const cssOutput = `@import "tailwindcss";
 @import "@dangbt/pro-ui/tailwind.css";
 @import "@dangbt/pro-ui/theme.css";
@@ -3203,7 +3282,7 @@ function ThemeBuilderSection() {
   --base-radius: ${radius};
   --sz-sm: ${szSm}px;
   --sz-md: ${szMd}px;
-  --sz-lg: ${szLg}px;
+  --sz-lg: ${szLg}px;${overriddenVars.map(o => `\n  ${o.cssVar}: ${o.color};`).join('')}
 }`
   const copy = () => {
     navigator.clipboard.writeText(cssOutput)
@@ -3218,19 +3297,11 @@ function ThemeBuilderSection() {
     { label: 'New Orders',     value: '1,247',    change: '-4.5%',  up: false },
     { label: 'Pending Tasks',  value: '84',       change: '+2',     up: true  },
   ]
-  const tableRows = [
-    { name: 'Alice Johnson',  email: 'alice@co.io',  role: 'Admin',  status: 'ACTIVE'   },
-    { name: 'Bob Smith',      email: 'bob@co.io',    role: 'Editor', status: 'ACTIVE'   },
-    { name: 'Carol White',    email: 'carol@co.io',  role: 'Viewer', status: 'INACTIVE' },
-    { name: 'David Kim',      email: 'david@co.io',  role: 'Editor', status: 'ACTIVE'   },
-  ]
-  const statusColor: Record<string,'success'|'default'> = { ACTIVE: 'success', INACTIVE: 'default' }
-
-  const CtlLabel = ({ children }: { children: React.ReactNode }) => (
+const CtlLabel = ({ children }: { children: React.ReactNode }) => (
     <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">{children}</p>
   )
   const PanelCard = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={cn('bg-white rounded-[var(--base-radius)] border border-gray-200 overflow-hidden', className)}>
+    <div className={cn('bg-white rounded-[var(--card-radius)] border border-gray-200 overflow-hidden', className)}>
       {children}
     </div>
   )
@@ -3241,104 +3312,160 @@ function ThemeBuilderSection() {
     </div>
   )
 
-  return (
-    <div className="space-y-6">
-      <SectionHeader title="Theme Builder" description="Customize your design tokens and see every component update instantly. Copy the CSS when you're done." />
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
-      {/* ── Controls bar ─────────────────────────────────────────────────── */}
-      <div className="rounded-[var(--base-radius)] border border-gray-200 bg-white p-4 space-y-4">
-        {/* Color */}
+  const ControlsContent = (
+    <div className="p-4 space-y-5">
+        {/* Primary color */}
         <div>
           <CtlLabel>Primary color</CtlLabel>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap gap-1.5">
               {THEME_PRESETS.map(p => (
-                <button
-                  key={p.hex}
-                  onClick={() => handleColor(p.hex)}
-                  title={p.name}
-                  className="w-6 h-6 rounded-full border-2 transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: p.hex,
-                    borderColor: primary === p.hex ? 'white' : 'transparent',
-                    boxShadow: primary === p.hex ? `0 0 0 2px ${p.hex}` : 'none',
-                  }}
+                <button key={p.hex} onClick={() => handleColor(p.hex)} title={p.name}
+                  className="w-5 h-5 rounded-full border-2 transition-all hover:scale-110"
+                  style={{ backgroundColor: p.hex, borderColor: primary === p.hex ? 'white' : 'transparent', boxShadow: primary === p.hex ? `0 0 0 2px ${p.hex}` : 'none' }}
                 />
               ))}
             </div>
             <div className="flex items-center gap-1.5 ml-auto">
-              <input
-                type="color"
-                value={primary}
-                onChange={e => handleColor(e.target.value)}
-                className="w-7 h-7 rounded border border-gray-200 cursor-pointer p-0.5 bg-white"
-              />
-              <input
-                type="text"
-                value={primary}
-                onChange={e => {
-                  const v = e.target.value
-                  if (/^#[0-9a-fA-F]{0,6}$/.test(v)) {
-                    setPrimary(v)
-                    if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius, szSm, szMd, szLg)
-                  }
-                }}
-                className="h-7 w-24 px-2 font-mono text-xs border border-gray-200 rounded focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent"
-              />
+              <input type="color" value={primary} onChange={e => handleColor(e.target.value)}
+                className="w-7 h-7 rounded border border-gray-200 cursor-pointer p-0.5 bg-white" />
+              <input type="text" value={primary}
+                onChange={e => { const v = e.target.value; if (/^#[0-9a-fA-F]{0,6}$/.test(v)) { setPrimary(v); if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius, szSm, szMd, szLg) } }}
+                className="h-7 w-20 px-2 font-mono text-xs border border-gray-200 rounded focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent" />
             </div>
+          </div>
+          <div className="flex gap-0.5 mt-2">
+            {[50,100,200,300,400,500,600,700,800,900].map(shade => (
+              <div key={shade} className="flex-1 h-5 rounded-sm" style={{ background: `var(--primary-${shade})` }} />
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* Radius */}
-          <div>
-            <CtlLabel>Radius</CtlLabel>
-            <div className="flex gap-1.5">
-              {RADIUS_PRESETS.map(r => (
-                <button
-                  key={r.value}
-                  onClick={() => handleRadius(r.value)}
-                  title={r.value}
-                  className={cn(
-                    'flex-1 h-8 text-xs font-medium border transition-all',
-                    radius === r.value
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400',
-                  )}
-                  style={{ borderRadius: r.value === '9999px' ? '9999px' : '5px' }}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Size */}
-          <div>
-            <CtlLabel>Size scale (px)</CtlLabel>
-            <div className="space-y-3">
-              {([
-                { label: 'SM', value: szSm, min: 20, max: 40, onChange: handleSzSm },
-                { label: 'MD', value: szMd, min: 28, max: 52, onChange: handleSzMd },
-                { label: 'LG', value: szLg, min: 36, max: 64, onChange: handleSzLg },
-              ] as const).map(tier => (
-                <div key={tier.label} className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 w-5 shrink-0">{tier.label}</span>
-                  <input
-                    type="range"
-                    min={tier.min}
-                    max={tier.max}
-                    value={tier.value}
-                    onChange={e => tier.onChange(Number(e.target.value))}
-                    className="flex-1 h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none"
-                  />
-                  <span className="text-xs font-mono text-gray-500 w-8 text-right shrink-0">{tier.value}px</span>
+        {/* Color system */}
+        <div>
+          <CtlLabel>Color system</CtlLabel>
+          <div className="flex gap-3">
+            {statusOverrides.map(({ label, cssVar, defaultHex, color, handle }) => (
+              <div key={cssVar} className="flex flex-col items-center gap-1">
+                <div className="relative w-8 h-8 rounded-lg border border-black/10 overflow-hidden cursor-pointer"
+                  style={{ background: color ?? `var(${cssVar})` }}>
+                  <input type="color" value={color ?? defaultHex} onChange={e => handle(e.target.value)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 </div>
-              ))}
-            </div>
+                <span className="text-[9px] text-gray-400">{label}</span>
+                {color !== null && (
+                  <button onClick={() => handle(null)} className="text-[9px] text-primary hover:underline">↺</button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+
+        {/* Radius */}
+        <div>
+          <CtlLabel>Radius</CtlLabel>
+          <div className="flex gap-1">
+            {RADIUS_PRESETS.map(r => (
+              <button key={r.value} onClick={() => handleRadius(r.value)} title={r.value}
+                className={cn('flex-1 h-8 text-xs font-medium border transition-all',
+                  radius === r.value ? 'bg-primary text-white border-primary' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400')}
+                style={{ borderRadius: r.value === '9999px' ? '9999px' : '5px' }}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Size */}
+        <div>
+          <CtlLabel>Size scale (px)</CtlLabel>
+          <div className="space-y-2">
+            {([
+              { label: 'SM', value: szSm, min: 20, max: 40, onChange: handleSzSm },
+              { label: 'MD', value: szMd, min: 28, max: 52, onChange: handleSzMd },
+              { label: 'LG', value: szLg, min: 36, max: 64, onChange: handleSzLg },
+            ] as const).map(tier => (
+              <div key={tier.label} className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 w-5 shrink-0">{tier.label}</span>
+                <input type="range" min={tier.min} max={tier.max} value={tier.value}
+                  onChange={e => tier.onChange(Number(e.target.value))}
+                  className="flex-1 h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none" />
+                <span className="text-[11px] font-mono text-gray-500 w-8 text-right shrink-0">{tier.value}px</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CSS Export */}
+        <div>
+          <CtlLabel>Export CSS</CtlLabel>
+          <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
+            <pre className="bg-gray-950 text-gray-100 p-3 text-[11px] font-mono overflow-x-auto leading-relaxed">
+              <span className="text-gray-500">@import </span><span className="text-green-400">"tailwindcss"</span><span className="text-gray-500">;</span>{'\n'}
+              <span className="text-gray-500">@import </span><span className="text-green-400">"@dangbt/pro-ui/tailwind.css"</span><span className="text-gray-500">;</span>{'\n'}
+              <span className="text-gray-500">@import </span><span className="text-green-400">"@dangbt/pro-ui/theme.css"</span><span className="text-gray-500">;</span>{'\n\n'}
+              <span className="text-blue-400">:root</span><span className="text-gray-300"> {'{'}</span>{'\n'}
+              <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--primary</span><span className="text-gray-300">: </span><span className="text-orange-300">{primary}</span><span className="text-gray-300">;</span>{'\n'}
+              <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--base-radius</span><span className="text-gray-300">: </span><span className="text-orange-300">{radius}</span><span className="text-gray-300">;</span>{'\n'}
+              <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-sm</span><span className="text-gray-300">: </span><span className="text-orange-300">{szSm}px</span><span className="text-gray-300">;</span>{'\n'}
+              <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-md</span><span className="text-gray-300">: </span><span className="text-orange-300">{szMd}px</span><span className="text-gray-300">;</span>{'\n'}
+              <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-lg</span><span className="text-gray-300">: </span><span className="text-orange-300">{szLg}px</span><span className="text-gray-300">;</span>{'\n'}
+              {overriddenVars.map(o => (
+                <span key={o.cssVar}>
+                  <span className="text-gray-300">{'  '}</span>
+                  <span className="text-sky-300">{o.cssVar}</span>
+                  <span className="text-gray-300">: </span>
+                  <span className="text-orange-300">{o.color}</span>
+                  <span className="text-gray-300">;</span>{'\n'}
+                </span>
+              ))}
+              <span className="text-gray-300">{'}'}</span>
+            </pre>
+          </div>
+        </div>
+    </div>
+  )
+
+  return (
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      {/* Minimal header */}
+      <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 shrink-0 z-10">
+        <button onClick={onBack}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <span className="text-base leading-none">←</span> Docs
+        </button>
+        <div className="w-px h-5 bg-gray-200" />
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded bg-primary flex items-center justify-center shrink-0">
+            <span className="text-white text-xs font-bold">P</span>
+          </div>
+          <span className="font-semibold text-sm text-gray-900">Theme Builder</span>
+        </div>
+        <div className="flex-1" />
+        <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5">
+          {(['sm', 'md', 'lg'] as Size[]).map(sz => (
+            <button key={sz} onClick={() => setPreviewSize(sz)}
+              className={cn('px-3 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
+                previewSize === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+            >{sz}</button>
+          ))}
+        </div>
+        <button onClick={copy}
+          className="hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary hover:bg-primary-600 transition-colors"
+        >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
+        <button onClick={() => setSettingsOpen(true)}
+          className="lg:hidden flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+        >⚙ Customize</button>
+      </header>
+
+      {/* Body */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Preview */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-4 max-w-5xl">
 
       {/* ── Preview ──────────────────────────────────────────────────────── */}
       <div className="space-y-4">
@@ -3346,7 +3473,7 @@ function ThemeBuilderSection() {
         {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map(st => (
-            <div key={st.label} className="bg-white rounded-[var(--base-radius)] border border-gray-200 p-4 space-y-1">
+            <div key={st.label} className="bg-white rounded-[var(--card-radius)] border border-gray-200 p-4 space-y-1">
               <p className="text-xs text-gray-500">{st.label}</p>
               <p className="text-2xl font-bold text-gray-900">{st.value}</p>
               <p className={cn('text-xs font-medium', st.up ? 'text-success-600' : 'text-danger-600')}>
@@ -3439,46 +3566,22 @@ function ThemeBuilderSection() {
           </div>
         </div>
 
-        {/* Users table */}
-        <PanelCard>
-          <PanelHeader
-            title="Team members"
-            action={<Button variant="primary" size="sm"><Plus className="w-3.5 h-3.5" /> Invite</Button>}
-          />
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/60">
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500">Name</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500">Email</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500">Role</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500">Status</th>
-                  <th className="px-4 py-2.5" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {tableRows.map(row => (
-                  <tr key={row.email} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar name={row.name} size="sm" />
-                        <span className="font-medium text-gray-800">{row.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500">{row.email}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.role}</td>
-                    <td className="px-4 py-3">
-                      <Badge color={statusColor[row.status]} size="sm">{row.status}</Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm">Edit</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </PanelCard>
+        {/* Users table — ProTable with sort, visibility, pin, row selection, bulk actions */}
+        <ProTable<User>
+          columns={TABLE_COLS}
+          request={mockRequest}
+          rowKey="id"
+          headerTitle="Team members"
+          size={s}
+          toolBarRender={() => [
+            <Button key="inv" variant="primary" size={s} icon={<Plus className="w-3.5 h-3.5" />}>Invite</Button>,
+          ]}
+          rowSelection={{ onChange: () => {} }}
+          bulkActions={[
+            { label: 'Export CSV', onClick: () => {} },
+            { label: 'Remove', danger: true, onClick: () => {} },
+          ]}
+        />
 
         {/* Tabs + Cards row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -3628,40 +3731,43 @@ function ThemeBuilderSection() {
         </div>
       </div>
 
-      {/* ── CSS Export ───────────────────────────────────────────────────── */}
-      <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-          <div>
-            <p className="text-sm font-semibold text-gray-800">Export CSS</p>
-            <p className="text-xs text-gray-400">Paste into your root CSS file</p>
           </div>
-          <button
-            onClick={copy}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-[var(--base-radius)] border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
-          >
-            {copied ? '✓ Copied!' : '⎘ Copy'}
-          </button>
         </div>
-        <pre className="bg-gray-950 text-gray-100 p-5 text-sm font-mono overflow-x-auto leading-relaxed">
-          <span className="text-gray-500">@import </span><span className="text-green-400">"tailwindcss"</span><span className="text-gray-500">;</span>{'\n'}
-          <span className="text-gray-500">@import </span><span className="text-green-400">"@dangbt/pro-ui/tailwind.css"</span><span className="text-gray-500">;</span>{'\n'}
-          <span className="text-gray-500">@import </span><span className="text-green-400">"@dangbt/pro-ui/theme.css"</span><span className="text-gray-500">;</span>{'\n\n'}
-          <span className="text-blue-400">:root</span><span className="text-gray-300"> {'{'}</span>{'\n'}
-          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--primary</span><span className="text-gray-300">: </span><span className="text-orange-300">{primary}</span><span className="text-gray-300">;</span>{'\n'}
-          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--base-radius</span><span className="text-gray-300">: </span><span className="text-orange-300">{radius}</span><span className="text-gray-300">;</span>{'\n'}
-          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-sm</span><span className="text-gray-300">: </span><span className="text-orange-300">{szSm}px</span><span className="text-gray-300">;</span>{'\n'}
-          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-md</span><span className="text-gray-300">: </span><span className="text-orange-300">{szMd}px</span><span className="text-gray-300">;</span>{'\n'}
-          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-lg</span><span className="text-gray-300">: </span><span className="text-orange-300">{szLg}px</span><span className="text-gray-300">;</span>{'\n'}
-          <span className="text-gray-300">{'}'}</span>
-        </pre>
+        {/* Desktop sidebar */}
+        <div className="hidden lg:flex w-72 xl:w-80 shrink-0 border-l border-gray-200 bg-white overflow-y-auto flex-col">
+          {ControlsContent}
+        </div>
       </div>
+
+      {/* Mobile bottom sheet */}
+      {settingsOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setSettingsOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+              <span className="text-sm font-semibold text-gray-800">Customize</span>
+              <div className="flex items-center gap-2">
+                <button onClick={copy}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary"
+                >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
+                <button onClick={() => setSettingsOpen(false)}
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 text-lg leading-none"
+                >✕</button>
+              </div>
+            </div>
+            <div className="overflow-y-auto">
+              {ControlsContent}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 const SECTIONS: Record<string, React.ReactNode> = {
   overview:    <Overview />,
-  theme:       <ThemeBuilderSection />,
+  theme:       null,
   colors:      <ColorSystemSection />,
   icons:       <IconsSection />,
   button:         <ButtonSection />,
@@ -3669,6 +3775,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   'text-inputs':  <TextInputsSection />,
   select:         <SelectSection />,
   datetime:       <DateSection />,
+  checkbox:       <CheckboxSection />,
   toggles:        <TogglesSection />,
   slider:         <SliderSection />,
   tags:           <TagsSection />,
@@ -3738,6 +3845,10 @@ export default function App() {
   }
 
   const navLabel = NAV.flatMap(g => g.items).find(i => i.id === active)?.label ?? ''
+
+  if (active === 'theme') {
+    return <ThemeBuilderPage onBack={() => navigate('overview')} />
+  }
 
   return (
     <div className="min-h-screen bg-white">

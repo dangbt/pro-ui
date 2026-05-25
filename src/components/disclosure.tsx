@@ -49,8 +49,18 @@ export function Disclosure({ title, children, className, ...props }: DisclosureP
               />
             </Button>
           </Heading>
-          <DisclosurePanel className="px-4 py-3 text-sm text-gray-600 border-t border-border">
-            {children}
+          <DisclosurePanel style={{ display: 'block' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateRows: isExpanded ? '1fr' : '0fr',
+                transition: 'grid-template-rows 200ms ease',
+              }}
+            >
+              <div className="overflow-hidden">
+                <div className="px-4 py-3 text-sm text-gray-600 border-t border-border">{children}</div>
+              </div>
+            </div>
           </DisclosurePanel>
         </>
       )}

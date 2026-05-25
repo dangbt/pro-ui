@@ -6,8 +6,14 @@
    ============================================================ */
 :root {
   --primary: #6366f1;   /* brand color — drives the entire palette */
-  --base-radius: 0px;   /* 0px | 6px | 12px */
+  --base-radius: 0px;   /* corner radius for interactive elements */
+  --card-radius: min(var(--base-radius), 16px); /* capped radius for panels/cards */
   --border: #e5e7eb;    /* default border color */
+
+  /* Size scale — control heights of inputs, buttons, and similar interactive elements */
+  --sz-sm: 1.75rem;   /* 28px */
+  --sz-md: 2.25rem;   /* 36px */
+  --sz-lg: 2.75rem;   /* 44px */
 }
 
 /* ============================================================

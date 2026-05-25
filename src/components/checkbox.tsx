@@ -44,13 +44,14 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
     >
       <div
         className={cn(
-          'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-colors',
+          'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
           cbBoxSize[size],
           'border-gray-300 bg-white',
           'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
           'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
           'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
           'group-hover:border-primary-400',
+          'group-data-[pressed]:scale-95',
         )}
       >
         <Check
