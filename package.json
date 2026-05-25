@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "keywords": [
@@ -25,12 +25,14 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./tailwind.css": "./tailwind.css"
+    "./tailwind.css": "./tailwind.css",
+    "./theme.css": "./theme.css"
   },
   "files": [
     "dist",
     "src",
-    "tailwind.css"
+    "tailwind.css",
+    "theme.css"
   ],
   "sideEffects": false,
   "publishConfig": {
