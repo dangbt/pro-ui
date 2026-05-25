@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext, type ComponentType } from 'react'
 import * as LucideIcons from 'lucide-react'
+import { Plus, Download, RefreshCw, Trash2 } from 'lucide-react'
 import {
   LayoutDashboard as IconDashboard,
   Users           as IconUsers,
@@ -146,6 +147,7 @@ const NAV: NavGroup[] = [
   {
     group: 'Form',
     items: [
+      { id: 'button',       label: 'Button'             },
       { id: 'text-inputs',  label: 'Text inputs'        },
       { id: 'select',       label: 'Select & ComboBox'  },
       { id: 'datetime',     label: 'Date & Time'        },
@@ -979,6 +981,84 @@ function Overview() {
             <Checkbox size={size}>Subscribe to updates</Checkbox>
           </div>
         </Demo>
+      </div>
+    </div>
+  )
+}
+
+function ButtonSection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Button" description="Accessible button built on React Aria — supports variants, sizes, icon slots, and disabled/loading states." />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="variant='primary'">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="primary" size={size}>Primary</Button>
+            <Button variant="primary" size={size} isDisabled>Disabled</Button>
+          </div>
+        </Demo>
+
+        <Demo label="variant='secondary'">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="secondary" size={size}>Secondary</Button>
+            <Button variant="secondary" size={size} isDisabled>Disabled</Button>
+          </div>
+        </Demo>
+
+        <Demo label="variant='ghost'">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="ghost" size={size}>Ghost</Button>
+            <Button variant="ghost" size={size} isDisabled>Disabled</Button>
+          </div>
+        </Demo>
+
+        <Demo label="variant='danger'">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="danger" size={size}>Danger</Button>
+            <Button variant="danger" size={size} isDisabled>Disabled</Button>
+          </div>
+        </Demo>
+
+        <Demo label="Sizes" className="sm:col-span-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="primary" size="sm">Small</Button>
+            <Button variant="primary" size="md">Medium</Button>
+            <Button variant="primary" size="lg">Large</Button>
+            <Button variant="secondary" size="sm">Small</Button>
+            <Button variant="secondary" size="md">Medium</Button>
+            <Button variant="secondary" size="lg">Large</Button>
+          </div>
+        </Demo>
+
+        <Demo label="With icon (icon prop)">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="primary" size={size} icon={<Plus className="w-4 h-4" />}>Add item</Button>
+            <Button variant="secondary" size={size} icon={<Download className="w-4 h-4" />}>Export</Button>
+            <Button variant="ghost" size={size} icon={<RefreshCw className="w-4 h-4" />}>Refresh</Button>
+          </div>
+        </Demo>
+
+        <Demo label="Icon only">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="primary"   size={size} aria-label="Add"><Plus       className="w-4 h-4" /></Button>
+            <Button variant="secondary" size={size} aria-label="Download"><Download  className="w-4 h-4" /></Button>
+            <Button variant="ghost"     size={size} aria-label="Refresh"><RefreshCw  className="w-4 h-4" /></Button>
+            <Button variant="danger"    size={size} aria-label="Delete"><Trash2     className="w-4 h-4" /></Button>
+          </div>
+        </Demo>
+
+        <Demo label="All variants — side by side" className="sm:col-span-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="primary"   size={size}>Primary</Button>
+            <Button variant="secondary" size={size}>Secondary</Button>
+            <Button variant="ghost"     size={size}>Ghost</Button>
+            <Button variant="danger"    size={size}>Danger</Button>
+          </div>
+        </Demo>
+
       </div>
     </div>
   )
@@ -2323,6 +2403,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   overview:    <Overview />,
   colors:      <ColorSystemSection />,
   icons:       <IconsSection />,
+  button:        <ButtonSection />,
   'text-inputs': <TextInputsSection />,
   select:      <SelectSection />,
   datetime:    <DateSection />,
