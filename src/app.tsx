@@ -3237,7 +3237,7 @@ export default function App() {
             <span className="text-white text-xs font-bold">P</span>
           </div>
           <span className="font-semibold text-gray-900 text-sm tracking-tight">pro-ui</span>
-          <Badge color="info" className="hidden sm:inline-flex">v1.0.19</Badge>
+          <Badge color="info" className="hidden sm:inline-flex">v{__APP_VERSION__}</Badge>
         </div>
 
         <div className="flex-1" />
