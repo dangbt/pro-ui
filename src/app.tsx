@@ -88,14 +88,6 @@ const TABLE_COLS: ProColumnType<User>[] = [
   },
 ]
 
-const TABLE_COLS_SELECT: ProColumnType<User>[] = [
-  { title: 'Name',    dataIndex: 'name',      sortable: true, width: 200, disableHiding: true, pinnable: true },
-  { title: 'Email',   dataIndex: 'email',     width: 220 },
-  { title: 'Role',    dataIndex: 'role',      valueType: 'select', valueEnum: ROLE_ENUM },
-  { title: 'Status',  dataIndex: 'status',    valueType: 'select', valueEnum: STATUS_ENUM },
-  { title: 'Revenue', dataIndex: 'revenue',   valueType: 'money', sortable: true, align: 'right', hideInSearch: true },
-  { title: 'Created', dataIndex: 'createdAt', valueType: 'date',  sortable: true, hideInSearch: true, pinnable: true },
-]
 
 /* columns for Theme Builder preview — every column is sortable + pinnable */
 const THEME_PREVIEW_COLS: ProColumnType<User>[] = [
@@ -106,7 +98,7 @@ const THEME_PREVIEW_COLS: ProColumnType<User>[] = [
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date',   sortable: true, hideInSearch: true, pinnable: true },
   {
     title: 'Actions', key: 'actions', hideInSearch: true, align: 'center', width: 100, pinnable: true,
-    render: (_v, r) => (
+    render: () => (
       <div className="flex items-center justify-center gap-1">
         <button className="text-primary text-xs font-medium px-2 py-1 hover:bg-primary-50 rounded-[var(--base-radius)] transition-colors">Edit</button>
         <button className="text-danger text-xs font-medium px-2 py-1 hover:bg-danger-50 rounded-[var(--base-radius)] transition-colors">Del</button>
