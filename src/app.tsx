@@ -144,6 +144,7 @@ const NAV: NavGroup[] = [
     group: 'Overview',
     items: [
       { id: 'overview', label: 'Introduction'  },
+      { id: 'theme',    label: 'Theme Builder' },
       { id: 'colors',   label: 'Color system'  },
       { id: 'icons',    label: 'Icons'         },
     ],
@@ -3139,8 +3140,224 @@ function ColorPickerSection() {
   )
 }
 
+/* ─── Theme Builder ──────────────────────────────────────────────────────── */
+
+const THEME_PRESETS = [
+  { name: 'Indigo',   hex: '#6366f1' },
+  { name: 'Violet',   hex: '#8b5cf6' },
+  { name: 'Purple',   hex: '#a855f7' },
+  { name: 'Blue',     hex: '#3b82f6' },
+  { name: 'Cyan',     hex: '#06b6d4' },
+  { name: 'Teal',     hex: '#14b8a6' },
+  { name: 'Emerald',  hex: '#10b981' },
+  { name: 'Green',    hex: '#22c55e' },
+  { name: 'Amber',    hex: '#f59e0b' },
+  { name: 'Orange',   hex: '#f97316' },
+  { name: 'Rose',     hex: '#f43f5e' },
+  { name: 'Pink',     hex: '#ec4899' },
+  { name: 'Slate',    hex: '#64748b' },
+  { name: 'Zinc',     hex: '#71717a' },
+]
+
+const RADIUS_PRESETS = [
+  { label: '0',    value: '0px'    },
+  { label: '4',    value: '4px'    },
+  { label: '8',    value: '8px'    },
+  { label: '12',   value: '12px'   },
+  { label: '16',   value: '16px'   },
+  { label: 'Full', value: '9999px' },
+]
+
+function ThemeBuilderSection() {
+  const [primary, setPrimary] = useState('#6366f1')
+  const [radius, setRadius] = useState('8px')
+  const [copied, setCopied] = useState(false)
+
+  const apply = (p: string, r: string) => {
+    document.documentElement.style.setProperty('--primary', p)
+    document.documentElement.style.setProperty('--base-radius', r)
+  }
+
+  const handleColor = (hex: string) => {
+    setPrimary(hex)
+    apply(hex, radius)
+  }
+
+  const handleRadius = (r: string) => {
+    setRadius(r)
+    apply(primary, r)
+  }
+
+  const cssOutput = `@import "tailwindcss";
+@import "@dangbt/pro-ui/tailwind.css";
+@import "@dangbt/pro-ui/theme.css";
+
+:root {
+  --primary: ${primary};
+  --base-radius: ${radius};
+}`
+
+  const copy = () => {
+    navigator.clipboard.writeText(cssOutput)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="space-y-8">
+      <SectionHeader
+        title="Theme Builder"
+        description="Pick a color and radius, preview live, then copy the CSS into your project."
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Controls */}
+        <div className="space-y-6">
+          {/* Color presets */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Primary color</p>
+            <div className="grid grid-cols-7 gap-2 mb-3">
+              {THEME_PRESETS.map(p => (
+                <button
+                  key={p.hex}
+                  onClick={() => handleColor(p.hex)}
+                  title={p.name}
+                  className="group flex flex-col items-center gap-1"
+                >
+                  <span
+                    className="w-8 h-8 rounded-[var(--base-radius)] border-2 transition-all"
+                    style={{
+                      backgroundColor: p.hex,
+                      borderColor: primary === p.hex ? p.hex : 'transparent',
+                      boxShadow: primary === p.hex ? `0 0 0 2px white, 0 0 0 4px ${p.hex}` : 'none',
+                    }}
+                  />
+                  <span className="text-[10px] text-gray-400 group-hover:text-gray-600 transition-colors hidden sm:block truncate w-full text-center">{p.name}</span>
+                </button>
+              ))}
+            </div>
+            {/* Custom color input */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={primary}
+                  onChange={e => handleColor(e.target.value)}
+                  className="w-9 h-9 rounded-[var(--base-radius)] border border-gray-200 cursor-pointer p-0.5 bg-white"
+                />
+              </div>
+              <input
+                type="text"
+                value={primary}
+                onChange={e => {
+                  const v = e.target.value
+                  if (/^#[0-9a-fA-F]{0,6}$/.test(v)) {
+                    setPrimary(v)
+                    if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius)
+                  }
+                }}
+                className="h-9 w-28 px-3 font-mono text-sm border border-gray-200 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent"
+              />
+              <span className="text-xs text-gray-400">Custom hex</span>
+            </div>
+          </div>
+
+          {/* Radius */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Border radius (px)</p>
+            <div className="flex gap-2">
+              {RADIUS_PRESETS.map(r => (
+                <button
+                  key={r.value}
+                  onClick={() => handleRadius(r.value)}
+                  className={cn(
+                    'flex-1 h-9 text-xs font-medium border transition-all',
+                    radius === r.value
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400',
+                  )}
+                  style={{ borderRadius: r.value === '9999px' ? '9999px' : '6px' }}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Live preview */}
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 space-y-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Live preview</p>
+
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" size="sm">Primary</Button>
+            <Button variant="secondary" size="sm">Secondary</Button>
+            <Button variant="ghost" size="sm">Ghost</Button>
+            <Button variant="danger" size="sm">Danger</Button>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Badge color="default">Default</Badge>
+            <Badge color="primary">Primary</Badge>
+            <Badge color="success">Success</Badge>
+            <Badge color="warning">Warning</Badge>
+            <Badge color="danger">Danger</Badge>
+            <Badge color="info">Info</Badge>
+          </div>
+
+          <div className="space-y-2">
+            <Input label="Email" placeholder="you@example.com" size="sm" />
+            <Select
+              label="Role"
+              size="sm"
+              options={[
+                { value: 'admin', label: 'Admin' },
+                { value: 'editor', label: 'Editor' },
+              ]}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Switch defaultSelected size="sm"><span className="text-sm">Toggle</span></Switch>
+            <Checkbox defaultSelected size="sm">Checkbox</Checkbox>
+          </div>
+
+          <Alert variant="info" title="Theme applied">Your theme is live in the preview.</Alert>
+        </div>
+      </div>
+
+      {/* CSS export */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Export CSS</p>
+          <button
+            onClick={copy}
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-[var(--base-radius)] border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+          >
+            {copied
+              ? <><span>✓</span> Copied!</>
+              : <><span>⎘</span> Copy</>}
+          </button>
+        </div>
+        <pre className="bg-gray-950 text-gray-100 rounded-[var(--base-radius)] p-4 text-sm font-mono overflow-x-auto leading-relaxed">
+          <span className="text-gray-500">{'@import '}</span><span className="text-green-400">"tailwindcss"</span><span className="text-gray-500">;</span>{'\n'}
+          <span className="text-gray-500">{'@import '}</span><span className="text-green-400">"@dangbt/pro-ui/tailwind.css"</span><span className="text-gray-500">;</span>{'\n'}
+          <span className="text-gray-500">{'@import '}</span><span className="text-green-400">"@dangbt/pro-ui/theme.css"</span><span className="text-gray-500">;</span>{'\n\n'}
+          <span className="text-blue-400">{':root'}</span><span className="text-gray-300">{' {'}</span>{'\n'}
+          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">{'--primary'}</span><span className="text-gray-300">{': '}</span>
+          <span className="text-orange-300">{primary}</span><span className="text-gray-300">;</span>{'\n'}
+          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">{'--base-radius'}</span><span className="text-gray-300">{': '}</span>
+          <span className="text-orange-300">{radius}</span><span className="text-gray-300">;</span>{'\n'}
+          <span className="text-gray-300">{'}'}</span>
+        </pre>
+      </div>
+    </div>
+  )
+}
+
 const SECTIONS: Record<string, React.ReactNode> = {
   overview:    <Overview />,
+  theme:       <ThemeBuilderSection />,
   colors:      <ColorSystemSection />,
   icons:       <IconsSection />,
   button:         <ButtonSection />,
