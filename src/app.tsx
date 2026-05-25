@@ -267,30 +267,35 @@ function SectionHeader({ title, description }: { title: string; description?: st
 const LLM_TXT = `# @dangbt/pro-ui — UI Component Library
 
 React component library built on React Aria Components + Tailwind CSS v4.
-A single --primary CSS token drives the full color palette. All components are
-accessible (WCAG 2.1 AA), keyboard-navigable, and fully typed.
+40+ accessible components. A single --primary CSS token drives the full
+color palette. All components are keyboard-navigable and fully typed.
+
+Showcase: https://pro-ui.pages.dev
 
 ## Install
 
 \`\`\`bash
-npm install @dangbt/pro-ui lucide-react react-aria-components \\
-  @tanstack/react-table react-hook-form @hookform/resolvers \\
-  zod @internationalized/date
+npm install @dangbt/pro-ui
+npm install react-aria-components lucide-react @tanstack/react-table \\
+  react-hook-form @hookform/resolvers zod @internationalized/date
 \`\`\`
 
-## Tailwind CSS setup (index.css)
+## CSS setup (index.css / globals.css)
 
 \`\`\`css
 @import "tailwindcss";
-@import "@dangbt/pro-ui/tailwind.css";
-@import "@dangbt/pro-ui/theme.css";   /* full color system + Tailwind tokens */
+@import "@dangbt/pro-ui/tailwind.css";   /* source scanning + RAC Tailwind variants */
+@import "@dangbt/pro-ui/theme.css";       /* color system + all Tailwind tokens */
 
-/* Override these 2 variables to theme the entire app */
+/* Only these 2 lines need changing per project */
 :root {
-  --primary: #6366f1;   /* brand color — drives entire palette */
-  --base-radius: 6px;   /* 0px | 6px | 12px */
+  --primary: #6366f1;   /* brand color — drives the entire palette */
+  --base-radius: 8px;   /* corner radius: 0px | 6px | 12px | any value */
 }
 \`\`\`
+
+All color scales (primary-50…900, success/warning/danger/info + their scales)
+and radius tokens are auto-derived. Nothing else to configure.
 
 ## Import
 

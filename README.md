@@ -2,148 +2,102 @@
 
 React component library built on [React Aria Components](https://react-spectrum.adobe.com/react-aria/) + [Tailwind CSS v4](https://tailwindcss.com/).
 
-**[→ Live Showcase](https://pro-ui-showcase.pages.dev)**
+**[→ Live Showcase](https://pro-ui.pages.dev)**
 
 ---
 
 ## Features
 
-- Fully accessible via React Aria Components
-- Tailwind v4 — single `--primary` token drives the entire palette
-- ProTable — server-side table with search form, sort, column visibility toggle, column pinning, row selection, bulk actions, expandable rows
-- ProForm — schema-driven form (Zod + react-hook-form) with responsive layout
-- Dark-mode ready via CSS variable theming
+- **40+ accessible components** built on React Aria — keyboard nav, screen reader, focus management out of the box
+- **Single-token theming** — change `--primary` once, the entire palette adapts automatically via `color-mix()`
+- **ProTable** — server-side data table with search form, sort, column visibility, pinning, row selection, bulk actions
+- **ProForm** — schema-driven form (Zod + react-hook-form), vertical / horizontal layout, responsive
+
+---
 
 ## Installation
-
-The package is published to GitHub Packages. Add the registry to `.npmrc`:
-
-```
-@dangbt:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${NPM_TOKEN}
-```
-
-Then install:
 
 ```bash
 npm install @dangbt/pro-ui
 ```
 
-## Setup
+Install peer dependencies (if not already in your project):
 
-Import the Tailwind integration entry point in your root CSS **before** your own `@theme` blocks:
-
-```css
-@import "tailwindcss";
-@import "@dangbt/pro-ui/tailwind.css";
-
-@theme inline {
-  --color-primary: var(--primary);
-  /* ... your other tokens */
-}
-
-:root {
-  --primary: #008060;
-  --base-radius: 8px;
-}
+```bash
+npm install react-aria-components lucide-react tailwindcss \
+  @tanstack/react-table react-hook-form @hookform/resolvers \
+  zod @internationalized/date
 ```
-
-`@dangbt/pro-ui/tailwind.css` registers the `@source` path for pro-ui's component classes and the `tailwindcss-react-aria-components` plugin automatically.
-
-## Components
-
-### Form
-
-| Component | Description |
-|---|---|
-| `Button` | Primary / secondary / ghost / destructive variants |
-| `Input` | Text input with label, description, error state |
-| `Textarea` | Multi-line input |
-| `NumberField` | Numeric input with stepper |
-| `SearchField` | Input with clear button |
-| `Select` | Single-select dropdown |
-| `AsyncSelect` | Paginated async select with search |
-| `ComboBox` | Searchable combobox |
-| `Checkbox` / `CheckboxGroup` | Single and grouped checkboxes |
-| `RadioGroup` | Radio button group |
-| `Switch` | Toggle switch |
-| `Slider` | Range slider (single and double thumb) |
-| `DatePicker` / `DateRangePicker` | Calendar date picker |
-| `TagGroup` | Multi-select tag picker |
-
-### Pro Components
-
-| Component | Description |
-|---|---|
-| `ProForm` | Schema-driven form with vertical / horizontal layout, responsive |
-| `ProFormItem` | Field wrapper with label, error, description |
-| `ProFormRow` | Side-by-side fields (2 cols on `sm+`, stacks on mobile) |
-| `ProFormInput` / `ProFormSelect` / … | Controlled field wrappers for ProForm |
-| `ProTable` | Full-featured data table (see below) |
-
-### Display & Feedback
-
-| Component | Description |
-|---|---|
-| `Badge` | Status badge with color variants |
-| `Card` | Content container |
-| `Avatar` / `AvatarGroup` | User avatar with fallback initials |
-| `Alert` | Inline status message, closable |
-| `Spinner` | Loading indicator |
-| `Skeleton` | Loading placeholder |
-| `ProgressBar` | Determinate / indeterminate progress |
-| `Divider` | Horizontal rule |
-
-### Overlay & Navigation
-
-| Component | Description |
-|---|---|
-| `Modal` / `ConfirmModal` | Dialog, confirm dialog |
-| `Tooltip` | Hover tooltip |
-| `Menu` | Dropdown action menu |
-| `Tabs` | Tab navigation |
-| `Breadcrumbs` | Breadcrumb trail |
-
-### Layout
-
-| Component | Description |
-|---|---|
-| `Layout` / `useSider` | App shell with collapsible sidebar |
 
 ---
 
-## ProTable
+## Quick Start
+
+### 1 — CSS setup
+
+In your root CSS entry point (`index.css` / `globals.css`):
+
+```css
+@import "tailwindcss";
+@import "@dangbt/pro-ui/tailwind.css";   /* source scanning + RAC variants */
+@import "@dangbt/pro-ui/theme.css";       /* color system + Tailwind tokens */
+
+/* Override these 2 variables to retheme everything */
+:root {
+  --primary: #6366f1;   /* your brand color */
+  --base-radius: 8px;   /* corner radius: 0px | 6px | 12px | … */
+}
+```
+
+That's it. All color scales, status colors, and radius tokens are derived automatically.
+
+### 2 — Use components
+
+```tsx
+import { Button, Input, Select, Badge, Modal } from '@dangbt/pro-ui'
+
+export function Example() {
+  return (
+    <>
+      <Input label="Email" placeholder="you@example.com" type="email" />
+      <Button variant="primary" onPress={() => {}}>Save</Button>
+      <Badge color="success">Active</Badge>
+    </>
+  )
+}
+```
+
+### 3 — ProTable (data table)
 
 ```tsx
 import { ProTable } from '@dangbt/pro-ui'
-import type { ProColumnType, QueryParams, RequestResult } from '@dangbt/pro-ui'
+import type { ProColumnType, QueryParams } from '@dangbt/pro-ui'
 
-type User = { id: string; name: string; email: string; status: string }
+type User = { id: string; name: string; status: 'active' | 'inactive' }
 
 const columns: ProColumnType<User>[] = [
-  { title: 'Name',   dataIndex: 'name',   sortable: true, disableHiding: true, pinnable: true },
-  { title: 'Email',  dataIndex: 'email',  width: 220 },
-  { title: 'Status', dataIndex: 'status', valueType: 'select', valueEnum: {
-    active:   { text: 'Active',   color: 'success' },
-    inactive: { text: 'Inactive', color: 'default' },
-  }},
+  { title: 'Name',   dataIndex: 'name',   sortable: true },
+  { title: 'Status', dataIndex: 'status', valueType: 'select',
+    valueEnum: {
+      active:   { text: 'Active',   color: 'success' },
+      inactive: { text: 'Inactive', color: 'default' },
+    },
+  },
   {
-    title: 'Actions', key: 'actions', hideInSearch: true, align: 'center', pinnable: true,
-    render: (_v, row) => <button onClick={() => edit(row)}>Edit</button>,
+    title: '', key: 'actions', hideInSearch: true, align: 'right',
+    render: (_v, row) => <Button size="sm" onPress={() => edit(row)}>Edit</Button>,
   },
 ]
 
-async function fetchUsers(params: QueryParams): Promise<RequestResult<User>> {
-  const res = await api.get('/users', { params })
-  return { data: res.data, total: res.total, success: true }
-}
-
 <ProTable<User>
-  columns={columns}
-  request={fetchUsers}
   rowKey="id"
+  columns={columns}
+  request={async ({ current, pageSize, ...search }) => {
+    const res = await api.users({ page: current, pageSize, ...search })
+    return { data: res.data, total: res.total, success: true }
+  }}
   headerTitle="Users"
-  toolBarRender={() => [<Button variant="primary">+ Add</Button>]}
+  toolBarRender={() => [<Button key="add" variant="primary">+ Add</Button>]}
   rowSelection={{ onChange: (keys, rows) => setSelected(rows) }}
   bulkActions={[
     { label: 'Export', onClick: (keys) => exportCSV(keys) },
@@ -152,46 +106,37 @@ async function fetchUsers(params: QueryParams): Promise<RequestResult<User>> {
 />
 ```
 
-**Column options:**
-
-| Prop | Type | Description |
-|---|---|---|
-| `dataIndex` | `keyof T` | Field accessor |
-| `valueType` | `text \| number \| date \| dateRange \| select \| money` | Renderer preset |
-| `valueEnum` | `Record<string, { text, color }>` | Enum map for select renderer |
-| `sortable` | `boolean` | Enable server-side sort |
-| `pinnable` | `boolean` | Hover to pin left / right |
-| `disableHiding` | `boolean` | Lock column in visibility toggle |
-| `hideInSearch` | `boolean` | Exclude from search form |
-| `hideInTable` | `boolean` | Hidden by default (toggle to show) |
-| `render` | `(value, record, index) => ReactNode` | Custom cell renderer |
-
----
-
-## ProForm
+### 4 — ProForm (schema-driven form)
 
 ```tsx
-import { ProForm, ProFormItem, ProFormRow, ProFormInput, ProFormSelect } from '@dangbt/pro-ui'
+import { ProForm, ProFormRow, ProFormInput, ProFormSelect } from '@dangbt/pro-ui'
 import { z } from 'zod'
 
 const schema = z.object({
-  name:  z.string().min(1),
+  name:  z.string().min(2),
   email: z.string().email(),
-  role:  z.string(),
+  role:  z.enum(['admin', 'editor', 'viewer']),
 })
 
 <ProForm
   schema={schema}
   defaultValues={{ name: '', email: '', role: 'viewer' }}
   onFinish={async (values) => { await save(values) }}
-  layout="vertical"
+  layout="vertical"   /* 'vertical' | 'horizontal' */
   submitText="Save"
+  showReset
 >
   <ProFormRow>
-    <ProFormInput name="name"  label="Name"  required />
-    <ProFormInput name="email" label="Email" required />
+    <ProFormInput name="name"  label="Full name" required />
+    <ProFormInput name="email" label="Email"      required type="email" />
   </ProFormRow>
-  <ProFormSelect name="role" label="Role" options={roleOptions} />
+  <ProFormSelect name="role" label="Role"
+    options={[
+      { value: 'admin',  label: 'Admin'  },
+      { value: 'editor', label: 'Editor' },
+      { value: 'viewer', label: 'Viewer' },
+    ]}
+  />
 </ProForm>
 ```
 
@@ -199,30 +144,121 @@ const schema = z.object({
 
 ## Theming
 
-Override `--primary` and `--base-radius` at `:root` to retheme the entire library:
+Two variables control the whole design system:
 
 ```css
 :root {
-  --primary: #6366f1;   /* indigo */
-  --base-radius: 4px;   /* sharper corners */
+  --primary: #008060;   /* any valid CSS color */
+  --base-radius: 8px;   /* applied across all components */
 }
 ```
 
-All status colors (success, warning, danger, info) and tonal scales are computed automatically via `color-mix`.
+**How it works:**
+
+```
+--primary ──► primary-50 … primary-900   (via color-mix)
+         └──► --success, --warning, --danger, --info  (25% primary blended into hue anchor)
+                └──► success-50 … success-800, etc.
+```
+
+Status colors harmonise with your brand automatically — no manual tweaking.
+
+---
+
+## Component Reference
+
+### Form inputs
+
+| Component | Description |
+|---|---|
+| `Button` | `primary` / `secondary` / `ghost` / `danger` variants, `sm`/`md`/`lg` sizes |
+| `ToggleButton` / `ToggleButtonGroup` | Stateful toggle, single/multi-select group |
+| `Input` | Text input with label, description, error |
+| `Textarea` | Multi-line text input |
+| `NumberField` | Numeric input with +/− stepper |
+| `SearchField` | Input with clear (×) button |
+| `Select` | Single-select dropdown |
+| `AsyncSelect` | Server-side paginated select with search + infinite scroll |
+| `ComboBox` | Editable combobox (type to filter) |
+| `Autocomplete` | Search input with live-filtered suggestion list |
+| `Checkbox` / `CheckboxGroup` | Single checkbox and grouped checkboxes |
+| `RadioGroup` | Radio button group with optional descriptions |
+| `Switch` | Toggle switch |
+| `Slider` | Single or range slider |
+| `DatePicker` | Calendar date picker (popup) |
+| `DateRangePicker` | Date range picker (popup) |
+| `DateField` | Date input segments — no popup |
+| `TimeField` | Time input segments |
+| `Calendar` | Standalone month calendar |
+| `RangeCalendar` | Standalone date range calendar |
+| `TagGroup` | Multi-select tag picker with remove |
+| `FileTrigger` | Click-to-browse file input trigger |
+| `DropZone` | Drag-and-drop file target with FileTrigger fallback |
+| `ColorPicker` | Full color picker (area + wheel + sliders + hex + presets) |
+| `ColorField` | Hex color text input |
+| `ColorSlider` | Single color channel slider |
+| `ColorSwatch` | Color preview swatch |
+| `ColorSwatchPicker` | Preset color palette picker |
+
+### Selection & data
+
+| Component | Description |
+|---|---|
+| `ListBox` | Accessible selectable list — single/multiple, supports sections |
+| `GridList` | Selectable list with checkbox indicators |
+| `Tree` | Expandable/collapsible hierarchical tree — single/multiple selection |
+| `ProTable` | Full-featured server-side data table |
+| `ProForm` | Schema-driven form (Zod + react-hook-form) |
+
+### Overlay & navigation
+
+| Component | Description |
+|---|---|
+| `Modal` | Accessible dialog with footer slot |
+| `ConfirmModal` | Pre-built confirmation dialog |
+| `Popover` | Floating content positioned relative to trigger — no backdrop |
+| `Tooltip` | Hover/focus tooltip |
+| `Menu` | Dropdown action menu with keyboard nav |
+| `Tabs` | Tab panels |
+| `Breadcrumbs` | Navigation breadcrumb trail |
+| `Toolbar` / `ToolbarSeparator` | Keyboard-navigable toolbar container |
+
+### Display & feedback
+
+| Component | Description |
+|---|---|
+| `Badge` | Status badge — 6 color variants, 3 sizes |
+| `Alert` | Inline status message, optional close button |
+| `Card` | Content surface with title, extra, footer, padding toggle |
+| `Avatar` / `AvatarGroup` | User avatar with auto initials + color generation |
+| `ProgressBar` | Determinate / indeterminate progress |
+| `Meter` | Capacity/usage meter with auto color zones |
+| `Spinner` | Loading spinner |
+| `Skeleton` | Loading placeholder |
+| `Disclosure` / `Accordion` | Collapsible panels, standalone or grouped |
+| `Link` | Accessible link with variant styles |
+| `Divider` | Horizontal / vertical separator with optional label |
+
+### Layout
+
+| Component | Description |
+|---|---|
+| `Layout` | App shell — Header, Sider, Content, Footer |
+| `useSider()` | Hook to read collapsed state inside Sider children |
 
 ---
 
 ## Peer dependencies
 
-```
-react >=18
-react-dom >=18
-react-aria-components >=1
-tailwindcss >=4
-@tanstack/react-table >=8
-react-hook-form >=7
-@hookform/resolvers >=3
-@internationalized/date >=3
-lucide-react >=0.400.0
-zod >=3
-```
+| Package | Version |
+|---|---|
+| `react` | ≥ 18 |
+| `react-dom` | ≥ 18 |
+| `react-aria-components` | ≥ 1 |
+| `tailwindcss` | ≥ 4 |
+| `lucide-react` | ≥ 0.400 |
+| `@tanstack/react-table` | ≥ 8 |
+| `react-hook-form` | ≥ 7 |
+| `@hookform/resolvers` | ≥ 3 |
+| `@internationalized/date` | ≥ 3 |
+| `zod` | ≥ 3 |
