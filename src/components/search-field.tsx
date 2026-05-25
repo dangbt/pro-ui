@@ -23,7 +23,7 @@ export function SearchField({ label, placeholder, className, ...props }: SearchF
         <Input
           placeholder={placeholder ?? 'Search...'}
           className={cn(
-            'h-9 pl-9 pr-8 text-sm bg-white border border-gray-300 text-gray-900 w-full',
+            'h-[var(--sz-md)] pl-9 pr-8 text-sm bg-white border border-gray-300 text-gray-900 w-full',
             'rounded-[var(--base-radius)]',
             'placeholder:text-gray-400',
             'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',

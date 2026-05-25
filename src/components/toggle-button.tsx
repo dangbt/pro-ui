@@ -15,9 +15,9 @@ interface ToggleButtonProps extends Omit<RAToggleButtonProps, 'className' | 'chi
 }
 
 const sizeCls: Record<Size, string> = {
-  sm: 'h-7 px-3 text-xs gap-1.5',
-  md: 'h-9 px-4 text-sm gap-2',
-  lg: 'h-11 px-5 text-base gap-2',
+  sm: 'h-[var(--sz-sm)] px-3 text-xs gap-1.5',
+  md: 'h-[var(--sz-md)] px-4 text-sm gap-2',
+  lg: 'h-[var(--sz-lg)] px-5 text-base gap-2',
 }
 
 export function ToggleButton({ size = 'md', className, children, ...props }: ToggleButtonProps) {

@@ -3173,16 +3173,26 @@ const RADIUS_PRESETS = [
 function ThemeBuilderSection() {
   const [primary, setPrimary] = useState('#6366f1')
   const [radius, setRadius] = useState('8px')
-  const [sizeScale, setSizeScale] = useState(50)
-  const sz: Size = sizeScale < 34 ? 'sm' : sizeScale < 67 ? 'md' : 'lg'
+  const [szSm, setSzSm] = useState(28)
+  const [szMd, setSzMd] = useState(36)
+  const [szLg, setSzLg] = useState(44)
   const [copied, setCopied] = useState(false)
 
-  const apply = (p: string, r: string) => {
+  // Map pixel values → sm/md/lg prop for components (uses md as preview tier)
+  const s: Size = 'md'
+
+  const apply = (p: string, r: string, sm: number, md: number, lg: number) => {
     document.documentElement.style.setProperty('--primary', p)
     document.documentElement.style.setProperty('--base-radius', r)
+    document.documentElement.style.setProperty('--sz-sm', `${sm}px`)
+    document.documentElement.style.setProperty('--sz-md', `${md}px`)
+    document.documentElement.style.setProperty('--sz-lg', `${lg}px`)
   }
-  const handleColor = (hex: string) => { setPrimary(hex); apply(hex, radius) }
-  const handleRadius = (r: string)  => { setRadius(r);    apply(primary, r)  }
+  const handleColor  = (hex: string) => { setPrimary(hex); apply(hex, radius, szSm, szMd, szLg) }
+  const handleRadius = (r: string)   => { setRadius(r);    apply(primary, r, szSm, szMd, szLg) }
+  const handleSzSm   = (v: number)   => { setSzSm(v);      apply(primary, radius, v, szMd, szLg) }
+  const handleSzMd   = (v: number)   => { setSzMd(v);      apply(primary, radius, szSm, v, szLg) }
+  const handleSzLg   = (v: number)   => { setSzLg(v);      apply(primary, radius, szSm, szMd, v) }
 
   const cssOutput = `@import "tailwindcss";
 @import "@dangbt/pro-ui/tailwind.css";
@@ -3191,14 +3201,15 @@ function ThemeBuilderSection() {
 :root {
   --primary: ${primary};
   --base-radius: ${radius};
+  --sz-sm: ${szSm}px;
+  --sz-md: ${szMd}px;
+  --sz-lg: ${szLg}px;
 }`
   const copy = () => {
     navigator.clipboard.writeText(cssOutput)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
-  const s = sz  // shorthand passed to all preview components
 
   /* ── fake data ── */
   const stats = [
@@ -3269,7 +3280,7 @@ function ThemeBuilderSection() {
                   const v = e.target.value
                   if (/^#[0-9a-fA-F]{0,6}$/.test(v)) {
                     setPrimary(v)
-                    if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius)
+                    if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius, szSm, szMd, szLg)
                   }
                 }}
                 className="h-7 w-24 px-2 font-mono text-xs border border-gray-200 rounded focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent"
@@ -3304,29 +3315,26 @@ function ThemeBuilderSection() {
 
           {/* Size */}
           <div>
-            <CtlLabel>Size</CtlLabel>
-            <div className="space-y-2">
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={sizeScale}
-                onChange={e => setSizeScale(Number(e.target.value))}
-                className="w-full h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none"
-              />
-              <div className="grid grid-cols-3 text-center">
-                {(['sm','md','lg'] as const).map(opt => (
-                  <span
-                    key={opt}
-                    className={cn(
-                      'text-xs font-semibold uppercase tracking-wider transition-colors',
-                      sz === opt ? 'text-primary' : 'text-gray-300',
-                    )}
-                  >
-                    {opt}
-                  </span>
-                ))}
-              </div>
+            <CtlLabel>Size scale (px)</CtlLabel>
+            <div className="space-y-3">
+              {([
+                { label: 'SM', value: szSm, min: 20, max: 40, onChange: handleSzSm },
+                { label: 'MD', value: szMd, min: 28, max: 52, onChange: handleSzMd },
+                { label: 'LG', value: szLg, min: 36, max: 64, onChange: handleSzLg },
+              ] as const).map(tier => (
+                <div key={tier.label} className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 w-5 shrink-0">{tier.label}</span>
+                  <input
+                    type="range"
+                    min={tier.min}
+                    max={tier.max}
+                    value={tier.value}
+                    onChange={e => tier.onChange(Number(e.target.value))}
+                    className="flex-1 h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none"
+                  />
+                  <span className="text-xs font-mono text-gray-500 w-8 text-right shrink-0">{tier.value}px</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -3423,9 +3431,9 @@ function ThemeBuilderSection() {
             <PanelCard>
               <PanelHeader title="Usage" />
               <div className="p-4 space-y-3">
-                <ProgressBar label="Storage" value={72} size={s === 'lg' ? 'md' : s} />
-                <ProgressBar label="Bandwidth" value={38} size={s === 'lg' ? 'md' : s} />
-                <Meter label="CPU load" value={55} size={s === 'lg' ? 'md' : s} />
+                <ProgressBar label="Storage" value={72} size="md" />
+                <ProgressBar label="Bandwidth" value={38} size="md" />
+                <Meter label="CPU load" value={55} size="md" />
               </div>
             </PanelCard>
           </div>
@@ -3641,6 +3649,9 @@ function ThemeBuilderSection() {
           <span className="text-blue-400">:root</span><span className="text-gray-300"> {'{'}</span>{'\n'}
           <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--primary</span><span className="text-gray-300">: </span><span className="text-orange-300">{primary}</span><span className="text-gray-300">;</span>{'\n'}
           <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--base-radius</span><span className="text-gray-300">: </span><span className="text-orange-300">{radius}</span><span className="text-gray-300">;</span>{'\n'}
+          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-sm</span><span className="text-gray-300">: </span><span className="text-orange-300">{szSm}px</span><span className="text-gray-300">;</span>{'\n'}
+          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-md</span><span className="text-gray-300">: </span><span className="text-orange-300">{szMd}px</span><span className="text-gray-300">;</span>{'\n'}
+          <span className="text-gray-300">{'  '}</span><span className="text-sky-300">--sz-lg</span><span className="text-gray-300">: </span><span className="text-orange-300">{szLg}px</span><span className="text-gray-300">;</span>{'\n'}
           <span className="text-gray-300">{'}'}</span>
         </pre>
       </div>
