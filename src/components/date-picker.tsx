@@ -1,6 +1,9 @@
 import {
   DatePicker as RADatePicker,
   DateRangePicker as RADateRangePicker,
+  DateField as RADateField,
+  Calendar as RACalendar,
+  RangeCalendar as RARangeCalendar,
   Label,
   Group,
   Button,
@@ -8,16 +11,17 @@ import {
   DateSegment,
   Popover,
   Dialog,
-  Calendar,
   CalendarGrid,
   CalendarGridBody,
   CalendarCell,
   Heading,
   CalendarGridHeader,
   CalendarHeaderCell,
-  RangeCalendar,
   type DatePickerProps,
   type DateRangePickerProps,
+  type DateFieldProps,
+  type CalendarProps,
+  type RangeCalendarProps,
   type DateValue,
   type DateRange,
 } from 'react-aria-components'
@@ -166,6 +170,98 @@ export function DateRangePicker<T extends DateValue>({
         </Dialog>
       </Popover>
     </RADateRangePicker>
+  )
+}
+
+/* ── DateField ──────────────────────────────────────────── */
+
+interface DateFieldProps_<T extends DateValue> extends Omit<DateFieldProps<T>, 'className'> {
+  label?: string
+  size?: Size
+  className?: string
+}
+
+export function DateField<T extends DateValue>({ label, size = 'md', className, ...props }: DateFieldProps_<T>) {
+  return (
+    <RADateField {...props} className={cn('flex flex-col gap-1', className)}>
+      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
+      <DateInput className={cn(
+        'flex items-center gap-px border border-gray-300 bg-white w-fit',
+        inputHeight[size], inputPx[size],
+        'rounded-[var(--base-radius)]',
+        'focus-within:outline focus-within:outline-2 focus-within:outline-primary focus-within:outline-offset-0 focus-within:border-transparent',
+        'data-[invalid]:border-danger',
+      )}>
+        {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
+      </DateInput>
+    </RADateField>
+  )
+}
+
+/* ── Calendar (standalone) ──────────────────────────────── */
+
+interface CalendarProps_<T extends DateValue> extends Omit<CalendarProps<T>, 'className'> {
+  className?: string
+}
+
+export function Calendar<T extends DateValue>({ className, ...props }: CalendarProps_<T>) {
+  return (
+    <RACalendar {...props} className={cn('w-64 p-3 bg-white border border-gray-200 rounded-[var(--base-radius)] shadow-sm', className)}>
+      <div className="flex items-center justify-between mb-3">
+        <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <ChevronLeftIcon className="w-4 h-4" />
+        </Button>
+        <Heading className="text-sm font-semibold text-gray-700" />
+        <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <ChevronRightIcon className="w-4 h-4" />
+        </Button>
+      </div>
+      <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
+        <CalendarGridHeader>
+          {day => <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">{day}</CalendarHeaderCell>}
+        </CalendarGridHeader>
+        <CalendarGridBody>
+          {date => <CalendarCell date={date} className={calendarCellCls} />}
+        </CalendarGridBody>
+      </CalendarGrid>
+    </RACalendar>
+  )
+}
+
+/* ── RangeCalendar (standalone) ─────────────────────────── */
+
+interface RangeCalendarProps_<T extends DateValue> extends Omit<RangeCalendarProps<T>, 'className'> {
+  className?: string
+}
+
+export function RangeCalendar<T extends DateValue>({ className, ...props }: RangeCalendarProps_<T>) {
+  return (
+    <RARangeCalendar {...props} className={cn('w-64 p-3 bg-white border border-gray-200 rounded-[var(--base-radius)] shadow-sm', className)}>
+      <div className="flex items-center justify-between mb-3">
+        <Button slot="previous" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <ChevronLeftIcon className="w-4 h-4" />
+        </Button>
+        <Heading className="text-sm font-semibold text-gray-700" />
+        <Button slot="next" className="p-1 hover:bg-gray-100 rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <ChevronRightIcon className="w-4 h-4" />
+        </Button>
+      </div>
+      <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
+        <CalendarGridHeader>
+          {day => <CalendarHeaderCell className="h-7 text-xs font-medium text-gray-400 text-center">{day}</CalendarHeaderCell>}
+        </CalendarGridHeader>
+        <CalendarGridBody>
+          {date => (
+            <CalendarCell date={date} className={cn(
+              calendarCellCls,
+              'selected:bg-primary-100 selected:text-primary selected:rounded-none',
+              'selection-start:bg-primary selection-start:text-white selection-start:rounded-l-[var(--base-radius)]',
+              'selection-end:bg-primary selection-end:text-white selection-end:rounded-r-[var(--base-radius)]',
+            )} />
+          )}
+        </CalendarGridBody>
+      </CalendarGrid>
+    </RARangeCalendar>
   )
 }
 

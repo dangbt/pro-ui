@@ -16,8 +16,11 @@ import { z } from 'zod'
 import {
   Button, Input, Textarea, NumberField, SearchField,
   Select, AsyncSelect, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
-  Switch, Slider, DatePicker, DateRangePicker, TagGroup,
+  Switch, Slider, DatePicker, DateRangePicker, DateField, Calendar, RangeCalendar, TagGroup,
   TimeField, ToggleButton, ToggleButtonGroup, FileTrigger,
+  Popover, ListBox, GridList, Autocomplete, Toolbar, ToolbarSeparator, DropZone,
+  ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField, ColorSlider,
+  Tree,
   Modal, ConfirmModal, Tooltip, Menu, Tabs, Breadcrumbs,
   ProgressBar, Meter, Alert, Spinner, Badge, Card,
   Avatar, AvatarGroup, Divider, Skeleton, Link, Disclosure, Accordion,
@@ -157,12 +160,15 @@ const NAV: NavGroup[] = [
       { id: 'slider',        label: 'Slider & Range'      },
       { id: 'tags',          label: 'Tags'                },
       { id: 'file',          label: 'File Upload'         },
+      { id: 'autocomplete',  label: 'Autocomplete'        },
+      { id: 'dropzone',      label: 'Drop Zone'           },
     ],
   },
   {
     group: 'Overlay',
     items: [
       { id: 'modal',   label: 'Modal & Dialog'  },
+      { id: 'popover', label: 'Popover'         },
       { id: 'tooltip', label: 'Tooltip'         },
       { id: 'menu',    label: 'Dropdown Menu'   },
     ],
@@ -172,19 +178,29 @@ const NAV: NavGroup[] = [
     items: [
       { id: 'tabs',        label: 'Tabs'        },
       { id: 'breadcrumbs', label: 'Breadcrumbs' },
+      { id: 'toolbar',     label: 'Toolbar'     },
+    ],
+  },
+  {
+    group: 'Selection',
+    items: [
+      { id: 'listbox',   label: 'ListBox'   },
+      { id: 'gridlist',  label: 'GridList'  },
+      { id: 'tree',      label: 'Tree'      },
     ],
   },
   {
     group: 'Display',
     items: [
-      { id: 'badge',       label: 'Badge'              },
-      { id: 'alert',       label: 'Alert'              },
-      { id: 'card',        label: 'Card'               },
-      { id: 'avatar',      label: 'Avatar'             },
-      { id: 'progress',    label: 'Progress & Meter'   },
-      { id: 'skeleton',    label: 'Skeleton & Divider' },
-      { id: 'disclosure',  label: 'Disclosure'         },
-      { id: 'link',        label: 'Link'               },
+      { id: 'badge',        label: 'Badge'              },
+      { id: 'alert',        label: 'Alert'              },
+      { id: 'card',         label: 'Card'               },
+      { id: 'avatar',       label: 'Avatar'             },
+      { id: 'progress',     label: 'Progress & Meter'   },
+      { id: 'skeleton',     label: 'Skeleton & Divider' },
+      { id: 'disclosure',   label: 'Disclosure'         },
+      { id: 'link',         label: 'Link'               },
+      { id: 'color-picker', label: 'Color Picker'       },
     ],
   },
   {
@@ -266,9 +282,14 @@ npm install @dangbt/pro-ui lucide-react react-aria-components \\
 
 \`\`\`css
 @import "tailwindcss";
-/* Theme tokens — override in :root */
---primary: #6366f1;   /* brand color, drives entire palette */
---base-radius: 6px;   /* border-radius preset: 0px | 6px | 12px */
+@import "@dangbt/pro-ui/tailwind.css";
+@import "@dangbt/pro-ui/theme.css";   /* full color system + Tailwind tokens */
+
+/* Override these 2 variables to theme the entire app */
+:root {
+  --primary: #6366f1;   /* brand color — drives entire palette */
+  --base-radius: 6px;   /* 0px | 6px | 12px */
+}
 \`\`\`
 
 ## Import
@@ -381,14 +402,52 @@ import { Button, Input, Select, ProTable, ProForm, Layout } from '@dangbt/pro-ui
 <Slider label="Volume" defaultValue={65} minValue={0} maxValue={100} step={1} className="w-full" />
 \`\`\`
 
-### DatePicker / DateRangePicker
+### DatePicker / DateRangePicker / DateField
 \`\`\`tsx
 <DatePicker label="Start date" size="md" className="w-full"
   minValue={today(getLocalTimeZone())}
   isDateUnavailable={date => isWeekend(date, getLocalTimeZone())} />
 
 <DateRangePicker label="Period" size="md" className="w-full" />
+
+<DateField label="Exact date" size="md" className="w-full" />
+// DateField = date input without popup calendar
 // value: CalendarDate | null, onChange?, minValue?, maxValue?
+\`\`\`
+
+### Calendar / RangeCalendar (standalone)
+\`\`\`tsx
+<Calendar />
+<Calendar minValue={today(getLocalTimeZone())} onChange={date => setDate(date)} />
+
+<RangeCalendar />
+// Standalone month calendar — no input field wrapper
+\`\`\`
+
+### TimeField
+\`\`\`tsx
+<TimeField label="Start time" size="md" />
+<TimeField label="Duration" granularity="second" />
+// granularity: 'hour'|'minute'|'second'
+\`\`\`
+
+### ToggleButton / ToggleButtonGroup
+\`\`\`tsx
+<ToggleButton size="md" isSelected={bold} onChange={setBold}>Bold</ToggleButton>
+
+<ToggleButtonGroup selectionMode="single" defaultSelectedKeys={new Set(['left'])}>
+  <ToggleButton id="left">Left</ToggleButton>
+  <ToggleButton id="center">Center</ToggleButton>
+  <ToggleButton id="right">Right</ToggleButton>
+</ToggleButtonGroup>
+// selectionMode: 'single'|'multiple'
+\`\`\`
+
+### FileTrigger
+\`\`\`tsx
+<FileTrigger onSelect={(files) => handleFiles(files)} acceptedFileTypes={['image/*']} allowsMultiple>
+  <Button>Upload image</Button>
+</FileTrigger>
 \`\`\`
 
 ### TagGroup
@@ -397,6 +456,109 @@ import { Button, Input, Select, ProTable, ProForm, Layout } from '@dangbt/pro-ui
   items={[{ id: '1', label: 'React', color: 'primary' }]}
   onRemove={keys => removeTag(keys)} />
 // color: 'default'|'primary'|'success'|'warning'|'danger'|'info'
+\`\`\`
+
+### Popover
+\`\`\`tsx
+<Popover
+  triggerElement={<Button>Open</Button>}
+  placement="bottom"        // 'top'|'bottom'|'left'|'right' + start/end variants
+  showArrow={false}
+>
+  <p>Floating content — no backdrop</p>
+</Popover>
+\`\`\`
+
+### ListBox
+\`\`\`tsx
+<ListBox
+  selectionMode="single"    // 'none'|'single'|'multiple'
+  selectedKeys={selected}
+  onSelectionChange={keys => setSelected(keys)}
+  items={[
+    { id: 'a', label: 'Option A', description: 'Optional hint', icon: <Icon />, disabled: false },
+    // Sections:
+    { id: 'sec', title: 'Group', items: [{ id: 'b', label: 'Option B' }] },
+  ]}
+  size="md"
+/>
+\`\`\`
+
+### GridList
+\`\`\`tsx
+<GridList
+  selectionMode="multiple"
+  selectedKeys={selected}
+  onSelectionChange={keys => setSelected(keys)}
+  items={[
+    { id: 'x', label: 'Item X', description: 'Subtitle', icon: <Icon />, disabled: false },
+  ]}
+  size="md"
+/>
+// Shows checkboxes when selectionMode !== 'none'
+\`\`\`
+
+### Autocomplete
+\`\`\`tsx
+<Autocomplete
+  label="City"
+  placeholder="Search cities…"
+  items={[
+    { id: 'hcm', label: 'Ho Chi Minh City', description: 'Southern Vietnam' },
+  ]}
+  size="md"
+/>
+// Filters items by label as the user types
+\`\`\`
+
+### Toolbar / ToolbarSeparator
+\`\`\`tsx
+<Toolbar aria-label="Text formatting">
+  <ToggleButton size="sm">B</ToggleButton>
+  <ToggleButton size="sm">I</ToggleButton>
+  <ToolbarSeparator />
+  <Button size="sm" variant="ghost">Action</Button>
+</Toolbar>
+// Arrow keys navigate between toolbar items
+\`\`\`
+
+### Tree
+\`\`\`tsx
+const items: TreeNode[] = [
+  { id: 'src', label: 'src', children: [
+    { id: 'app', label: 'app.tsx' },
+  ]},
+]
+
+<Tree items={items} />
+<Tree items={items} selectionMode="single" defaultSelectedKeys={new Set(['app'])} />
+<Tree items={items} selectionMode="multiple" />
+// TreeNode: { id, label, icon?, children? }
+\`\`\`
+
+### DropZone
+\`\`\`tsx
+<DropZone
+  label="Drop files here or click to browse"
+  description="PNG, JPG up to 10 MB"
+  accept={['image/*']}     // MIME types
+  allowsMultiple
+  onFiles={(fileList) => handleFiles(fileList)}
+/>
+\`\`\`
+
+### ColorPicker suite
+\`\`\`tsx
+// Full picker (area + hue + alpha + hex + presets)
+<ColorPicker label="Brand color" defaultValue="#008060"
+  presetColors={['#ef4444','#3b82f6','#22c55e']} />
+
+// Individual pieces:
+<ColorSwatch color="#3b82f6" size="md" />           // display swatch
+<ColorSwatchPicker colors={['#ef4444','#3b82f6']} /> // palette picker
+<ColorField label="Hex" defaultValue="#3b82f6" />    // hex text input
+<ColorSlider channel="hue" />                        // single channel slider
+<ColorSlider colorSpace="hsl" channel="saturation" label="Saturation" />
 \`\`\`
 
 ### Modal / ConfirmModal
@@ -488,6 +650,14 @@ import { Button, Input, Select, ProTable, ProForm, Layout } from '@dangbt/pro-ui
 // size: 'xs'|'sm'|'md'|'lg'|'xl'
 \`\`\`
 
+### Meter
+\`\`\`tsx
+<Meter label="Storage used" value={72} maxValue={100} showValue />
+<Meter label="CPU" value={90} variant="danger" showValue />
+// variant: 'auto'|'success'|'warning'|'danger'|'primary'
+// 'auto': green < 50%, yellow < 80%, red >= 80%
+\`\`\`
+
 ### ProgressBar
 \`\`\`tsx
 <ProgressBar label="Upload" value={65} maxValue={100}
@@ -513,6 +683,23 @@ import { Button, Input, Select, ProTable, ProForm, Layout } from '@dangbt/pro-ui
 \`\`\`tsx
 <Divider label="OR" />
 <Divider orientation="vertical" />
+\`\`\`
+
+### Link
+\`\`\`tsx
+<Link href="/settings" variant="default">Settings</Link>
+// variant: 'default'|'muted'|'danger'
+// href? for navigation, or onPress for button-like behavior
+\`\`\`
+
+### Disclosure / Accordion
+\`\`\`tsx
+<Disclosure title="FAQ item">Panel content</Disclosure>
+
+<Accordion>
+  <Disclosure title="Section 1">Content 1</Disclosure>
+  <Disclosure title="Section 2">Content 2</Disclosure>
+</Accordion>
 \`\`\`
 
 ---
@@ -1349,6 +1536,14 @@ function DateSection() {
           />
         </Demo>
 
+        <Demo label="DateField — no popup" center={false}>
+          <DateField size={size} label="Exact date" className="w-full" />
+        </Demo>
+
+        <Demo label="DateField — disabled" center={false}>
+          <DateField size={size} label="Disabled" isDisabled className="w-full" />
+        </Demo>
+
         <Demo label="TimeField — basic" center={false}>
           <TimeField size={size} label="Start time" />
         </Demo>
@@ -1357,8 +1552,12 @@ function DateSection() {
           <TimeField size={size} label="Duration" granularity="second" />
         </Demo>
 
-        <Demo label="TimeField — disabled" center={false}>
-          <TimeField size={size} label="Disabled" isDisabled />
+        <Demo label="Calendar — standalone" center={true} className="col-span-full">
+          <Calendar />
+        </Demo>
+
+        <Demo label="RangeCalendar — standalone" center={true} className="col-span-full">
+          <RangeCalendar />
         </Demo>
       </div>
     </div>
@@ -2131,7 +2330,7 @@ function ProTableSection() {
 
 /* ─── Color system section ───────────────────────────────────────────────── */
 
-function ColorSwatch({ prefix, step }: { prefix: string; step: number }) {
+function ThemeSwatch({ prefix, step }: { prefix: string; step: number }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
@@ -2244,7 +2443,7 @@ function ColorSystemSection() {
           className="grid gap-1.5"
           style={{ gridTemplateColumns: `repeat(${primarySteps.length}, minmax(0, 1fr))` }}
         >
-          {primarySteps.map(s => <ColorSwatch key={s} prefix="primary" step={s} />)}
+          {primarySteps.map(s => <ThemeSwatch key={s} prefix="primary" step={s} />)}
         </div>
       </div>
 
@@ -2268,7 +2467,7 @@ function ColorSystemSection() {
                 className="grid gap-1.5"
                 style={{ gridTemplateColumns: `repeat(${statusSteps.length}, minmax(0, 1fr))` }}
               >
-                {statusSteps.map(step => <ColorSwatch key={step} prefix={s.prefix} step={step} />)}
+                {statusSteps.map(step => <ThemeSwatch key={step} prefix={s.prefix} step={step} />)}
               </div>
             </div>
           ))}
@@ -2613,6 +2812,328 @@ function ProFormSection() {
 
 /* ─── Section registry ───────────────────────────────────────────────────── */
 
+function PopoverSection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Popover" description="Floating content panel positioned relative to a trigger — no backdrop, no scroll lock." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Basic popover">
+          <Popover
+            triggerElement={<Button size={size} variant="secondary">Open popover</Button>}
+            placement="bottom"
+          >
+            <p className="text-sm text-gray-700 font-medium mb-1">Popover title</p>
+            <p className="text-xs text-gray-500">This is a popover with arbitrary content. Click outside to close.</p>
+          </Popover>
+        </Demo>
+        <Demo label="With arrow">
+          <Popover
+            triggerElement={<Button size={size} variant="secondary">With arrow</Button>}
+            placement="bottom"
+            showArrow
+          >
+            <p className="text-sm text-gray-600">Content with arrow indicator.</p>
+          </Popover>
+        </Demo>
+        <Demo label="Placement top">
+          <Popover
+            triggerElement={<Button size={size} variant="secondary">Top placement</Button>}
+            placement="top"
+          >
+            <p className="text-sm text-gray-600">Placed above the trigger.</p>
+          </Popover>
+        </Demo>
+        <Demo label="Placement right">
+          <Popover
+            triggerElement={<Button size={size} variant="secondary">Right placement</Button>}
+            placement="right"
+          >
+            <p className="text-sm text-gray-600">Placed to the right.</p>
+          </Popover>
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function ToolbarSection() {
+  const [bold, setBold] = useState(false)
+  const [italic, setItalic] = useState(false)
+  const [underline, setUnderline] = useState(false)
+  const [align, setAlign] = useState<'left' | 'center' | 'right'>('left')
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Toolbar" description="Keyboard-navigable toolbar container — arrow keys move focus between items." />
+      <div className="grid grid-cols-1 gap-4">
+        <Demo label="Text formatting toolbar" center={false}>
+          <Toolbar aria-label="Text formatting">
+            <ToggleButton isSelected={bold} onChange={setBold} size="sm" aria-label="Bold">
+              <span className="font-bold text-xs px-0.5">B</span>
+            </ToggleButton>
+            <ToggleButton isSelected={italic} onChange={setItalic} size="sm" aria-label="Italic">
+              <span className="italic text-xs px-0.5">I</span>
+            </ToggleButton>
+            <ToggleButton isSelected={underline} onChange={setUnderline} size="sm" aria-label="Underline">
+              <span className="underline text-xs px-0.5">U</span>
+            </ToggleButton>
+            <ToolbarSeparator />
+            {(['left', 'center', 'right'] as const).map(a => (
+              <ToggleButton key={a} isSelected={align === a} onChange={() => setAlign(a)} size="sm" aria-label={`Align ${a}`}>
+                <span className="text-xs px-0.5 capitalize">{a[0]}</span>
+              </ToggleButton>
+            ))}
+            <ToolbarSeparator />
+            <Button size="sm" variant="ghost" aria-label="Undo">↩</Button>
+            <Button size="sm" variant="ghost" aria-label="Redo">↪</Button>
+          </Toolbar>
+          {(bold || italic || underline) && (
+            <p className="text-xs text-gray-500 mt-2">
+              Active: {[bold && 'Bold', italic && 'Italic', underline && 'Underline'].filter(Boolean).join(', ')} · Align: {align}
+            </p>
+          )}
+        </Demo>
+        <Demo label="Action toolbar" center={false}>
+          <Toolbar aria-label="File actions">
+            <Button size="sm" variant="ghost"><Plus className="w-3.5 h-3.5" /> New</Button>
+            <Button size="sm" variant="ghost"><Download className="w-3.5 h-3.5" /> Export</Button>
+            <ToolbarSeparator />
+            <Button size="sm" variant="ghost" className="text-danger"><Trash2 className="w-3.5 h-3.5" /> Delete</Button>
+          </Toolbar>
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function ListBoxSection() {
+  const [single, setSingle] = useState<'left' | 'center' | 'right' | string>('react')
+  const [multi, setMulti] = useState(new Set(['ts']))
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="ListBox" description="Accessible selectable list with keyboard navigation, single/multiple selection, and grouped sections." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Single selection" center={false}>
+          <ListBox
+            selectionMode="single"
+            selectedKeys={new Set([single])}
+            onSelectionChange={(keys) => setSingle([...keys][0] as string)}
+            items={[
+              { id: 'react', label: 'React' },
+              { id: 'vue', label: 'Vue' },
+              { id: 'svelte', label: 'Svelte' },
+              { id: 'angular', label: 'Angular', disabled: true },
+            ]}
+          />
+        </Demo>
+        <Demo label="Multiple selection" center={false}>
+          <ListBox
+            selectionMode="multiple"
+            selectedKeys={multi}
+            onSelectionChange={(keys) => setMulti(new Set(keys as Set<string>))}
+            items={[
+              { id: 'ts', label: 'TypeScript', description: 'Typed superset of JS' },
+              { id: 'tw', label: 'Tailwind CSS', description: 'Utility-first CSS' },
+              { id: 'vite', label: 'Vite', description: 'Next-gen build tool' },
+              { id: 'zod', label: 'Zod', description: 'TypeScript-first schema' },
+            ]}
+          />
+        </Demo>
+        <Demo label="With sections" center={false} className="col-span-full">
+          <ListBox
+            selectionMode="single"
+            items={[
+              { id: 'frontend', title: 'Frontend', items: [
+                { id: 'react2', label: 'React' },
+                { id: 'next', label: 'Next.js' },
+              ]},
+              { id: 'backend', title: 'Backend', items: [
+                { id: 'node', label: 'Node.js' },
+                { id: 'go', label: 'Go' },
+                { id: 'rust', label: 'Rust', disabled: true },
+              ]},
+            ]}
+          />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function GridListSection() {
+  const [selected, setSelected] = useState(new Set(['b']))
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="GridList" description="Selectable list with checkbox indicators — ideal for multi-select data lists." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Single selection" center={false}>
+          <GridList
+            selectionMode="single"
+            selectedKeys={selected}
+            onSelectionChange={(keys) => setSelected(new Set(keys as Set<string>))}
+            items={[
+              { id: 'a', label: 'Alice Nguyen', description: 'alice@example.com' },
+              { id: 'b', label: 'Bob Tran', description: 'bob@example.com' },
+              { id: 'c', label: 'Carol Le', description: 'carol@example.com' },
+            ]}
+          />
+        </Demo>
+        <Demo label="Multiple selection" center={false}>
+          <GridList
+            selectionMode="multiple"
+            defaultSelectedKeys={new Set(['x', 'z'])}
+            items={[
+              { id: 'x', label: 'Invoice #1001', description: '₫12,000,000' },
+              { id: 'y', label: 'Invoice #1002', description: '₫8,500,000' },
+              { id: 'z', label: 'Invoice #1003', description: '₫22,000,000' },
+              { id: 'w', label: 'Invoice #1004', description: '₫5,000,000', disabled: true },
+            ]}
+          />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function AutocompleteSection() {
+  const size = useShowcaseSize()
+  const CITIES = [
+    { id: 'hcm', label: 'Ho Chi Minh City', description: 'Southern Vietnam' },
+    { id: 'hn',  label: 'Hanoi',            description: 'Northern Vietnam'  },
+    { id: 'dn',  label: 'Da Nang',          description: 'Central Vietnam'   },
+    { id: 'hp',  label: 'Hai Phong',        description: 'Northern port city' },
+    { id: 'ct',  label: 'Can Tho',          description: 'Mekong Delta'      },
+    { id: 'bh',  label: 'Bien Hoa',         description: 'Dong Nai province' },
+    { id: 'vt',  label: 'Vung Tau',         description: 'Coastal city'      },
+  ]
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Autocomplete" description="Searchable input with a live-filtered suggestion list." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Basic autocomplete" center={false}>
+          <Autocomplete label="City" placeholder="Search cities…" items={CITIES} size={size} />
+        </Demo>
+        <Demo label="No label" center={false}>
+          <Autocomplete placeholder="Search frameworks…" size={size} items={[
+            { id: 'react', label: 'React' },
+            { id: 'vue',   label: 'Vue'   },
+            { id: 'svelte',label: 'Svelte'},
+            { id: 'solid', label: 'Solid' },
+            { id: 'qwik',  label: 'Qwik'  },
+          ]} />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function TreeSection() {
+  const TREE_DATA = [
+    { id: 'src', label: 'src', children: [
+      { id: 'components', label: 'components', children: [
+        { id: 'button', label: 'button.tsx' },
+        { id: 'input',  label: 'input.tsx'  },
+        { id: 'modal',  label: 'modal.tsx'  },
+      ]},
+      { id: 'lib', label: 'lib', children: [
+        { id: 'cn',   label: 'cn.ts'   },
+        { id: 'size', label: 'size.ts' },
+      ]},
+      { id: 'app', label: 'app.tsx' },
+    ]},
+    { id: 'public', label: 'public', children: [
+      { id: 'favicon', label: 'favicon.svg' },
+    ]},
+    { id: 'pkg', label: 'package.json' },
+  ]
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Tree" description="Hierarchical data with expand/collapse and optional keyboard selection." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="File tree — no selection" center={false}>
+          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+            <Tree items={TREE_DATA} />
+          </div>
+        </Demo>
+        <Demo label="With single selection" center={false}>
+          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+            <Tree items={TREE_DATA} selectionMode="single" defaultSelectedKeys={new Set(['button'])} />
+          </div>
+        </Demo>
+        <Demo label="With multiple selection" center={false} className="col-span-full">
+          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+            <Tree items={TREE_DATA} selectionMode="multiple" defaultSelectedKeys={new Set(['input', 'cn'])} />
+          </div>
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function DropZoneSection() {
+  const [files, setFiles] = useState<string[]>([])
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Drop Zone" description="Drag-and-drop file target area with click-to-browse fallback via FileTrigger." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Basic drop zone" center={false}>
+          <DropZone
+            label="Drop files here or click to browse"
+            description="Any file type accepted"
+            onFiles={(fl) => setFiles(Array.from(fl).map(f => f.name))}
+          />
+          {files.length > 0 && (
+            <div className="mt-2 text-xs text-gray-500 space-y-0.5">
+              {files.map(f => <div key={f} className="font-mono">{f}</div>)}
+            </div>
+          )}
+        </Demo>
+        <Demo label="Images only" center={false}>
+          <DropZone
+            label="Drop images or click to browse"
+            description="PNG, JPG, GIF up to 10 MB"
+            accept={['image/*']}
+          />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+function ColorPickerSection() {
+  const PRESETS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#000000','#ffffff']
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Color Picker" description="Full color picker suite: area picker, hue wheel, channel sliders, hex field, and swatch palettes." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Full color picker" center={false}>
+          <ColorPicker label="Brand color" defaultValue="#008060" presetColors={PRESETS} />
+        </Demo>
+        <Demo label="Swatch palette" center={false}>
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-gray-600">Pick a preset</span>
+            <ColorSwatchPicker colors={PRESETS} swatchSize="lg" />
+          </div>
+        </Demo>
+        <Demo label="Color swatches (display)" center={false}>
+          <div className="flex flex-wrap gap-2">
+            {PRESETS.map(c => <ColorSwatch key={c} color={c} size="lg" />)}
+          </div>
+        </Demo>
+        <Demo label="Hex color field" center={false}>
+          <ColorField label="Hex value" defaultValue="#3b82f6" />
+        </Demo>
+        <Demo label="Hue slider" center={false}>
+          <ColorSlider defaultValue="hsl(200, 100%, 50%)" channel="hue" label="Hue" />
+        </Demo>
+        <Demo label="Saturation slider" center={false}>
+          <ColorSlider defaultValue="hsl(200, 75%, 50%)" colorSpace="hsl" channel="saturation" label="Saturation" />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
 const SECTIONS: Record<string, React.ReactNode> = {
   overview:    <Overview />,
   colors:      <ColorSystemSection />,
@@ -2626,11 +3147,19 @@ const SECTIONS: Record<string, React.ReactNode> = {
   slider:         <SliderSection />,
   tags:           <TagsSection />,
   file:           <FileSection />,
+  autocomplete:   <AutocompleteSection />,
+  dropzone:       <DropZoneSection />,
   modal:          <ModalSection />,
+  popover:        <PopoverSection />,
   tooltip:        <TooltipSection />,
   menu:           <MenuSection />,
   tabs:           <TabsSection />,
   breadcrumbs:    <BreadcrumbsSection />,
+  toolbar:        <ToolbarSection />,
+  listbox:        <ListBoxSection />,
+  gridlist:       <GridListSection />,
+  tree:           <TreeSection />,
+  'color-picker': <ColorPickerSection />,
   badge:          <BadgeSection />,
   alert:          <AlertSection />,
   card:           <CardSection />,
