@@ -71,7 +71,7 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
         type="button"
         onClick={handleOpen}
         className={cn(
-          'rounded p-0.5 transition-colors',
+          'flex items-center rounded p-0.5 transition-colors',
           pinned
             ? 'text-primary hover:text-primary-600'
             : 'text-gray-400 hover:text-gray-600',
