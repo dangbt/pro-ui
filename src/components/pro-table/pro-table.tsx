@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   useReactTable,
   getCoreRowModel,
@@ -40,23 +41,34 @@ function IndeterminateCheckbox({
 
 function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const pinned = column.getIsPinned()
 
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+      if (!menuRef.current?.contains(e.target as Node) && !triggerRef.current?.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
+  const handleOpen = () => {
+    const rect = triggerRef.current?.getBoundingClientRect()
+    if (rect) setPos({ top: rect.bottom + 4, left: rect.left })
+    setOpen(v => !v)
+  }
+
   return (
-    <div ref={ref} className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen(v => !v)}
+        onClick={handleOpen}
         className={cn(
           'rounded p-0.5 transition-colors',
           pinned
@@ -67,8 +79,12 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
       >
         {pinned ? <Pin className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
       </button>
-      {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 min-w-[120px] rounded-[var(--base-radius)] border border-border bg-white shadow-lg py-1">
+      {open && createPortal(
+        <div
+          ref={menuRef}
+          className="fixed min-w-[120px] rounded-[var(--base-radius)] border border-border bg-white shadow-lg py-1"
+          style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
+        >
           {pinned !== 'left' && (
             <button
               type="button"
@@ -96,7 +112,8 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
               <PinOff className="w-3 h-3" /> Unpin
             </button>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

@@ -111,10 +111,9 @@ export function ColorArea({ className, ...props }: ColorAreaProps_) {
   return (
     <RAColorArea
       {...props}
-      className={cn('w-full rounded-[var(--base-radius)] outline-none', className)}
-      style={{ height: 160 }}
+      className={cn('w-full h-40 rounded-[var(--base-radius)] outline-none', className)}
     >
-      <ColorThumb className="w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
+      <ColorThumb className="absolute -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
     </RAColorArea>
   )
 }
@@ -129,7 +128,7 @@ export function ColorWheel({ className, ...props }: ColorWheelProps_) {
   return (
     <RAColorWheel {...props} outerRadius={80} innerRadius={60} className={cn('outline-none', className)}>
       <ColorWheelTrack />
-      <ColorThumb className="w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
+      <ColorThumb className="absolute -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
     </RAColorWheel>
   )
 }
@@ -176,9 +175,7 @@ export function ColorPicker({ label, presetColors, className, ...props }: ColorP
               className="bg-white border border-gray-200 shadow-xl rounded-[var(--base-radius)] z-50 p-4 w-64 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out"
             >
               <Dialog className="outline-none flex flex-col gap-3">
-                <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness" className="w-full rounded-[var(--base-radius)] outline-none" style={{ height: 160 }}>
-                  <ColorThumb className="w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
-                </ColorArea>
+                <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness" />
                 <ColorSlider colorSpace="hsb" channel="hue" />
                 <ColorSlider channel="alpha" label="Opacity" />
                 <ColorField label="Hex" />

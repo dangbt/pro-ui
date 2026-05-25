@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { RefreshCw, Columns3 } from 'lucide-react'
 import { Button } from '../button'
 import { cn } from '../../lib/cn'
@@ -21,12 +22,16 @@ interface ToolbarProps {
 
 function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+      if (!menuRef.current?.contains(e.target as Node) && !wrapperRef.current?.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -35,13 +40,23 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
   const hideable = columns.filter(c => c.canHide)
   if (!hideable.length) return null
 
+  const handleOpen = () => {
+    const rect = wrapperRef.current?.getBoundingClientRect()
+    if (rect) setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    setOpen(v => !v)
+  }
+
   return (
-    <div ref={ref} className="relative">
-      <Button variant="ghost" size="sm" onPress={() => setOpen(v => !v)} aria-label="Toggle columns">
+    <div ref={wrapperRef} className="relative">
+      <Button variant="ghost" size="sm" onPress={handleOpen} aria-label="Toggle columns">
         <Columns3 className="w-4 h-4" />
       </Button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-[var(--base-radius)] border border-border bg-white shadow-lg py-1">
+      {open && createPortal(
+        <div
+          ref={menuRef}
+          className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-white shadow-lg py-1"
+          style={{ top: pos.top, right: pos.right, zIndex: 9999 }}
+        >
           <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Columns</p>
           {hideable.map(col => (
             <label
@@ -57,7 +72,8 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
               {col.label}
             </label>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )
