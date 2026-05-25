@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext, type ComponentType } from 'react'
 import * as LucideIcons from 'lucide-react'
-import { Plus, Download, RefreshCw, Trash2 } from 'lucide-react'
+import { Plus, Download, RefreshCw, Trash2, Upload, Image } from 'lucide-react'
 import {
   LayoutDashboard as IconDashboard,
   Users           as IconUsers,
@@ -17,10 +17,11 @@ import {
   Button, Input, Textarea, NumberField, SearchField,
   Select, AsyncSelect, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
   Switch, Slider, DatePicker, DateRangePicker, TagGroup,
+  TimeField, ToggleButton, ToggleButtonGroup, FileTrigger,
   Modal, ConfirmModal, Tooltip, Menu, Tabs, Breadcrumbs,
-  ProgressBar, Alert, Spinner, Badge, Card,
-  Avatar, AvatarGroup, Divider, Skeleton, ProTable,
-  ProForm, ProFormRow,
+  ProgressBar, Meter, Alert, Spinner, Badge, Card,
+  Avatar, AvatarGroup, Divider, Skeleton, Link, Disclosure, Accordion,
+  ProTable, ProForm, ProFormRow,
   ProFormInput, ProFormTextarea, ProFormNumberField,
   ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
   Layout,
@@ -147,13 +148,15 @@ const NAV: NavGroup[] = [
   {
     group: 'Form',
     items: [
-      { id: 'button',       label: 'Button'             },
-      { id: 'text-inputs',  label: 'Text inputs'        },
-      { id: 'select',       label: 'Select & ComboBox'  },
-      { id: 'datetime',     label: 'Date & Time'        },
-      { id: 'toggles',      label: 'Toggles & Choices'  },
-      { id: 'slider',       label: 'Slider & Range'     },
-      { id: 'tags',         label: 'Tags'               },
+      { id: 'button',        label: 'Button'              },
+      { id: 'toggle-button', label: 'ToggleButton'        },
+      { id: 'text-inputs',   label: 'Text inputs'         },
+      { id: 'select',        label: 'Select & ComboBox'   },
+      { id: 'datetime',      label: 'Date & Time'         },
+      { id: 'toggles',       label: 'Toggles & Choices'   },
+      { id: 'slider',        label: 'Slider & Range'      },
+      { id: 'tags',          label: 'Tags'                },
+      { id: 'file',          label: 'File Upload'         },
     ],
   },
   {
@@ -174,12 +177,14 @@ const NAV: NavGroup[] = [
   {
     group: 'Display',
     items: [
-      { id: 'badge',    label: 'Badge'              },
-      { id: 'alert',    label: 'Alert'              },
-      { id: 'card',     label: 'Card'               },
-      { id: 'avatar',   label: 'Avatar'             },
-      { id: 'progress', label: 'Progress & Spinner' },
-      { id: 'skeleton', label: 'Skeleton & Divider' },
+      { id: 'badge',       label: 'Badge'              },
+      { id: 'alert',       label: 'Alert'              },
+      { id: 'card',        label: 'Card'               },
+      { id: 'avatar',      label: 'Avatar'             },
+      { id: 'progress',    label: 'Progress & Meter'   },
+      { id: 'skeleton',    label: 'Skeleton & Divider' },
+      { id: 'disclosure',  label: 'Disclosure'         },
+      { id: 'link',        label: 'Link'               },
     ],
   },
   {
@@ -1343,6 +1348,18 @@ function DateSection() {
             className="w-full"
           />
         </Demo>
+
+        <Demo label="TimeField — basic" center={false}>
+          <TimeField size={size} label="Start time" />
+        </Demo>
+
+        <Demo label="TimeField — with seconds" center={false}>
+          <TimeField size={size} label="Duration" granularity="second" />
+        </Demo>
+
+        <Demo label="TimeField — disabled" center={false}>
+          <TimeField size={size} label="Disabled" isDisabled />
+        </Demo>
       </div>
     </div>
   )
@@ -1410,6 +1427,98 @@ function SliderSection() {
         <Demo label="Slider — step" center={false} className="!p-8">
           <Slider label="Zoom" defaultValue={50} minValue={0} maxValue={200} step={10} className="w-full" />
         </Demo>
+      </div>
+    </div>
+  )
+}
+
+function ToggleButtonSection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="ToggleButton" description="Accessible press-to-toggle button built on React Aria — supports single and multi-select groups." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="ToggleButton — standalone">
+          <div className="flex flex-wrap gap-2">
+            <ToggleButton size={size}>Bold</ToggleButton>
+            <ToggleButton size={size} defaultSelected>Italic</ToggleButton>
+            <ToggleButton size={size}>Underline</ToggleButton>
+          </div>
+        </Demo>
+
+        <Demo label="ToggleButton — disabled">
+          <div className="flex gap-2">
+            <ToggleButton size={size} isDisabled>Disabled off</ToggleButton>
+            <ToggleButton size={size} isDisabled defaultSelected>Disabled on</ToggleButton>
+          </div>
+        </Demo>
+
+        <Demo label="ToggleButtonGroup — single select" className="sm:col-span-2">
+          <ToggleButtonGroup selectionMode="single" defaultSelectedKeys={['grid']}>
+            <ToggleButton id="list" size={size}>List</ToggleButton>
+            <ToggleButton id="grid" size={size}>Grid</ToggleButton>
+            <ToggleButton id="kanban" size={size}>Kanban</ToggleButton>
+          </ToggleButtonGroup>
+        </Demo>
+
+        <Demo label="ToggleButtonGroup — multi select" className="sm:col-span-2">
+          <ToggleButtonGroup selectionMode="multiple" defaultSelectedKeys={['bold', 'italic']}>
+            <ToggleButton id="bold"      size={size}>Bold</ToggleButton>
+            <ToggleButton id="italic"    size={size}>Italic</ToggleButton>
+            <ToggleButton id="underline" size={size}>Underline</ToggleButton>
+            <ToggleButton id="strike"    size={size}>Strikethrough</ToggleButton>
+          </ToggleButtonGroup>
+        </Demo>
+
+      </div>
+    </div>
+  )
+}
+
+function FileSection() {
+  const size = useShowcaseSize()
+  const [files, setFiles] = useState<string[]>([])
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="File Upload" description="FileTrigger wraps any element to open the native file picker — compose with Button for custom upload UIs." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="FileTrigger — single file">
+          <FileTrigger onSelect={list => list && setFiles(Array.from(list).map(f => f.name))}>
+            <Button variant="secondary" size={size} icon={<Upload className="w-4 h-4" />}>
+              Choose file
+            </Button>
+          </FileTrigger>
+        </Demo>
+
+        <Demo label="FileTrigger — image only">
+          <FileTrigger acceptedFileTypes={['image/*']}>
+            <Button variant="primary" size={size} icon={<Image className="w-4 h-4" />}>
+              Upload image
+            </Button>
+          </FileTrigger>
+        </Demo>
+
+        <Demo label="FileTrigger — multiple files" className="sm:col-span-2" center={false}>
+          <div className="space-y-3 w-full">
+            <FileTrigger
+              allowsMultiple
+              onSelect={list => list && setFiles(Array.from(list).map(f => f.name))}
+            >
+              <Button variant="secondary" size={size} icon={<Upload className="w-4 h-4" />}>
+                Choose files
+              </Button>
+            </FileTrigger>
+            {files.length > 0 && (
+              <ul className="text-sm text-gray-600 space-y-1">
+                {files.map(f => <li key={f} className="flex items-center gap-1.5"><span className="text-primary">✓</span>{f}</li>)}
+              </ul>
+            )}
+          </div>
+        </Demo>
+
       </div>
     </div>
   )
@@ -1751,13 +1860,25 @@ function AvatarSection() {
 function ProgressSection() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="Progress & Spinner" description="Visual indicators for loading and progress states." />
+      <SectionHeader title="Progress & Meter" description="ProgressBar for tasks/loading, Meter for capacity/usage with auto color zones." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="ProgressBar — variants" center={false} className="space-y-4 !py-6">
           <ProgressBar label="Upload"  value={65} maxValue={100} variant="primary" showValue />
           <ProgressBar label="CPU"     value={88} maxValue={100} variant="danger"  showValue />
           <ProgressBar label="Storage" value={42} maxValue={100} variant="warning" size="sm" showValue />
           <ProgressBar label="Tasks"   value={73} maxValue={100} variant="success" showValue />
+        </Demo>
+        <Demo label="Meter — auto color (green→yellow→red)" center={false} className="space-y-4 !py-6">
+          <Meter label="Disk usage"   value={25}  maxValue={100} />
+          <Meter label="RAM"          value={62}  maxValue={100} />
+          <Meter label="CPU"          value={91}  maxValue={100} />
+          <Meter label="Network"      value={48}  maxValue={100} size="sm" />
+        </Demo>
+        <Demo label="Meter — fixed variants" center={false} className="space-y-4 !py-6">
+          <Meter label="Primary"  value={70} maxValue={100} variant="primary" />
+          <Meter label="Success"  value={55} maxValue={100} variant="success" />
+          <Meter label="Warning"  value={75} maxValue={100} variant="warning" />
+          <Meter label="Danger"   value={90} maxValue={100} variant="danger"  />
         </Demo>
         <Demo label="Spinner — sizes & variants">
           <div className="space-y-4">
@@ -1819,6 +1940,97 @@ function SkeletonSection() {
             <span className="flex items-center">Right</span>
           </div>
         </Demo>
+      </div>
+    </div>
+  )
+}
+
+function DisclosureSection() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Disclosure" description="Collapsible content panels — standalone or grouped as an Accordion." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Standalone</p>
+          <Disclosure title="What is React Aria?">
+            React Aria is a library of unstyled, accessible UI components built by Adobe. It handles all the keyboard interactions, screen reader support, and accessibility semantics so you can focus on styling.
+          </Disclosure>
+          <Disclosure title="Is it production-ready?" defaultExpanded>
+            Yes! React Aria is used in Adobe's own products and is battle-tested for accessibility compliance, including WCAG 2.1 and ARIA 1.2 patterns.
+          </Disclosure>
+          <Disclosure title="Does it work with Tailwind?">
+            Absolutely. Pro UI wraps React Aria with Tailwind CSS v4 classes, providing ready-to-use styled components that you can customise via CSS variables.
+          </Disclosure>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Accordion (single open)</p>
+          <Accordion>
+            <Disclosure title="Section 1 — Getting started">
+              Install the package, import the Tailwind entry point, and set <code className="bg-gray-100 px-1 rounded text-xs">--primary</code> in your CSS.
+            </Disclosure>
+            <Disclosure title="Section 2 — Theming">
+              Override <code className="bg-gray-100 px-1 rounded text-xs">--primary</code> and <code className="bg-gray-100 px-1 rounded text-xs">--base-radius</code> to retheme the entire library — all palettes are derived automatically.
+            </Disclosure>
+            <Disclosure title="Section 3 — ProTable & ProForm">
+              ProTable gives you server-side pagination, sort, column visibility, and pinning out of the box. ProForm wraps react-hook-form with Zod validation.
+            </Disclosure>
+          </Accordion>
+        </div>
+
+        <div className="sm:col-span-2 space-y-3">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Accordion — multiple open</p>
+          <Accordion allowsMultipleExpanded>
+            <Disclosure title="Can multiple panels be open?">Yes — pass <code className="bg-gray-100 px-1 rounded text-xs">allowsMultipleExpanded</code> to the Accordion.</Disclosure>
+            <Disclosure title="Is keyboard navigation supported?">Yes — Tab moves focus, Enter/Space toggles the panel. React Aria handles all interactions automatically.</Disclosure>
+            <Disclosure title="Can I nest accordions?">You can nest Disclosure components but avoid nesting Accordion inside Accordion — it creates confusing UX.</Disclosure>
+          </Accordion>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+function LinkSection() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Link" description="Accessible link built on React Aria — supports variants, external navigation, and router integration." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="Variants">
+          <div className="flex flex-wrap gap-4 text-sm">
+            <Link href="#">Default link</Link>
+            <Link href="#" variant="muted">Muted link</Link>
+            <Link href="#" variant="danger">Danger link</Link>
+          </div>
+        </Demo>
+
+        <Demo label="External (opens in new tab)">
+          <Link href="https://react-spectrum.adobe.com/react-aria/" target="_blank" rel="noopener noreferrer">
+            React Aria docs ↗
+          </Link>
+        </Demo>
+
+        <Demo label="Inline in text" center={false}>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            This component is built on{' '}
+            <Link href="#">React Aria Components</Link>
+            {' '}and styled with{' '}
+            <Link href="#" variant="muted">Tailwind CSS v4</Link>.
+            All interactions are keyboard-accessible and screen-reader friendly.
+            See the <Link href="#" variant="danger">deprecation notice</Link> for older APIs.
+          </p>
+        </Demo>
+
+        <Demo label="As button (no href)">
+          <div className="flex gap-4 text-sm">
+            <Link onPress={() => alert('clicked!')}>Press me</Link>
+            <Link isDisabled>Disabled link</Link>
+          </div>
+        </Demo>
+
       </div>
     </div>
   )
@@ -2405,24 +2617,28 @@ const SECTIONS: Record<string, React.ReactNode> = {
   overview:    <Overview />,
   colors:      <ColorSystemSection />,
   icons:       <IconsSection />,
-  button:        <ButtonSection />,
-  'text-inputs': <TextInputsSection />,
-  select:      <SelectSection />,
-  datetime:    <DateSection />,
-  toggles:     <TogglesSection />,
-  slider:      <SliderSection />,
-  tags:        <TagsSection />,
-  modal:       <ModalSection />,
-  tooltip:     <TooltipSection />,
-  menu:        <MenuSection />,
-  tabs:        <TabsSection />,
-  breadcrumbs: <BreadcrumbsSection />,
-  badge:       <BadgeSection />,
-  alert:       <AlertSection />,
-  card:        <CardSection />,
-  avatar:      <AvatarSection />,
-  progress:    <ProgressSection />,
-  skeleton:    <SkeletonSection />,
+  button:         <ButtonSection />,
+  'toggle-button': <ToggleButtonSection />,
+  'text-inputs':  <TextInputsSection />,
+  select:         <SelectSection />,
+  datetime:       <DateSection />,
+  toggles:        <TogglesSection />,
+  slider:         <SliderSection />,
+  tags:           <TagsSection />,
+  file:           <FileSection />,
+  modal:          <ModalSection />,
+  tooltip:        <TooltipSection />,
+  menu:           <MenuSection />,
+  tabs:           <TabsSection />,
+  breadcrumbs:    <BreadcrumbsSection />,
+  badge:          <BadgeSection />,
+  alert:          <AlertSection />,
+  card:           <CardSection />,
+  avatar:         <AvatarSection />,
+  progress:       <ProgressSection />,
+  skeleton:       <SkeletonSection />,
+  disclosure:     <DisclosureSection />,
+  link:           <LinkSection />,
   protable:    <ProTableSection />,
   proform:     <ProFormSection />,
   layout:      <LayoutSection />,
