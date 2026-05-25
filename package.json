@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "keywords": [
@@ -34,7 +34,7 @@
   ],
   "sideEffects": false,
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
+    "registry": "https://npm.pkg.github.com/",
     "access": "public"
   },
   "scripts": {

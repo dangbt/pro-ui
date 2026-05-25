@@ -1866,6 +1866,7 @@ function ProTableSection() {
           request={mockRequest}
           rowKey="id"
           headerTitle="User Management"
+          size={size}
           toolBarRender={() => [
             <Button key="add" variant="primary" size={size}>+ Add User</Button>,
             <Button key="exp" variant="secondary" size={size}>Export</Button>,
@@ -1889,6 +1890,7 @@ function ProTableSection() {
           request={mockRequest}
           rowKey="id"
           headerTitle="User Management"
+          size={size}
           toolBarRender={() => [
             <Button key="add" variant="primary" size={size}>+ Add User</Button>,
           ]}

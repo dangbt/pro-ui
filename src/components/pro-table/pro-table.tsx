@@ -133,6 +133,7 @@ export function ProTable<T extends object>({
   rowSelection,
   bulkActions,
   expandedRowRender,
+  size = 'sm',
 }: ProTableProps<T>) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
 
@@ -295,6 +296,7 @@ export function ProTable<T extends object>({
           columns={columnDefs}
           onSearch={handleSearch}
           onReset={handleReset}
+          size={size}
         />
       )}
 

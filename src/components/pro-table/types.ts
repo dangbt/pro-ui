@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react'
+import type { Size } from '../../lib/size'
+
+export type { Size }
 
 export interface BulkActionDef<T extends object = object> {
   label: ReactNode
@@ -74,4 +77,5 @@ export interface ProTableProps<T extends object> {
   bulkActions?: BulkActionDef<T>[]
   /** render additional content below a row when expanded; row becomes clickable to toggle */
   expandedRowRender?: (record: T) => ReactNode
+  size?: Size
 }

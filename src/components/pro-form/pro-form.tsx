@@ -70,11 +70,11 @@ export function ProForm<T extends FieldValues>({
         >
           {children}
           <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'sm:ml-[calc(7rem+0.75rem)]')}>
-            <Button type="submit" variant="primary" isDisabled={isSubmitting}>
+            <Button type="submit" variant="primary" size={size} isDisabled={isSubmitting}>
               {isSubmitting ? 'Submitting…' : submitText}
             </Button>
             {showReset && (
-              <Button type="button" variant="secondary" onPress={() => reset()}>
+              <Button type="button" variant="secondary" size={size} onPress={() => reset()}>
                 {resetText}
               </Button>
             )}

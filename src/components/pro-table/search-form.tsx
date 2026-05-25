@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { Button } from '../button'
 import { Input } from '../input'
 import { Select } from '../select'
+import type { Size } from '../../lib/size'
 import type { ProColumnType } from './types'
 
 interface SearchFormProps<T> {
   columns: ProColumnType<T>[]
   onSearch: (params: Record<string, unknown>) => void
   onReset: () => void
+  size?: Size
 }
 
-export function SearchForm<T>({ columns, onSearch, onReset }: SearchFormProps<T>) {
+export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: SearchFormProps<T>) {
   const [values, setValues] = useState<Record<string, unknown>>({})
 
   const searchable = columns.filter(
@@ -120,10 +122,10 @@ export function SearchForm<T>({ columns, onSearch, onReset }: SearchFormProps<T>
       </div>
 
       <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
-        <Button variant="secondary" size="sm" onPress={handleReset}>
+        <Button variant="secondary" size={size} onPress={handleReset}>
           Reset
         </Button>
-        <Button variant="primary" size="sm" onPress={handleSearch}>
+        <Button variant="primary" size={size} onPress={handleSearch}>
           Search
         </Button>
       </div>
