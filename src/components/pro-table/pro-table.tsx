@@ -57,7 +57,8 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  const handleOpen = () => {
+  const handleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation()
     const rect = triggerRef.current?.getBoundingClientRect()
     if (rect) setPos({ top: rect.bottom + 4, left: rect.left })
     setOpen(v => !v)
