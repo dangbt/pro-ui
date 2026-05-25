@@ -3173,7 +3173,8 @@ const RADIUS_PRESETS = [
 function ThemeBuilderSection() {
   const [primary, setPrimary] = useState('#6366f1')
   const [radius, setRadius] = useState('8px')
-  const [sz, setSz] = useState<Size>('md')
+  const [sizeScale, setSizeScale] = useState(50)
+  const sz: Size = sizeScale < 34 ? 'sm' : sizeScale < 67 ? 'md' : 'lg'
   const [copied, setCopied] = useState(false)
 
   const apply = (p: string, r: string) => {
@@ -3304,21 +3305,28 @@ function ThemeBuilderSection() {
           {/* Size */}
           <div>
             <CtlLabel>Size</CtlLabel>
-            <div className="flex gap-1.5">
-              {(['sm','md','lg'] as Size[]).map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setSz(opt)}
-                  className={cn(
-                    'flex-1 h-8 text-xs font-medium border rounded-[5px] transition-all capitalize',
-                    sz === opt
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400',
-                  )}
-                >
-                  {opt}
-                </button>
-              ))}
+            <div className="space-y-2">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={sizeScale}
+                onChange={e => setSizeScale(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none"
+              />
+              <div className="grid grid-cols-3 text-center">
+                {(['sm','md','lg'] as const).map(opt => (
+                  <span
+                    key={opt}
+                    className={cn(
+                      'text-xs font-semibold uppercase tracking-wider transition-colors',
+                      sz === opt ? 'text-primary' : 'text-gray-300',
+                    )}
+                  >
+                    {opt}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
