@@ -146,7 +146,7 @@ export function ColorSlider({ label, className, ...props }: ColorSliderProps_) {
     <RAColorSlider {...props} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
       <SliderTrack className="h-3 rounded-full outline-none relative">
-        <ColorThumb className="top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
+        <ColorThumb className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
       </SliderTrack>
     </RAColorSlider>
   )
