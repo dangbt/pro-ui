@@ -1,9 +1,9 @@
 export type Size = 'sm' | 'md' | 'lg'
 
 export const inputHeight: Record<Size, string> = {
-  sm: 'h-[var(--sz-sm)]',
-  md: 'h-[var(--sz-md)]',
-  lg: 'h-[var(--sz-lg)]',
+  sm: 'h-[var(--sz)]',
+  md: 'h-[var(--sz)]',
+  lg: 'h-[var(--sz)]',
 }
 
 export const inputText: Record<Size, string> = {

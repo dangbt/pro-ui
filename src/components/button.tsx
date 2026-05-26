@@ -25,9 +25,9 @@ const variantCls: Record<Variant, string> = {
 }
 
 const sizeCls: Record<Size, string> = {
-  sm: 'h-[var(--sz-sm)] px-3 text-xs gap-1.5',
-  md: 'h-[var(--sz-md)] px-4 text-sm gap-2',
-  lg: 'h-[var(--sz-lg)] px-5 text-base gap-2',
+  sm: 'h-[var(--sz)] px-3 text-xs gap-1.5',
+  md: 'h-[var(--sz)] px-4 text-sm gap-2',
+  lg: 'h-[var(--sz)] px-5 text-base gap-2',
 }
 
 export function Button({

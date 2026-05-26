@@ -92,7 +92,7 @@ export function ColorField({ label, size = 'md', className, ...props }: ColorFie
       {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
       <Input
         className={cn(
-          'h-[var(--sz-md)] px-3 text-sm font-mono bg-white border border-gray-300 text-gray-900 rounded-[var(--base-radius)] w-full',
+          'h-[var(--sz)] px-3 text-sm font-mono bg-white border border-gray-300 text-gray-900 rounded-[var(--base-radius)] w-full',
           'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
           'data-[invalid]:border-danger',
         )}
@@ -166,7 +166,7 @@ export function ColorPicker({ label, presetColors, className, ...props }: ColorP
         <div className={cn('flex flex-col gap-1', className)}>
           {label && <span className="text-xs font-medium text-gray-600">{label}</span>}
           <DialogTrigger>
-            <button className="flex items-center gap-2 h-[var(--sz-md)] px-3 bg-white border border-gray-300 rounded-[var(--base-radius)] cursor-pointer hover:border-gray-400 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+            <button className="flex items-center gap-2 h-[var(--sz)] px-3 bg-white border border-gray-300 rounded-[var(--base-radius)] cursor-pointer hover:border-gray-400 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
               <RAColorSwatch color={color} className="w-5 h-5 rounded border border-black/10 shrink-0" />
               <span className="text-sm font-mono text-gray-700">{color.toString('hex')}</span>
             </button>

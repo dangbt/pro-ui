@@ -80,6 +80,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
 
 type RadiusMode = 'none' | 'md' | 'lg'
 const RADIUS_MAP: Record<RadiusMode, string> = { none: '0px', md: '6px', lg: '12px' }
+const SZ_MAP: Record<Size, string> = { sm: 'var(--sz-sm)', md: 'var(--sz-md)', lg: 'var(--sz-lg)' }
 
 const ALL_IDS = new Set(NAV.flatMap(g => g.items).map(i => i.id))
 
@@ -181,7 +182,7 @@ export default function App() {
           {/* Size toggle */}
           <div className="flex items-center border border-gray-200 rounded-lg p-0.5 shrink-0">
             {(['sm', 'md', 'lg'] as Size[]).map(sz => (
-              <button key={sz} onClick={() => setSize(sz)}
+              <button key={sz} onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
                 className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
                   size === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
               >{sz}</button>

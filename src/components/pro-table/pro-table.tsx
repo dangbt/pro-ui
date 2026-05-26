@@ -22,9 +22,9 @@ import type { ProTableProps, QueryParams } from './types'
 import type { Size } from '../../lib/size'
 
 const pageSizeCls: Record<Size, string> = {
-  sm: 'h-[var(--sz-sm)] px-2 text-xs',
-  md: 'h-[var(--sz-md)] px-3 text-sm',
-  lg: 'h-[var(--sz-lg)] px-3 text-base',
+  sm: 'h-[var(--sz)] px-2 text-xs',
+  md: 'h-[var(--sz)] px-3 text-sm',
+  lg: 'h-[var(--sz)] px-3 text-base',
 }
 
 function IndeterminateCheckbox({

@@ -13,9 +13,9 @@ interface SearchFormProps<T> {
 }
 
 const dateCls: Record<Size, string> = {
-  sm: 'h-[var(--sz-sm)] px-2 text-xs',
-  md: 'h-[var(--sz-md)] px-3 text-sm',
-  lg: 'h-[var(--sz-lg)] px-3 text-base',
+  sm: 'h-[var(--sz)] px-2 text-xs',
+  md: 'h-[var(--sz)] px-3 text-sm',
+  lg: 'h-[var(--sz)] px-3 text-base',
 }
 
 export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: SearchFormProps<T>) {
