@@ -14,6 +14,7 @@
   --base-radius: 8px;
   --card-radius: min(var(--base-radius), 16px);
   --border: #e5e7eb;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* Size scale — control heights of inputs, buttons, and similar interactive elements */
   --sz-sm: 28px;
@@ -157,4 +158,7 @@
   --radius-lg:   calc(var(--base-radius) * 1.67);
   --radius-xl:   calc(var(--base-radius) * 2.33);
   --radius-full: 9999px;
+
+  /* Font */
+  --font-family-sans: var(--font-sans);
 }

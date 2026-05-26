@@ -5,7 +5,6 @@ import {
   type CheckboxProps as RACheckboxProps,
   type CheckboxGroupProps as RACheckboxGroupProps,
 } from 'react-aria-components'
-import { Check, Minus } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 type CheckboxSize = 'sm' | 'md' | 'lg'
@@ -20,11 +19,6 @@ const cbBoxSize: Record<CheckboxSize, string> = {
   sm: 'w-3.5 h-3.5',
   md: 'w-4   h-4',
   lg: 'w-5   h-5',
-}
-const cbIconSize: Record<CheckboxSize, string> = {
-  sm: 'w-2   h-2',
-  md: 'w-2.5 h-2.5',
-  lg: 'w-3   h-3',
 }
 const cbLabelText: Record<CheckboxSize, string> = {
   sm: 'text-xs',
@@ -42,28 +36,54 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
         className,
       )}
     >
-      <div
-        className={cn(
-          'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
-          cbBoxSize[size],
-          'border-gray-300 bg-white',
-          'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
-          'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
-          'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
-          'group-hover:border-primary-400',
-          'group-data-[pressed]:scale-95',
-        )}
-      >
-        <Check
-          className={cn(cbIconSize[size], 'text-white hidden group-data-[selected]:block')}
-          strokeWidth={3}
-        />
-        <Minus
-          className={cn(cbIconSize[size], 'text-white hidden group-data-[indeterminate]:block')}
-          strokeWidth={3}
-        />
-      </div>
-      {children && <span className={cn(cbLabelText[size], 'text-gray-700')}>{children}</span>}
+      {({ isSelected, isIndeterminate }) => (
+        <>
+          <div
+            className={cn(
+              'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
+              cbBoxSize[size],
+              'border-gray-300 bg-white',
+              'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
+              'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
+              'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
+              'group-hover:border-primary-400',
+              'group-data-[pressed]:scale-95',
+            )}
+          >
+            <svg viewBox="0 0 16 16" className="w-full h-full" aria-hidden>
+              {isIndeterminate ? (
+                // Filled minus bar for indeterminate state
+                <path
+                  d="M 3 8 L 13 8"
+                  stroke="white"
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              ) : (
+                // Animated checkmark via stroke-dasharray draw-on technique
+                // Path length ≈ 16px; dasharray 22px > path → fully drawn when offset=44
+                <path
+                  d="M 2.5 8 L 6 12 L 13.5 4"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    strokeDasharray: '22px',
+                    strokeDashoffset: isSelected ? '44px' : '66px',
+                    transition: 'stroke-dashoffset 200ms ease',
+                  }}
+                />
+              )}
+            </svg>
+          </div>
+          {children && (
+            <span className={cn(cbLabelText[size], 'text-gray-700')}>{children}</span>
+          )}
+        </>
+      )}
     </RACheckbox>
   )
 }
