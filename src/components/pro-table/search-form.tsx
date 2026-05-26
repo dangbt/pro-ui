@@ -12,6 +12,12 @@ interface SearchFormProps<T> {
   size?: Size
 }
 
+const dateCls: Record<Size, string> = {
+  sm: 'h-[var(--sz-sm)] px-2 text-xs',
+  md: 'h-[var(--sz-md)] px-3 text-sm',
+  lg: 'h-[var(--sz-lg)] px-3 text-base',
+}
+
 export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: SearchFormProps<T>) {
   const [values, setValues] = useState<Record<string, unknown>>({})
 
@@ -50,6 +56,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
             return (
               <Select
                 key={key}
+                size={size}
                 label={col.title}
                 placeholder={`All ${col.title}`}
                 options={options}
@@ -68,14 +75,14 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
                     type="date"
                     value={(values[`${key}_from`] as string) ?? ''}
                     onChange={e => set(`${key}_from`, e.target.value)}
-                    className="flex-1 h-9 px-2 text-sm border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary"
+                    className={`flex-1 border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                   />
                   <span className="text-gray-400 text-xs">–</span>
                   <input
                     type="date"
                     value={(values[`${key}_to`] as string) ?? ''}
                     onChange={e => set(`${key}_to`, e.target.value)}
-                    className="flex-1 h-9 px-2 text-sm border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary"
+                    className={`flex-1 border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                   />
                 </div>
               </div>
@@ -86,6 +93,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
             return (
               <Input
                 key={key}
+                size={size}
                 label={col.title}
                 inputMode="numeric"
                 placeholder="0"
@@ -103,7 +111,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
                   type="date"
                   value={(values[key] as string) ?? ''}
                   onChange={e => set(key, e.target.value)}
-                  className="h-9 px-3 text-sm border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary w-full"
+                  className={`w-full border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                 />
               </div>
             )
@@ -112,6 +120,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
           return (
             <Input
               key={key}
+              size={size}
               label={col.title}
               placeholder={`Search ${col.title}`}
               value={(values[key] as string) ?? ''}

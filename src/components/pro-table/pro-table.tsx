@@ -19,6 +19,13 @@ import { SearchForm } from './search-form'
 import { Toolbar, buildColumnToggles } from './toolbar'
 import { buildColumns } from './build-columns'
 import type { ProTableProps, QueryParams } from './types'
+import type { Size } from '../../lib/size'
+
+const pageSizeCls: Record<Size, string> = {
+  sm: 'h-[var(--sz-sm)] px-2 text-xs',
+  md: 'h-[var(--sz-md)] px-3 text-sm',
+  lg: 'h-[var(--sz-lg)] px-3 text-base',
+}
 
 function IndeterminateCheckbox({
   indeterminate,
@@ -443,13 +450,13 @@ export function ProTable<T extends object>({
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-t border-border gap-2">
+        <div className="flex flex-wrap items-center justify-center sm:justify-between px-4 py-2.5 border-t border-border gap-2">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <span>Total {total.toLocaleString()} records</span>
             <select
               value={pagination.pageSize}
               onChange={e => setPagination(prev => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))}
-              className="h-8 px-2 text-sm border border-border rounded-[var(--base-radius)] bg-white cursor-pointer"
+              className={cn(pageSizeCls[size], 'border border-border rounded-[var(--base-radius)] bg-white cursor-pointer')}
             >
               {pageSizeOptions.map(s => (
                 <option key={s} value={s}>{s} / page</option>
