@@ -222,8 +222,8 @@ function AppInner() {
             className="w-7 h-7 border border-border rounded cursor-pointer p-0.5 bg-surface shrink-0"
           />
 
-          {/* Size toggle */}
-          <div className="flex items-center border border-border rounded-lg p-0.5 shrink-0">
+          {/* Size toggle — hidden on mobile */}
+          <div className="hidden sm:flex items-center border border-border rounded-lg p-0.5 shrink-0">
             {(['sm', 'md', 'lg'] as Size[]).map(sz => (
               <button key={sz} onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
                 className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
@@ -232,8 +232,8 @@ function AppInner() {
             ))}
           </div>
 
-          {/* Radius toggle */}
-          <div className="flex items-center border border-border rounded-lg p-0.5 shrink-0">
+          {/* Radius toggle — hidden on mobile */}
+          <div className="hidden sm:flex items-center border border-border rounded-lg p-0.5 shrink-0">
             {([['0','none'],['M','md'],['L','lg']] as [string, RadiusMode][]).map(([label, val]) => (
               <button key={val} onClick={() => { setRadius(val); applyTheme(val, primary) }}
                 className={cn('px-2 py-1 text-[11px] font-semibold rounded-md transition-all',
