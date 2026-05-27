@@ -9,7 +9,6 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { cn } from '../../lib/cn'
 import { Button } from '../button'
 import { labelText, type Size } from '../../lib/size'
@@ -28,8 +27,14 @@ export const useSize = () => useContext(SizeCtx)
 
 /* ── ProForm ────────────────────────────────────────────────── */
 
+interface ZodLike<T> {
+  parse(data: unknown): T
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  safeParse(data: unknown): { success: boolean; data?: T; error?: any }
+}
+
 interface ProFormProps<T extends FieldValues> {
-  schema: z.ZodType<T>
+  schema: ZodLike<T>
   defaultValues?: DefaultValues<T>
   onFinish: (values: T) => void | Promise<void>
   layout?: ProFormLayout
