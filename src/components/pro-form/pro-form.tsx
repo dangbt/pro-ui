@@ -40,6 +40,7 @@ interface ProFormProps<T extends FieldValues> {
   layout?: ProFormLayout
   size?: Size
   submitText?: string
+  submitClassName?: string
   showReset?: boolean
   resetText?: string
   children: React.ReactNode
@@ -53,6 +54,7 @@ export function ProForm<T extends FieldValues>({
   layout = 'vertical',
   size = 'md',
   submitText = 'Submit',
+  submitClassName,
   showReset = false,
   resetText = 'Reset',
   children,
@@ -75,8 +77,8 @@ export function ProForm<T extends FieldValues>({
         >
           {children}
           <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'sm:ml-[calc(7rem+0.75rem)]')}>
-            <Button type="submit" variant="primary" size={size} isDisabled={isSubmitting}>
-              {isSubmitting ? 'Submitting…' : submitText}
+            <Button type="submit" variant="primary" size={size} loading={isSubmitting} className={submitClassName}>
+              {submitText}
             </Button>
             {showReset && (
               <Button type="button" variant="secondary" size={size} onPress={() => reset()}>

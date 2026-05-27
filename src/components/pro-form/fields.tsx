@@ -34,9 +34,10 @@ interface BaseProps {
 
 interface ProFormInputProps extends BaseProps {
   type?: 'text' | 'email' | 'password' | 'url' | 'tel'
+  inputClassName?: string
 }
 
-export function ProFormInput({ name, label, required, description, placeholder, size, className, isDisabled, type = 'text' }: ProFormInputProps) {
+export function ProFormInput({ name, label, required, description, placeholder, size, className, isDisabled, type = 'text', inputClassName }: ProFormInputProps) {
   const { control } = useFormContext()
   const ctxSize = useSize()
   const effectiveSize = size ?? ctxSize
@@ -56,7 +57,9 @@ export function ProFormInput({ name, label, required, description, placeholder, 
             type={type}
             size={effectiveSize}
             isInvalid={!!fieldState.error}
+            errorMessage={fieldState.error?.message}
             className="w-full"
+            inputClassName={inputClassName}
           />
         )}
       />
