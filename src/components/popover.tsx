@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   DialogTrigger,
   Popover as RAPopover,
@@ -16,9 +17,20 @@ interface PopoverProps extends Omit<RAPopoverProps, 'className' | 'children' | '
 }
 
 export function Popover({ triggerElement, children, showArrow = false, className, ...props }: PopoverProps) {
+  // Neutralise pressed:scale-95 on the trigger — React Aria keeps data-pressed=true
+  // while the overlay is open, so the button would stay scaled down permanently.
+  const trigger = React.isValidElement(triggerElement)
+    ? React.cloneElement(triggerElement as React.ReactElement<{ className?: string }>, {
+        className: cn(
+          (triggerElement as React.ReactElement<{ className?: string }>).props.className,
+          'pressed:scale-100',
+        ),
+      })
+    : triggerElement
+
   return (
     <DialogTrigger>
-      {triggerElement}
+      {trigger}
       <RAPopover
         {...props}
         className={cn(

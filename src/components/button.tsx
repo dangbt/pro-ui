@@ -45,7 +45,7 @@ export function Button({
         'inline-flex items-center justify-center font-medium transition-[colors,transform] cursor-pointer',
         'rounded-[var(--base-radius)]',
         'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2',
-        'disabled:cursor-not-allowed',
+        'disabled:cursor-not-allowed pressed:scale-95',
         variantCls[variant],
         sizeCls[size],
         className,
