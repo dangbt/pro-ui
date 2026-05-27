@@ -17,7 +17,7 @@ import {
   TagsSection, FileSection, AutocompleteSection,
 } from './showcase/sections/form'
 import {
-  ModalSection, TooltipSection, MenuSection, PopoverSection,
+  ModalSection, DrawerSection, TooltipSection, MenuSection, PopoverSection,
 } from './showcase/sections/overlay'
 import {
   TabsSection, BreadcrumbsSection, ToolbarSection,
@@ -27,6 +27,7 @@ import {
 } from './showcase/sections/selection'
 import {
   BadgeSection, AlertSection, CardSection, AvatarSection,
+  StatisticSection, EmptySection, StepsSection,
   ProgressSection, SkeletonSection, DisclosureSection, LinkSection,
   DropZoneSection, ColorPickerSection,
 } from './showcase/sections/display'
@@ -54,6 +55,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   autocomplete:    <AutocompleteSection />,
   dropzone:        <DropZoneSection />,
   modal:           <ModalSection />,
+  drawer:          <DrawerSection />,
   popover:         <PopoverSection />,
   tooltip:         <TooltipSection />,
   menu:            <MenuSection />,
@@ -68,6 +70,9 @@ const SECTIONS: Record<string, React.ReactNode> = {
   alert:           <AlertSection />,
   card:            <CardSection />,
   avatar:          <AvatarSection />,
+  statistic:       <StatisticSection />,
+  empty:           <EmptySection />,
+  steps:           <StepsSection />,
   progress:        <ProgressSection />,
   skeleton:        <SkeletonSection />,
   disclosure:      <DisclosureSection />,

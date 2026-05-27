@@ -9,7 +9,7 @@ import {
 import type { BulkActionDef } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
-import { TABLE_COLS, mockRequest } from '../mock-data'
+import { TABLE_COLS, mockRequest, MOCK } from '../mock-data'
 import type { User } from '../mock-data'
 
 export function ProTableSection() {
@@ -43,33 +43,60 @@ export function ProTableSection() {
     <div className="space-y-6">
       <SectionHeader
         title="ProTable"
-        description="Data table with auto search form, server-side pagination, sorting, column visibility toggle, column pinning, row selection, and bulk actions."
+        description="Data table with auto search form, pagination, sorting, column visibility/pinning, row selection, and bulk actions. Supports both server-side (request) and client-side (dataSource) modes."
       />
-
-      <div className="text-xs text-gray-500 space-y-0.5">
-        <p>· <strong>Sort</strong> — click column headers</p>
-        <p>· <strong>Pin</strong> — hover a header → pin left/right</p>
-        <p>· <strong>Visibility</strong> — toolbar eye icon to show/hide columns</p>
-        <p>· <strong>Select rows</strong> → sticky bulk action bar appears</p>
-      </div>
 
       {toast && <Alert variant="success" closable>{toast}</Alert>}
 
-      <ProTable<User>
-        columns={TABLE_COLS}
-        request={mockRequest}
-        rowKey="id"
-        headerTitle="User Management"
-        size={size}
-        toolBarRender={() => [
-          <Button key="add" variant="primary" size={size}>+ Add User</Button>,
-          <Button key="exp" variant="secondary" size={size}>Export</Button>,
-        ]}
-        rowSelection={{
-          onChange: (keys) => setSelectedKeys(keys),
-        }}
-        bulkActions={bulkActions}
-      />
+      {/* Server-side mode */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Server-side mode — <code className="font-mono normal-case">request</code> prop</p>
+        <div className="text-xs text-gray-400 space-y-0.5 mb-2">
+          <p>· <strong>Sort</strong> — click column headers · <strong>Pin</strong> — hover header → pin left/right</p>
+          <p>· <strong>Visibility</strong> — toolbar columns icon · <strong>Select rows</strong> → sticky bulk action bar</p>
+        </div>
+        <ProTable<User>
+          columns={TABLE_COLS}
+          request={mockRequest}
+          rowKey="id"
+          headerTitle="User Management"
+          size={size}
+          toolBarRender={() => [
+            <Button key="add" variant="primary" size={size}>+ Add User</Button>,
+            <Button key="exp" variant="secondary" size={size}>Export</Button>,
+          ]}
+          rowSelection={{ onChange: (keys) => setSelectedKeys(keys) }}
+          bulkActions={bulkActions}
+          expandedRowRender={(r) => (
+            <div className="px-6 py-4 text-xs text-gray-600 space-y-1 bg-gray-50">
+              <p><strong>ID:</strong> {r.id}</p>
+              <p><strong>Email:</strong> {r.email}</p>
+              <p><strong>Revenue:</strong> ₫{r.revenue.toLocaleString()}</p>
+            </div>
+          )}
+        />
+      </div>
+
+      {/* Client-side mode */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Client-side mode — <code className="font-mono normal-case">dataSource</code> prop</p>
+        <div className="text-xs text-gray-400 mb-2">
+          <p>· Pagination, sort, and search all run in-browser — no network requests</p>
+          <p>· <code className="font-mono">rowClassName</code> highlights admin rows · <code className="font-mono">onRow.onDoubleClick</code> opens an alert</p>
+        </div>
+        <ProTable<User>
+          columns={TABLE_COLS.filter(c => c.dataIndex !== 'email')}
+          dataSource={MOCK.slice(0, 30)}
+          rowKey="id"
+          headerTitle="Static Data (client-side)"
+          size={size}
+          search
+          rowClassName={(r) => r.role === 'admin' ? 'bg-primary-50/40' : ''}
+          onRow={(r) => ({
+            onDoubleClick: () => alert(`Double-clicked: ${r.name}`),
+          })}
+        />
+      </div>
 
       <ConfirmModal
         isOpen={confirmDelete}

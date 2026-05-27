@@ -32,6 +32,7 @@ export const NAV: NavGroup[] = [
     group: 'Overlay',
     items: [
       { id: 'modal',   label: 'Modal & Dialog'  },
+      { id: 'drawer',  label: 'Drawer'          },
       { id: 'popover', label: 'Popover'         },
       { id: 'tooltip', label: 'Tooltip'         },
       { id: 'menu',    label: 'Dropdown Menu'   },
@@ -60,6 +61,9 @@ export const NAV: NavGroup[] = [
       { id: 'alert',        label: 'Alert'              },
       { id: 'card',         label: 'Card'               },
       { id: 'avatar',       label: 'Avatar'             },
+      { id: 'statistic',    label: 'Statistic'          },
+      { id: 'empty',        label: 'Empty'              },
+      { id: 'steps',        label: 'Steps'              },
       { id: 'progress',     label: 'Progress & Meter'   },
       { id: 'skeleton',     label: 'Skeleton & Divider' },
       { id: 'disclosure',   label: 'Disclosure'         },

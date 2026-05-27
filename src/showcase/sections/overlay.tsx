@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Button, Input, Select, Modal, ConfirmModal, Tooltip, Menu, Popover, toast,
+  Button, Input, Select, Modal, ConfirmModal, Drawer, Tooltip, Menu, Popover, toast,
 } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
@@ -186,6 +186,76 @@ export function PopoverSection() {
             <p className="text-sm text-gray-600">Placed to the right.</p>
           </Popover>
         </Demo>
+      </div>
+    </div>
+  )
+}
+
+export function DrawerSection() {
+  const size = useShowcaseSize()
+  const [right, setRight]   = useState(false)
+  const [left, setLeft]     = useState(false)
+  const [bottom, setBottom] = useState(false)
+  const [lg, setLg]         = useState(false)
+  const [noOverlay, setNoOverlay] = useState(false)
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="Drawer"
+        description="Slide-in panel from any edge — right, left, or bottom. Same children/footer API as Modal."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="placement: right (default)">
+          <Button size={size} variant="primary" onPress={() => setRight(true)}>Open right drawer</Button>
+          <Drawer isOpen={right} onOpenChange={setRight} title="Right Drawer" placement="right"
+            footer={({ close }) => (
+              <>
+                <Button size={size} variant="secondary" onPress={close}>Cancel</Button>
+                <Button size={size} variant="primary" onPress={close}>Save</Button>
+              </>
+            )}
+          >
+            <p className="text-sm text-gray-600">This drawer slides in from the right. It's great for edit panels, detail views, and settings.</p>
+            <div className="mt-4 space-y-3">
+              <Input size={size} label="Full name" defaultValue="Alice Nguyen" />
+              <Input size={size} label="Email" defaultValue="alice@example.com" />
+              <Select size={size} label="Role" defaultSelectedKey="editor"
+                options={[{ value: 'admin', label: 'Admin' }, { value: 'editor', label: 'Editor' }, { value: 'viewer', label: 'Viewer' }]}
+              />
+            </div>
+          </Drawer>
+        </Demo>
+
+        <Demo label="placement: left">
+          <Button size={size} variant="secondary" onPress={() => setLeft(true)}>Open left drawer</Button>
+          <Drawer isOpen={left} onOpenChange={setLeft} title="Left Drawer" placement="left">
+            <p className="text-sm text-gray-600">Slides in from the left — typically used for navigation menus or filters.</p>
+          </Drawer>
+        </Demo>
+
+        <Demo label="placement: bottom">
+          <Button size={size} variant="secondary" onPress={() => setBottom(true)}>Open bottom sheet</Button>
+          <Drawer isOpen={bottom} onOpenChange={setBottom} title="Bottom Sheet" placement="bottom" size="md">
+            <p className="text-sm text-gray-600">Slides up from the bottom. Common on mobile for action sheets and quick forms.</p>
+          </Drawer>
+        </Demo>
+
+        <Demo label="size: lg">
+          <Button size={size} variant="secondary" onPress={() => setLg(true)}>Large drawer</Button>
+          <Drawer isOpen={lg} onOpenChange={setLg} title="Large Drawer" size="lg">
+            <p className="text-sm text-gray-600">Use <code className="bg-gray-100 px-1 rounded text-xs">size="lg"</code> (480 px) for complex edit forms.</p>
+          </Drawer>
+        </Demo>
+
+        <Demo label="withOverlay: false">
+          <Button size={size} variant="ghost" onPress={() => setNoOverlay(true)}>No backdrop</Button>
+          <Drawer isOpen={noOverlay} onOpenChange={setNoOverlay} title="No Overlay" withOverlay={false}>
+            <p className="text-sm text-gray-600">Pass <code className="bg-gray-100 px-1 rounded text-xs">withOverlay={'{false}'}</code> to skip the dark backdrop — click outside still closes.</p>
+          </Drawer>
+        </Demo>
+
       </div>
     </div>
   )

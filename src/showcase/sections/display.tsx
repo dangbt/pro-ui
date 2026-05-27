@@ -4,7 +4,9 @@ import {
   ProgressBar, Meter, Spinner, Skeleton, Divider, Link,
   Disclosure, Accordion, DropZone,
   ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField, ColorSlider,
+  Statistic, Empty, Steps,
 } from '../../components'
+import type { StepItem } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 
@@ -380,6 +382,169 @@ export function ColorPickerSection() {
         <Demo label="Saturation slider" center={false}>
           <ColorSlider defaultValue="hsl(200, 75%, 50%)" colorSpace="hsl" channel="saturation" label="Saturation" />
         </Demo>
+      </div>
+    </div>
+  )
+}
+
+/* ── Statistic ───────────────────────────────────────────────── */
+
+export function StatisticSection() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="Statistic"
+        description="KPI card component for displaying key metrics with optional prefix, suffix, and trend badge."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="Basic metrics" center={false}>
+          <div className="grid grid-cols-2 gap-6">
+            <Statistic title="Total Users" value={8_420} />
+            <Statistic title="Revenue" value={42_500_000} prefix="₫"
+              formatter={v => v.toLocaleString('vi-VN')} />
+          </div>
+        </Demo>
+
+        <Demo label="With trend badge" center={false}>
+          <div className="grid grid-cols-2 gap-6">
+            <Statistic title="Monthly Active" value="3,124"
+              trend={{ value: '12.5%', direction: 'up' }} />
+            <Statistic title="Churn Rate" value="2.3%"
+              trend={{ value: '0.4%', direction: 'down' }} />
+          </div>
+        </Demo>
+
+        <Demo label="Sizes" center={false}>
+          <div className="flex items-end gap-8">
+            <Statistic title="Small"  value={128} size="sm" trend={{ value: '5%', direction: 'up' }} />
+            <Statistic title="Medium" value={512} size="md" trend={{ value: '8%', direction: 'up' }} />
+            <Statistic title="Large"  value={1024} size="lg" />
+          </div>
+        </Demo>
+
+        <Demo label="With suffix & neutral trend" center={false}>
+          <div className="grid grid-cols-2 gap-6">
+            <Statistic title="Uptime" value={99.9} suffix="%" size="md"
+              trend={{ value: 'stable', direction: 'neutral' }} />
+            <Statistic title="Avg. Response" value={142} suffix="ms"
+              trend={{ value: '+3ms', direction: 'down' }} />
+          </div>
+        </Demo>
+
+        <Demo label="In Card context" center={false} className="sm:col-span-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { title: 'Orders',    value: '1,284',   trend: { value: '18%',  direction: 'up'   as const } },
+              { title: 'Revenue',   value: '₫84.2M',  trend: { value: '5.1%', direction: 'up'   as const } },
+              { title: 'Returns',   value: '34',      trend: { value: '2',    direction: 'down' as const } },
+              { title: 'NPS Score', value: '72',      trend: { value: '+4',   direction: 'up'   as const } },
+            ].map(s => (
+              <Card key={s.title} className="p-4">
+                <Statistic title={s.title} value={s.value} trend={s.trend} size="md" />
+              </Card>
+            ))}
+          </div>
+        </Demo>
+
+      </div>
+    </div>
+  )
+}
+
+/* ── Empty ───────────────────────────────────────────────────── */
+
+export function EmptySection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="Empty"
+        description="No-data placeholder with optional custom icon and action slot."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <Demo label="Default (inbox icon)" center={false}>
+          <Empty />
+        </Demo>
+
+        <Demo label="Custom description" center={false}>
+          <Empty description="No users found matching your search." />
+        </Demo>
+
+        <Demo label="With action button" center={false}>
+          <Empty description="Your table is empty.">
+            <Button size={size} variant="primary">+ Add first item</Button>
+          </Empty>
+        </Demo>
+
+        <Demo label="Custom image / icon" center={false}>
+          <Empty
+            image={
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-3xl">
+                📭
+              </div>
+            }
+            description="No notifications yet."
+          >
+            <Button size={size} variant="secondary">Refresh</Button>
+          </Empty>
+        </Demo>
+
+      </div>
+    </div>
+  )
+}
+
+/* ── Steps ───────────────────────────────────────────────────── */
+
+export function StepsSection() {
+  const [current, setCurrent] = useState(1)
+
+  const STEPS: StepItem[] = [
+    { title: 'Account',  description: 'Create your account' },
+    { title: 'Profile',  description: 'Set up your profile'  },
+    { title: 'Plan',     description: 'Choose a plan'        },
+    { title: 'Confirm',  description: 'Review & confirm'     },
+  ]
+
+  const WITH_ERROR: StepItem[] = [
+    { title: 'Upload',   status: 'finish' },
+    { title: 'Validate', status: 'error', description: 'File format invalid' },
+    { title: 'Process' },
+    { title: 'Done' },
+  ]
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="Steps"
+        description="Multi-step progress indicator — horizontal or vertical, with error state and clickable finished steps."
+      />
+      <div className="grid grid-cols-1 gap-4">
+
+        <Demo label="Horizontal (clickable finished steps)" center={false}>
+          <Steps items={STEPS} current={current} onChange={setCurrent} />
+          <div className="flex gap-2 mt-4">
+            <Button variant="secondary" size="sm" onPress={() => setCurrent(c => Math.max(0, c - 1))} isDisabled={current === 0}>← Prev</Button>
+            <Button variant="primary"   size="sm" onPress={() => setCurrent(c => Math.min(STEPS.length - 1, c + 1))} isDisabled={current === STEPS.length - 1}>Next →</Button>
+          </div>
+        </Demo>
+
+        <Demo label="Vertical" center={false}>
+          <div className="max-w-xs">
+            <Steps items={STEPS} current={2} direction="vertical" />
+          </div>
+        </Demo>
+
+        <Demo label="Error state" center={false}>
+          <Steps items={WITH_ERROR} current={1} />
+        </Demo>
+
+        <Demo label="Size: sm" center={false}>
+          <Steps items={STEPS} current={2} size="sm" />
+        </Demo>
+
       </div>
     </div>
   )
