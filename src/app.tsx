@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Menu as MenuIcon } from 'lucide-react'
+import { Menu as MenuIcon, Sun, Moon, Monitor } from 'lucide-react'
 import { Badge } from './components'
+import { ThemeProvider, useTheme } from './components/theme-provider'
 import { cn } from './lib/cn'
 import type { Size } from './lib/size'
+import type { Theme } from './components/theme-provider'
 
 import { ShowcaseSizeCtx } from './showcase/context'
 import { NAV } from './showcase/constants'
@@ -94,7 +96,33 @@ function getHashSection() {
   return ALL_IDS.has(id) ? id : 'overview'
 }
 
-export default function App() {
+/* ── Theme toggle button ─────────────────────────────── */
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  const cycle = (): Theme => {
+    if (theme === 'light') return 'dark'
+    if (theme === 'dark') return 'system'
+    return 'light'
+  }
+
+  const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor
+  const label = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'
+
+  return (
+    <button
+      onClick={() => setTheme(cycle())}
+      title={`Theme: ${label} — click to cycle`}
+      className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-lg border border-border text-fg-muted hover:bg-surface-subtle transition-colors shrink-0"
+    >
+      <Icon className="w-3.5 h-3.5" />
+      <span className="hidden sm:inline">{label}</span>
+    </button>
+  )
+}
+
+/* ── Main App ────────────────────────────────────────── */
+function AppInner() {
   const [active, setActive] = useState(getHashSection)
   const [radius, setRadius] = useState<RadiusMode>('none')
   const [primary, setPrimary] = useState('#6366f1')
@@ -124,12 +152,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-white/90 backdrop-blur border-b border-gray-200 z-50 flex items-center px-4 gap-4">
+      <header className="fixed top-0 left-0 right-0 h-14 bg-surface/90 backdrop-blur border-b border-border z-50 flex items-center px-4 gap-4">
         {/* Mobile menu toggle */}
         <button
-          className="md:hidden p-1.5 rounded text-gray-500 hover:bg-gray-100"
+          className="md:hidden p-1.5 rounded text-fg-muted hover:bg-surface-subtle"
           onClick={() => setMobileNavOpen(o => !o)}
           aria-label="Toggle navigation"
         >
@@ -141,7 +169,7 @@ export default function App() {
           <div className="w-7 h-7 rounded-[var(--base-radius)] bg-primary flex items-center justify-center">
             <span className="text-white text-xs font-bold">P</span>
           </div>
-          <span className="font-semibold text-gray-900 text-sm tracking-tight">pro-ui</span>
+          <span className="font-semibold text-fg text-sm tracking-tight">pro-ui</span>
           <Badge color="info" className="hidden sm:inline-flex">v{__APP_VERSION__}</Badge>
         </div>
 
@@ -154,7 +182,7 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             title="GitHub"
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg text-fg-muted hover:text-fg-2 hover:bg-surface-subtle transition-colors"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -165,7 +193,7 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             title="npm"
-            className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg text-fg-muted hover:text-red-500 hover:bg-surface-subtle transition-colors"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474C23.214 24 24 23.214 24 22.237V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.009-10.382h-3.456l-.009 10.382H5.13z" />
@@ -173,33 +201,36 @@ export default function App() {
           </a>
         </div>
 
-        {/* Theme controls */}
+        {/* Controls */}
         <div className="flex items-center gap-2">
+          {/* Dark mode toggle */}
+          <ThemeToggle />
+
           {/* Primary color */}
           <input
             type="color"
             value={primary}
             title="Primary color"
             onChange={e => { setPrimary(e.target.value); applyTheme(radius, e.target.value) }}
-            className="w-7 h-7 border border-gray-200 rounded cursor-pointer p-0.5 bg-white shrink-0"
+            className="w-7 h-7 border border-border rounded cursor-pointer p-0.5 bg-surface shrink-0"
           />
 
           {/* Size toggle */}
-          <div className="flex items-center border border-gray-200 rounded-lg p-0.5 shrink-0">
+          <div className="flex items-center border border-border rounded-lg p-0.5 shrink-0">
             {(['sm', 'md', 'lg'] as Size[]).map(sz => (
               <button key={sz} onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
                 className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
-                  size === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+                  size === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
               >{sz}</button>
             ))}
           </div>
 
           {/* Radius toggle */}
-          <div className="flex items-center border border-gray-200 rounded-lg p-0.5 shrink-0">
+          <div className="flex items-center border border-border rounded-lg p-0.5 shrink-0">
             {([['0','none'],['M','md'],['L','lg']] as [string, RadiusMode][]).map(([label, val]) => (
               <button key={val} onClick={() => { setRadius(val); applyTheme(val, primary) }}
                 className={cn('px-2 py-1 text-[11px] font-semibold rounded-md transition-all',
-                  radius === val ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+                  radius === val ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
               >{label}</button>
             ))}
           </div>
@@ -218,7 +249,7 @@ export default function App() {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed top-14 left-0 w-56 h-[calc(100vh-56px)] border-r border-gray-100 bg-white',
+            'fixed top-14 left-0 w-56 h-[calc(100vh-56px)] border-r border-border-subtle bg-surface',
             'overflow-y-auto z-40 transition-transform',
             'md:translate-x-0',
             mobileNavOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
@@ -227,7 +258,7 @@ export default function App() {
           <nav className="py-4 px-3">
             {NAV.map(group => (
               <div key={group.group} className="mb-5">
-                <p className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                <p className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">
                   {group.group}
                 </p>
                 <ul className="space-y-0.5">
@@ -239,7 +270,7 @@ export default function App() {
                           'w-full text-left px-3 py-1.5 text-sm rounded-[var(--base-radius)] transition-colors',
                           active === item.id
                             ? 'bg-primary-50 text-primary font-medium'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                            : 'text-fg-muted hover:bg-surface-subtle hover:text-fg-2',
                         )}
                       >
                         {item.label}
@@ -259,10 +290,10 @@ export default function App() {
             (active === 'protable' || active === 'layout') ? 'p-6' : 'px-6 py-8 max-w-4xl',
           )}>
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-xs text-gray-400 mb-6">
+            <div className="flex items-center gap-2 text-xs text-fg-muted mb-6">
               <span>pro-ui</span>
               <span>›</span>
-              <span className="text-gray-700 font-medium">{navLabel}</span>
+              <span className="text-fg-2 font-medium">{navLabel}</span>
             </div>
 
             {SECTIONS[active]}
@@ -270,5 +301,13 @@ export default function App() {
         </ShowcaseSizeCtx.Provider>
       </div>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ThemeProvider defaultTheme="system">
+      <AppInner />
+    </ThemeProvider>
   )
 }

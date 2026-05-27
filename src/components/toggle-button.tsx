@@ -29,7 +29,7 @@ export function ToggleButton({ size = 'md', className, children, ...props }: Tog
         'rounded-[var(--base-radius)] border',
         'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 pressed:bg-gray-100',
+        'border-border bg-surface text-fg-2 hover:bg-surface-subtle pressed:bg-surface-subtle',
         'selected:border-primary selected:bg-primary-50 selected:text-primary selected:hover:bg-primary-100',
         sizeCls[size],
         className,

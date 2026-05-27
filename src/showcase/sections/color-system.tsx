@@ -8,7 +8,7 @@ function ThemeSwatch({ prefix, step }: { prefix: string; step: number }) {
         className="w-full h-10 rounded-[var(--base-radius)] border border-black/[0.06] transition-colors duration-300"
         style={{ backgroundColor: `var(--${prefix}-${step})` }}
       />
-      <span className="text-[10px] text-gray-400 font-mono leading-none">{step}</span>
+      <span className="text-[10px] text-fg-disabled font-mono leading-none">{step}</span>
     </div>
   )
 }
@@ -30,9 +30,9 @@ export function ColorSystemSection() {
         description="One --primary token drives the entire palette. Status colors blend 25% primary into their hue anchor — recognisable, but harmonised with the brand."
       />
 
-      <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
-        <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
-          <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide">src/index.css — the complete formula</span>
+      <div className="rounded-[var(--base-radius)] border border-border overflow-hidden">
+        <div className="px-3.5 py-2 border-b border-border-subtle bg-surface-subtle/80">
+          <span className="text-[11px] font-mono font-medium text-fg-disabled tracking-wide">src/index.css — the complete formula</span>
         </div>
         <pre className="px-5 py-4 text-xs font-mono text-gray-600 leading-6 bg-gray-950 overflow-x-auto">
           <span className="text-gray-500">{"/* ── 1. Customize these tokens per project ────────────────────── */"}{'\n'}</span>
@@ -58,8 +58,8 @@ export function ColorSystemSection() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold text-gray-700">Primary scale</p>
-          <span className="text-[11px] text-gray-400 font-mono hidden sm:block">color-mix(in oklch, var(--primary) N%, white/black)</span>
+          <p className="text-sm font-semibold text-fg-2">Primary scale</p>
+          <span className="text-[11px] text-fg-disabled font-mono hidden sm:block">color-mix(in oklch, var(--primary) N%, white/black)</span>
         </div>
         <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${primarySteps.length}, minmax(0, 1fr))` }}>
           {primarySteps.map(s => <ThemeSwatch key={s} prefix="primary" step={s} />)}

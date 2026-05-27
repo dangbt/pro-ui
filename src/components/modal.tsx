@@ -55,7 +55,7 @@ function ModalPanel({
     >
       <RAModal
         className={cn(
-          'bg-white shadow-xl w-full',
+          'bg-surface shadow-xl w-full',
           'rounded-[var(--base-radius)]',
           'entering:animate-in entering:zoom-in-95 entering:fade-in',
           'exiting:animate-out exiting:zoom-out-95 exiting:fade-out',
@@ -68,13 +68,13 @@ function ModalPanel({
             <>
               {/* Header */}
               {title && (
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                  <Heading slot="title" className="text-base font-semibold text-gray-800">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+                  <Heading slot="title" className="text-base font-semibold text-fg">
                     {title}
                   </Heading>
                   <button
                     onClick={close}
-                    className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[var(--base-radius)] transition-colors"
+                    className="w-7 h-7 flex items-center justify-center text-fg-muted hover:text-fg-2 hover:bg-surface-subtle rounded-[var(--base-radius)] transition-colors"
                     aria-label="Close"
                   >
                     <X className="w-4 h-4" />
@@ -83,13 +83,13 @@ function ModalPanel({
               )}
 
               {/* Body */}
-              <div className="px-6 py-5 overflow-y-auto flex-1 text-sm text-gray-600">
+              <div className="px-6 py-5 overflow-y-auto flex-1 text-sm text-fg-2">
                 {typeof children === 'function' ? children({ close }) : children}
               </div>
 
               {/* Footer */}
               {footer && (
-                <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-100">
+                <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border-subtle">
                   {typeof footer === 'function' ? footer({ close }) : footer}
                 </div>
               )}

@@ -18,17 +18,17 @@ interface TextareaProps extends Omit<TextFieldProps, 'className'> {
 export function Textarea({ label, placeholder, rows = 3, size = 'md', className, ...props }: TextareaProps) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
+      {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
       <RATextArea
         placeholder={placeholder}
         rows={rows}
         className={cn(
           inputPx[size], textareaPy[size], inputText[size],
-          'bg-white border border-gray-300 text-gray-900 resize-y',
+          'bg-surface border border-border text-fg resize-y',
           'rounded-[var(--base-radius)]',
-          'placeholder:text-gray-400',
+          'placeholder:text-fg-disabled',
           'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
-          'disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed',
+          'disabled:bg-surface-subtle disabled:text-fg-disabled disabled:cursor-not-allowed',
           'data-[invalid]:border-danger data-[invalid]:focus:outline-danger',
           'w-full min-h-[72px]',
         )}

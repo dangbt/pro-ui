@@ -24,7 +24,7 @@ export function Tabs({ items, className, ...props }: TabsProps_) {
     <RATabs {...props} className={cn('flex flex-col', className)}>
       <TabList
         aria-label="tabs"
-        className="flex border-b border-gray-200 gap-0"
+        className="flex border-b border-border gap-0"
       >
         {items.map(tab => (
           <Tab
@@ -32,11 +32,11 @@ export function Tabs({ items, className, ...props }: TabsProps_) {
             id={tab.id}
             isDisabled={tab.disabled}
             className={cn(
-              'px-4 py-2.5 text-sm font-medium text-gray-500 border-b-2 border-transparent -mb-px',
+              'px-4 py-2.5 text-sm font-medium text-fg-muted border-b-2 border-transparent -mb-px',
               'cursor-pointer outline-none transition-colors whitespace-nowrap',
-              'hover:text-gray-700',
+              'hover:text-fg-2',
               'selected:text-primary selected:border-primary',
-              'disabled:text-gray-300 disabled:cursor-not-allowed',
+              'disabled:text-fg-disabled disabled:cursor-not-allowed',
               'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset',
             )}
           >

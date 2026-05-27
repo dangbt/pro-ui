@@ -34,18 +34,18 @@ export function Breadcrumbs({ items, className, ...props }: BreadcrumbsProps_) {
           {({ isCurrent }) => (
             <>
               {isCurrent ? (
-                <span className="text-sm font-medium text-gray-700" aria-current="page">
+                <span className="text-sm font-medium text-fg-2" aria-current="page">
                   {item.label}
                 </span>
               ) : (
                 <Link
                   href={item.href ?? '#'}
-                  className="text-sm text-gray-400 hover:text-primary transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                  className="text-sm text-fg-muted hover:text-primary transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                 >
                   {item.label}
                 </Link>
               )}
-              {!isCurrent && <ChevronRight className="w-3.5 h-3.5 text-gray-300" />}
+              {!isCurrent && <ChevronRight className="w-3.5 h-3.5 text-fg-disabled" />}
             </>
           )}
         </Breadcrumb>

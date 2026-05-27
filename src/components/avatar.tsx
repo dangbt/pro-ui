@@ -81,7 +81,7 @@ export function Avatar({ src, name, size = 'md', shape = 'circle', className }: 
   return (
     <div
       className={cn(
-        'flex items-center justify-center bg-gray-200 text-gray-400 shrink-0',
+        'flex items-center justify-center bg-surface-subtle text-fg-disabled shrink-0',
         sizeMap[size],
         radiusCls,
         className,
@@ -103,14 +103,14 @@ export function AvatarGroup({ avatars, max = 4, size = 'md', className }: Avatar
           key={i}
           {...av}
           size={size}
-          className={cn('ring-2 ring-white', av.className)}
+          className={cn('ring-2 ring-canvas', av.className)}
         />
       ))}
       {rest > 0 && (
         <div
           className={cn(
             'flex items-center justify-center text-xs font-semibold',
-            'bg-gray-100 text-gray-600 ring-2 ring-white rounded-full',
+            'bg-surface-subtle text-fg-muted ring-2 ring-canvas rounded-full',
             sizeMap[size],
           )}
         >

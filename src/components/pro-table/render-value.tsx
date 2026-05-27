@@ -22,7 +22,7 @@ export function renderValue(
   valueType: ValueType = 'text',
   valueEnum?: ValueEnum,
 ): React.ReactNode {
-  if (value === null || value === undefined || value === '') return <span className="text-gray-300">—</span>
+  if (value === null || value === undefined || value === '') return <span className="text-fg-disabled">—</span>
 
   switch (valueType) {
     case 'date':
@@ -37,7 +37,7 @@ export function renderValue(
     case 'select': {
       if (!valueEnum) return <span>{String(value)}</span>
       const item = getEnumItem(valueEnum, value)
-      if (!item) return <span className="text-gray-400">{String(value)}</span>
+      if (!item) return <span className="text-fg-disabled">{String(value)}</span>
       if (typeof item === 'string') return <Badge>{item}</Badge>
       return <Badge color={item.color ?? 'default'}>{item.text}</Badge>
     }

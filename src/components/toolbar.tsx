@@ -15,7 +15,7 @@ export function Toolbar({ children, className, ...props }: ToolbarProps) {
     <RAToolbar
       {...props}
       className={cn(
-        'flex items-center gap-1 p-1 bg-white border border-gray-200 rounded-[var(--base-radius)]',
+        'flex items-center gap-1 p-1 bg-surface border border-border rounded-[var(--base-radius)]',
         'flex-wrap',
         className,
       )}
@@ -29,7 +29,7 @@ export function ToolbarSeparator({ className }: { className?: string }) {
   return (
     <Separator
       orientation="vertical"
-      className={cn('w-px h-5 bg-gray-200 mx-1 self-center shrink-0', className)}
+      className={cn('w-px h-5 bg-border mx-1 self-center shrink-0', className)}
     />
   )
 }

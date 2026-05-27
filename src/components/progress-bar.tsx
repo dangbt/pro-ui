@@ -36,13 +36,13 @@ export function ProgressBar({
         <>
           {(label || showValue) && (
             <div className="flex justify-between mb-1.5">
-              {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
-              {showValue && <span className="text-xs text-gray-500 tabular-nums">{valueText}</span>}
+              {label && <Label className="text-xs font-medium text-fg-muted">{label}</Label>}
+              {showValue && <span className="text-xs text-fg-muted tabular-nums">{valueText}</span>}
             </div>
           )}
           <div
             className={cn(
-              'w-full bg-gray-200 overflow-hidden rounded-full',
+              'w-full bg-surface-subtle overflow-hidden rounded-full',
               size === 'sm' ? 'h-1.5' : 'h-2.5',
             )}
           >

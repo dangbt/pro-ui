@@ -21,7 +21,7 @@ export function Tooltip({ children, content, delay = 400, className, ...props }:
         {...props}
         offset={8}
         className={cn(
-          'bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg',
+          'bg-fg text-white text-xs px-2 py-1 rounded shadow-lg',
           'entering:animate-in entering:fade-in entering:zoom-in-95',
           'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
           'placement-bottom:slide-in-from-top-1',

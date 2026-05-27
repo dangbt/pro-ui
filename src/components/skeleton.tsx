@@ -16,7 +16,7 @@ export function Skeleton({
   className,
 }: SkeletonProps) {
   const base = cn(
-    'bg-gray-200 animate-pulse',
+    'bg-surface-subtle animate-pulse',
     variant === 'circle' ? 'rounded-full' : 'rounded-[var(--base-radius)]',
     variant === 'text' && 'rounded',
     className,

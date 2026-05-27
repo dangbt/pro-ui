@@ -42,7 +42,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-[var(--base-radius)] p-4 mb-3">
+    <div className="bg-surface border border-border rounded-[var(--base-radius)] p-4 mb-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {searchable.map(col => {
           const key = (col.key ?? col.dataIndex) as string
@@ -69,20 +69,20 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
           if (vt === 'dateRange') {
             return (
               <div key={key} className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-gray-600">{col.title}</span>
+                <span className="text-xs font-medium text-fg-muted">{col.title}</span>
                 <div className="flex items-center gap-1">
                   <input
                     type="date"
                     value={(values[`${key}_from`] as string) ?? ''}
                     onChange={e => set(`${key}_from`, e.target.value)}
-                    className={`flex-1 border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                   />
-                  <span className="text-gray-400 text-xs">–</span>
+                  <span className="text-fg-disabled text-xs">–</span>
                   <input
                     type="date"
                     value={(values[`${key}_to`] as string) ?? ''}
                     onChange={e => set(`${key}_to`, e.target.value)}
-                    className={`flex-1 border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                   />
                 </div>
               </div>
@@ -106,12 +106,12 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
           if (vt === 'date') {
             return (
               <div key={key} className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-gray-600">{col.title}</span>
+                <span className="text-xs font-medium text-fg-muted">{col.title}</span>
                 <input
                   type="date"
                   value={(values[key] as string) ?? ''}
                   onChange={e => set(key, e.target.value)}
-                  className={`w-full border border-gray-300 rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                  className={`w-full border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
                 />
               </div>
             )
@@ -130,7 +130,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
         })}
       </div>
 
-      <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+      <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border-subtle">
         <Button variant="secondary" size={size} onPress={handleReset}>
           Reset
         </Button>

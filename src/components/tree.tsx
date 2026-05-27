@@ -35,8 +35,8 @@ function renderNode(item: TreeNode): React.ReactNode {
         {({ level, hasChildItems, isExpanded, isSelected, selectionMode }) => (
           <div
             className={cn(
-              'flex items-center gap-1.5 px-2 py-1.5 rounded-[var(--base-radius)] text-sm text-gray-700 cursor-pointer',
-              'hover:bg-gray-100',
+              'flex items-center gap-1.5 px-2 py-1.5 rounded-[var(--base-radius)] text-sm text-fg-2 cursor-pointer',
+              'hover:bg-surface-subtle',
               'group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-inset',
               isSelected && 'bg-primary-50 text-primary',
             )}
@@ -46,7 +46,7 @@ function renderNode(item: TreeNode): React.ReactNode {
               <Checkbox slot="selection" className="group/cb flex items-center shrink-0 mr-1">
                 <div className={cn(
                   'w-3.5 h-3.5 border-2 rounded flex items-center justify-center transition-colors shrink-0',
-                  'border-gray-300',
+                  'border-border',
                   'group-data-[selected]/cb:bg-primary group-data-[selected]/cb:border-primary',
                   'group-data-[indeterminate]/cb:bg-primary group-data-[indeterminate]/cb:border-primary',
                 )}>
@@ -62,9 +62,9 @@ function renderNode(item: TreeNode): React.ReactNode {
                 isExpanded && 'rotate-90',
               )}
             >
-              <ChevronRight className="w-3 h-3 text-gray-400" />
+              <ChevronRight className="w-3 h-3 text-fg-disabled" />
             </Button>
-            {item.icon && <span className="shrink-0 text-gray-400 w-4 h-4 flex items-center justify-center">{item.icon}</span>}
+            {item.icon && <span className="shrink-0 text-fg-disabled w-4 h-4 flex items-center justify-center">{item.icon}</span>}
             <span className="truncate">{item.label}</span>
           </div>
         )}

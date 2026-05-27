@@ -149,7 +149,20 @@
   --color-info-800: var(--info-800);
 
   /* Border */
-  --color-border: var(--border);
+  --color-border:        var(--border);
+  --color-border-subtle: var(--border-subtle);
+
+  /* Semantic surface */
+  --color-canvas:          var(--canvas);
+  --color-surface:         var(--surface);
+  --color-surface-subtle:  var(--surface-subtle);
+  --color-surface-raised:  var(--surface-raised);
+
+  /* Semantic text */
+  --color-fg:          var(--fg);
+  --color-fg-2:        var(--fg-2);
+  --color-fg-muted:    var(--fg-muted);
+  --color-fg-disabled: var(--fg-disabled);
 
   /* Radius scale */
   --radius-none: 0px;
@@ -162,4 +175,68 @@
 
   /* Font */
   --font-family-sans: var(--font-sans);
+
+  /* ── Semantic surface tokens ─────────────────────────────── */
+  --canvas:         #ffffff;   /* page/app background          */
+  --surface:        #ffffff;   /* card, input, popover bg      */
+  --surface-subtle: #f9fafb;   /* thead, sidebar, hover stripe */
+  --surface-raised: #ffffff;   /* dropdown, tooltip, menu      */
+  --surface-overlay: rgba(0,0,0,0.4); /* modal/drawer backdrop */
+
+  /* ── Semantic text tokens ───────────────────────────────── */
+  --fg:          #111827;   /* primary text  (gray-900) */
+  --fg-2:        #374151;   /* secondary text (gray-700) */
+  --fg-muted:    #6b7280;   /* muted text    (gray-500) */
+  --fg-disabled: #9ca3af;   /* disabled text (gray-400) */
+
+  /* ── Semantic border tokens ─────────────────────────────── */
+  /* --border already defined above as #e5e7eb               */
+  --border-subtle: #f3f4f6; /* dividers, inner borders (gray-100) */
+}
+
+/* ============================================================
+   DARK MODE — toggle .dark on <html>
+   ============================================================ */
+.dark {
+  --canvas:         #0f172a;
+  --surface:        #1e293b;
+  --surface-subtle: #0f172a;
+  --surface-raised: #334155;
+  --surface-overlay: rgba(0,0,0,0.6);
+
+  --fg:          #f1f5f9;
+  --fg-2:        #cbd5e1;
+  --fg-muted:    #94a3b8;
+  --fg-disabled: #475569;
+
+  --border:        #334155;
+  --border-subtle: #1e293b;
+
+  /* Recalculate primary scale for dark bg */
+  --primary-50:  color-mix(in oklch, var(--primary) 15%, #1e293b);
+  --primary-100: color-mix(in oklch, var(--primary) 25%, #1e293b);
+}
+
+/* ============================================================
+   SYSTEM PREFERENCE — auto dark when no explicit .dark/.light
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    --canvas:         #0f172a;
+    --surface:        #1e293b;
+    --surface-subtle: #0f172a;
+    --surface-raised: #334155;
+    --surface-overlay: rgba(0,0,0,0.6);
+
+    --fg:          #f1f5f9;
+    --fg-2:        #cbd5e1;
+    --fg-muted:    #94a3b8;
+    --fg-disabled: #475569;
+
+    --border:        #334155;
+    --border-subtle: #1e293b;
+
+    --primary-50:  color-mix(in oklch, var(--primary) 15%, #1e293b);
+    --primary-100: color-mix(in oklch, var(--primary) 25%, #1e293b);
+  }
 }

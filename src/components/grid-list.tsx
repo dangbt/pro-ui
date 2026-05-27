@@ -28,7 +28,7 @@ export function GridList({ items, size = 'md', className, ...props }: GridListPr
       {...props}
       items={items}
       className={cn(
-        'border border-gray-200 rounded-[var(--base-radius)] overflow-hidden outline-none divide-y divide-gray-100',
+        'border border-border rounded-[var(--base-radius)] overflow-hidden outline-none divide-y divide-border-subtle',
         className,
       )}
     >
@@ -38,10 +38,10 @@ export function GridList({ items, size = 'md', className, ...props }: GridListPr
           textValue={item.label}
           isDisabled={item.disabled}
           className={cn(
-            'flex items-center gap-3 px-4 py-3 bg-white outline-none cursor-pointer',
+            'flex items-center gap-3 px-4 py-3 bg-surface outline-none cursor-pointer',
             inputText[size],
-            'text-gray-700',
-            'hover:bg-gray-50',
+            'text-fg-2',
+            'hover:bg-surface-subtle',
             'focus-visible:bg-primary-50',
             'selected:bg-primary-50',
             'disabled:opacity-40 disabled:cursor-not-allowed',
@@ -56,7 +56,7 @@ export function GridList({ items, size = 'md', className, ...props }: GridListPr
                 >
                   <div className={cn(
                     'w-4 h-4 border-2 rounded flex items-center justify-center transition-colors',
-                    'border-gray-300',
+                    'border-border',
                     'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
                   )}>
                     {isSelected && (
@@ -67,10 +67,10 @@ export function GridList({ items, size = 'md', className, ...props }: GridListPr
                   </div>
                 </Checkbox>
               )}
-              {item.icon && <span className="shrink-0 text-gray-400">{item.icon}</span>}
+              {item.icon && <span className="shrink-0 text-fg-disabled">{item.icon}</span>}
               <div className="flex-1 min-w-0">
                 <div className="font-medium">{item.label}</div>
-                {item.description && <div className="text-xs text-gray-400 mt-0.5 truncate">{item.description}</div>}
+                {item.description && <div className="text-xs text-fg-disabled mt-0.5 truncate">{item.description}</div>}
               </div>
             </>
           )}

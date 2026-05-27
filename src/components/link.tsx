@@ -12,7 +12,7 @@ interface LinkProps extends Omit<RALinkProps, 'className'> {
 
 const variantCls: Record<LinkVariant, string> = {
   default: 'text-primary hover:text-primary-700',
-  muted:   'text-gray-500 hover:text-gray-700',
+  muted:   'text-fg-muted hover:text-fg-2',
   danger:  'text-danger hover:text-danger-700',
 }
 

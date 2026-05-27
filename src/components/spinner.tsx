@@ -20,7 +20,7 @@ const sizeMap: Record<SpinnerSize, string> = {
 const variantMap: Record<SpinnerVariant, string> = {
   primary: 'border-primary-200 border-t-primary',
   white:   'border-white/30 border-t-white',
-  gray:    'border-gray-200 border-t-gray-500',
+  gray:    'border-border border-t-fg-muted',
 }
 
 export function Spinner({
@@ -42,7 +42,7 @@ export function Spinner({
           variantMap[variant],
         )}
       />
-      {label && <span className="text-sm text-gray-500">{label}</span>}
+      {label && <span className="text-sm text-fg-muted">{label}</span>}
     </span>
   )
 }

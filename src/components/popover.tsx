@@ -34,7 +34,7 @@ export function Popover({ triggerElement, children, showArrow = false, className
       <RAPopover
         {...props}
         className={cn(
-          'bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] z-50 min-w-[180px]',
+          'bg-surface-raised border border-border shadow-lg rounded-[var(--base-radius)] z-50 min-w-[180px]',
           'entering:animate-in entering:fade-in entering:zoom-in-95',
           'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
           'placement-bottom:origin-top placement-top:origin-bottom',

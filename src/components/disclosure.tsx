@@ -38,12 +38,12 @@ export function Disclosure({ title, children, className, ...props }: DisclosureP
           <Heading level={3} className="m-0">
             <Button
               slot="trigger"
-              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gray-800 hover:bg-gray-50 pressed:bg-gray-100 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-[-2px]"
+              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-fg-2 hover:bg-surface-subtle pressed:bg-surface-subtle transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-[-2px]"
             >
               <span>{title}</span>
               <ChevronDown
                 className={cn(
-                  'w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200',
+                  'w-4 h-4 text-fg-disabled shrink-0 transition-transform duration-200',
                   isExpanded && 'rotate-180',
                 )}
               />
@@ -58,7 +58,7 @@ export function Disclosure({ title, children, className, ...props }: DisclosureP
               }}
             >
               <div className="overflow-hidden">
-                <div className="px-4 py-3 text-sm text-gray-600 border-t border-border">{children}</div>
+                <div className="px-4 py-3 text-sm text-fg-2 border-t border-border">{children}</div>
               </div>
             </div>
           </DisclosurePanel>

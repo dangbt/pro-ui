@@ -19,11 +19,11 @@ export function TimeField<T extends TimeValue>({ label, size = 'md', className, 
   return (
     <RATimeField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>
+        <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>
       )}
       <DateInput
         className={cn(
-          'flex items-center gap-px border border-gray-300 bg-white w-fit',
+          'flex items-center gap-px border border-border bg-surface w-fit',
           inputHeight[size], inputPx[size],
           'rounded-[var(--base-radius)]',
           'focus-within:outline focus-within:outline-2 focus-within:outline-primary',
@@ -35,9 +35,9 @@ export function TimeField<T extends TimeValue>({ label, size = 'md', className, 
             segment={segment}
             className={cn(
               inputText[size],
-              'text-gray-700 tabular-nums rounded px-0.5 outline-none',
+              'text-fg-2 tabular-nums rounded px-0.5 outline-none',
               'focus:bg-primary focus:text-white',
-              'data-[placeholder]:text-gray-400',
+              'data-[placeholder]:text-fg-disabled',
               'caret-transparent',
             )}
           />

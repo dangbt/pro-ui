@@ -117,14 +117,14 @@ export function ProFormItem({ name, label, required, description, className, chi
   const field = (
     <div className={cn('flex flex-col gap-1', className)}>
       {layout === 'vertical' && label && (
-        <span className={cn('font-medium text-gray-600', labelText[size])}>
+        <span className={cn('font-medium text-fg-muted', labelText[size])}>
           {label}
           {required && <span className="text-danger ml-0.5">*</span>}
         </span>
       )}
       {children}
       {description && !error?.message && (
-        <span className="text-xs text-gray-400">{description}</span>
+        <span className="text-xs text-fg-disabled">{description}</span>
       )}
       {error?.message && (
         <span className="text-xs text-danger">{String(error.message)}</span>
@@ -142,7 +142,7 @@ export function ProFormItem({ name, label, required, description, className, chi
         <div className={cn('flex-1 flex flex-col gap-1', className)}>
           {children}
           {description && !error?.message && (
-            <span className="text-xs text-gray-400">{description}</span>
+            <span className="text-xs text-fg-disabled">{description}</span>
           )}
           {error?.message && (
             <span className="text-xs text-danger">{String(error.message)}</span>

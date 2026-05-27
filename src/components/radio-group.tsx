@@ -33,7 +33,7 @@ export function RadioGroup({
       className={cn('flex flex-col gap-1', className)}
     >
       {label && (
-        <Label className="text-xs font-medium text-gray-600 mb-0.5">{label}</Label>
+        <Label className="text-xs font-medium text-fg-muted mb-0.5">{label}</Label>
       )}
       <div
         className={cn(
@@ -53,7 +53,7 @@ export function RadioGroup({
             <div
               className={cn(
                 'mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-                'border-gray-300 bg-white',
+                'border-border bg-surface',
                 'group-data-[selected]:border-primary',
                 'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
                 'group-hover:border-primary-400',
@@ -62,9 +62,9 @@ export function RadioGroup({
               <div className="w-2 h-2 rounded-full bg-primary scale-0 group-data-[selected]:scale-100 transition-transform" />
             </div>
             <div>
-              <div className="text-sm text-gray-700">{opt.label}</div>
+              <div className="text-sm text-fg-2">{opt.label}</div>
               {opt.description && (
-                <div className="text-xs text-gray-400 mt-0.5">{opt.description}</div>
+                <div className="text-xs text-fg-muted mt-0.5">{opt.description}</div>
               )}
             </div>
           </RARadio>

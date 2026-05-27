@@ -17,11 +17,11 @@ const variantCls: Record<Variant, string> = {
   primary:
     'bg-primary text-white hover:bg-primary-600 pressed:bg-primary-700 disabled:bg-primary-200 disabled:text-primary-400',
   secondary:
-    'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 pressed:bg-gray-100 disabled:text-gray-300',
+    'bg-surface text-fg-2 border border-border hover:bg-surface-subtle pressed:bg-surface-subtle disabled:text-fg-disabled',
   ghost:
-    'bg-transparent text-gray-600 hover:bg-gray-100 pressed:bg-gray-200 disabled:text-gray-300',
+    'bg-transparent text-fg-2 hover:bg-surface-subtle pressed:bg-surface-subtle disabled:text-fg-disabled',
   danger:
-    'bg-white text-danger-600 border border-danger-300 hover:bg-danger-50 pressed:bg-danger-100 disabled:text-danger-200',
+    'bg-surface text-danger-600 border border-danger-300 hover:bg-danger-50 pressed:bg-danger-100 disabled:text-danger-200',
 }
 
 const sizeCls: Record<Size, string> = {

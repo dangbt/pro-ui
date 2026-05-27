@@ -81,7 +81,7 @@ function DrawerPanel({
     >
       <RAModal
         className={cn(
-          'fixed bg-white shadow-xl flex duration-200',
+          'fixed bg-surface shadow-xl flex duration-200',
           'entering:animate-in exiting:animate-out',
           placementPanelCls[placement],
           isVertical ? widthMap[size] : heightMap[size],
@@ -93,13 +93,13 @@ function DrawerPanel({
             <>
               {/* Header */}
               {title && (
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                  <Heading slot="title" className="text-base font-semibold text-gray-800">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle shrink-0">
+                  <Heading slot="title" className="text-base font-semibold text-fg">
                     {title}
                   </Heading>
                   <button
                     onClick={close}
-                    className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[var(--base-radius)] transition-colors"
+                    className="w-7 h-7 flex items-center justify-center text-fg-muted hover:text-fg-2 hover:bg-surface-subtle rounded-[var(--base-radius)] transition-colors"
                     aria-label="Close"
                   >
                     <X className="w-4 h-4" />
@@ -108,13 +108,13 @@ function DrawerPanel({
               )}
 
               {/* Body */}
-              <div className="px-5 py-5 overflow-y-auto flex-1 text-sm text-gray-600">
+              <div className="px-5 py-5 overflow-y-auto flex-1 text-sm text-fg-2">
                 {typeof children === 'function' ? children({ close }) : children}
               </div>
 
               {/* Footer */}
               {footer && (
-                <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 shrink-0">
+                <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border-subtle shrink-0">
                   {typeof footer === 'function' ? footer({ close }) : footer}
                 </div>
               )}

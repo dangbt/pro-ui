@@ -42,7 +42,7 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
             className={cn(
               'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
               cbBoxSize[size],
-              'border-gray-300 bg-white',
+              'border-border bg-surface',
               'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
               'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
               'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
@@ -80,7 +80,7 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
             </svg>
           </div>
           {children && (
-            <span className={cn(cbLabelText[size], 'text-gray-700')}>{children}</span>
+            <span className={cn(cbLabelText[size], 'text-fg-2')}>{children}</span>
           )}
         </>
       )}
@@ -107,7 +107,7 @@ export function CheckboxGroup({
   return (
     <RACheckboxGroup {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <Label className={cn('font-medium text-gray-600 mb-0.5', cbLabelText[size])}>{label}</Label>
+        <Label className={cn('font-medium text-fg-muted mb-0.5', cbLabelText[size])}>{label}</Label>
       )}
       <div
         className={cn(

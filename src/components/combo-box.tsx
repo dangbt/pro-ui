@@ -36,26 +36,26 @@ export function ComboBox<T extends ComboBoxOption>({
       items={options}
       className={cn('flex flex-col gap-1', className)}
     >
-      {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
+      {label && <Label className="text-xs font-medium text-fg-muted">{label}</Label>}
       <div className="relative">
         <Input
           placeholder={placeholder ?? 'Type to search...'}
           className={cn(
-            'h-[var(--sz)] px-3 pr-8 text-sm bg-white border border-gray-300 text-gray-900 w-full',
+            'h-[var(--sz)] px-3 pr-8 text-sm bg-surface border border-border text-fg w-full',
             'rounded-[var(--base-radius)]',
-            'placeholder:text-gray-400',
+            'placeholder:text-fg-disabled',
             'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
           )}
         />
-        <Button className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600">
+        <Button className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-fg-disabled hover:text-fg-2">
           <ChevronDown className="w-4 h-4" />
         </Button>
       </div>
-      <Popover className="w-[var(--trigger-width)] bg-white border border-gray-200 shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
+      <Popover className="w-[var(--trigger-width)] bg-surface border border-border shadow-lg rounded-[var(--base-radius)] overflow-hidden z-50 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out">
         <ListBox<T>
           className="py-1 max-h-60 overflow-auto outline-none"
           renderEmptyState={() => (
-            <div className="px-3 py-4 text-sm text-center text-gray-400">No results</div>
+            <div className="px-3 py-4 text-sm text-center text-fg-disabled">No results</div>
           )}
         >
           {(item) => (
@@ -63,7 +63,7 @@ export function ComboBox<T extends ComboBoxOption>({
               id={item.value}
               textValue={item.label}
               className={cn(
-                'px-3 py-2 text-sm text-gray-700 cursor-pointer outline-none',
+                'px-3 py-2 text-sm text-fg-2 cursor-pointer outline-none',
                 'hover:bg-primary-50 hover:text-primary',
                 'focus:bg-primary-50 focus:text-primary',
                 'selected:bg-primary-100 selected:text-primary selected:font-medium',

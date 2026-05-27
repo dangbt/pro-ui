@@ -12,7 +12,7 @@ export function Divider({ orientation = 'horizontal', label, className }: Divide
       <div
         role="separator"
         aria-orientation="vertical"
-        className={cn('w-px bg-gray-200 self-stretch', className)}
+        className={cn('w-px bg-border self-stretch', className)}
       />
     )
   }
@@ -20,9 +20,9 @@ export function Divider({ orientation = 'horizontal', label, className }: Divide
   if (label) {
     return (
       <div role="separator" className={cn('flex items-center gap-3', className)}>
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-xs text-gray-400 font-medium">{label}</span>
-        <div className="flex-1 h-px bg-gray-200" />
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-fg-muted font-medium">{label}</span>
+        <div className="flex-1 h-px bg-border" />
       </div>
     )
   }
@@ -30,7 +30,7 @@ export function Divider({ orientation = 'horizontal', label, className }: Divide
   return (
     <hr
       role="separator"
-      className={cn('border-0 border-t border-gray-200', className)}
+      className={cn('border-0 border-t border-border', className)}
     />
   )
 }

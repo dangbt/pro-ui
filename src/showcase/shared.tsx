@@ -15,13 +15,13 @@ export function Demo({
   center?: boolean
 }) {
   return (
-    <div className={cn('rounded-[var(--base-radius)] border border-gray-200 overflow-hidden', wrapperClassName)}>
-      <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
-        <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide select-none">
+    <div className={cn('rounded-[var(--base-radius)] border border-border overflow-hidden', wrapperClassName)}>
+      <div className="px-3.5 py-2 border-b border-border-subtle bg-surface-subtle/80">
+        <span className="text-[11px] font-mono font-medium text-fg-disabled tracking-wide select-none">
           {label}
         </span>
       </div>
-      <div className={cn('p-6 bg-white', center && 'flex items-center justify-center', className)}>
+      <div className={cn('p-6 bg-surface', center && 'flex items-center justify-center', className)}>
         {children}
       </div>
     </div>
@@ -31,8 +31,8 @@ export function Demo({
 export function SectionHeader({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-1">{title}</h2>
-      {description && <p className="text-sm text-gray-500">{description}</p>}
+      <h2 className="text-xl font-bold text-fg mb-1">{title}</h2>
+      {description && <p className="text-sm text-fg-muted">{description}</p>}
     </div>
   )
 }

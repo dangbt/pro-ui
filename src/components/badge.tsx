@@ -11,7 +11,7 @@ interface BadgeProps {
 }
 
 const colorCls: Record<BadgeColor, string> = {
-  default:  'bg-gray-100    text-gray-600',
+  default:  'bg-surface-subtle text-fg-2',
   primary:  'bg-primary-100 text-primary-700',
   success:  'bg-success-100 text-success-700',
   warning:  'bg-warning-100 text-warning-700',

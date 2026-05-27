@@ -58,6 +58,10 @@ export { Steps }                        from './steps'
 /* ── Layout ────────────────────────────────────────────── */
 export { Layout, useSider }             from './layout'
 
+/* ── Theme ─────────────────────────────────────────────── */
+export { ThemeProvider, useTheme }      from './theme-provider'
+export type { Theme }                   from './theme-provider'
+
 /* ── ProTable ──────────────────────────────────────────── */
 export { ProTable }                     from './pro-table'
 

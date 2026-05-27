@@ -40,7 +40,7 @@ export function Switch({ children, size = 'md', className, ...props }: SwitchPro
       <div
         className={cn(
           'relative rounded-full transition-colors duration-200 flex items-center p-0.5',
-          'bg-gray-200',
+          'bg-border',
           'group-data-[selected]:bg-primary',
           'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
           trackSize[size],
@@ -48,12 +48,12 @@ export function Switch({ children, size = 'md', className, ...props }: SwitchPro
       >
         <div
           className={cn(
-            'bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0',
+            'bg-canvas rounded-full shadow-sm transition-transform duration-200 translate-x-0',
             thumbSize[size],
           )}
         />
       </div>
-      {children && <span className={`${switchLabelText[size]} text-gray-700`}>{children}</span>}
+      {children && <span className={`${switchLabelText[size]} text-fg-2`}>{children}</span>}
     </RASwitch>
   )
 }

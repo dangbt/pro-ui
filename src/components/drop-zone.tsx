@@ -34,11 +34,11 @@ export function DropZone({
         'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
         isDropTarget
           ? 'border-primary bg-primary-50 text-primary'
-          : 'border-gray-300 bg-gray-50 text-gray-500 hover:border-gray-400 hover:bg-gray-100',
+          : 'border-border bg-surface-subtle text-fg-muted hover:border-border hover:bg-surface-subtle',
         className,
       )}
     >
-      <Upload className="w-8 h-8 text-gray-400" />
+      <Upload className="w-8 h-8 text-fg-disabled" />
       <div>
         <FileTrigger
           acceptedFileTypes={accept}
@@ -50,7 +50,7 @@ export function DropZone({
           </button>
         </FileTrigger>
         {description && (
-          <Text slot="description" className="text-xs text-gray-400 mt-0.5 block">
+          <Text slot="description" className="text-xs text-fg-disabled mt-0.5 block">
             {description}
           </Text>
         )}

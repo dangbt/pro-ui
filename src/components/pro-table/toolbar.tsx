@@ -54,14 +54,14 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
       {open && createPortal(
         <div
           ref={menuRef}
-          className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-white shadow-lg py-1"
+          className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
           style={{ top: pos.top, right: pos.right, zIndex: 9999 }}
         >
-          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Columns</p>
+          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">Columns</p>
           {hideable.map(col => (
             <label
               key={col.id}
-              className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer select-none"
+              className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-fg-2 hover:bg-surface-subtle cursor-pointer select-none"
             >
               <input
                 type="checkbox"
@@ -85,7 +85,7 @@ export function Toolbar({ title, actions, onRefresh, columnToggles }: ToolbarPro
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-y-2 px-4 py-3 border-b border-border">
-      <h3 className="text-sm font-semibold text-gray-800">{title ?? ''}</h3>
+      <h3 className="text-sm font-semibold text-fg-2">{title ?? ''}</h3>
       <div className="flex items-center gap-2">
         {actions?.map((action, i) => (
           <span key={i}>{action}</span>

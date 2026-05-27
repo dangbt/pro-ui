@@ -24,7 +24,7 @@ interface LayoutProps {
 
 function LayoutRoot({ children, className, style }: LayoutProps) {
   return (
-    <div className={cn('flex flex-col bg-gray-50', className)} style={style}>
+    <div className={cn('flex flex-col bg-canvas', className)} style={style}>
       {children}
     </div>
   )
@@ -45,9 +45,9 @@ function Header({ children, className, height = 56, bordered = true, sticky = tr
     <header
       style={{ height, minHeight: height }}
       className={cn(
-        'flex items-center shrink-0 bg-white px-4 z-40',
+        'flex items-center shrink-0 bg-surface px-4 z-40',
         sticky && 'sticky top-0',
-        bordered && 'border-b border-gray-200',
+        bordered && 'border-b border-border',
         className,
       )}
     >
@@ -111,8 +111,8 @@ function Sider({
       <aside
         style={{ width: currentWidth, minWidth: currentWidth, ...style }}
         className={cn(
-          'flex flex-col bg-white transition-[width,min-width] duration-300 ease-in-out shrink-0 overflow-hidden',
-          bordered && 'border-r border-gray-200',
+          'flex flex-col bg-surface transition-[width,min-width] duration-300 ease-in-out shrink-0 overflow-hidden',
+          bordered && 'border-r border-border',
           className,
         )}
       >
@@ -121,7 +121,7 @@ function Sider({
         </div>
 
         {collapsible && (
-          <div className="border-t border-gray-100 shrink-0">
+          <div className="border-t border-border-subtle shrink-0">
             {trigger === false ? null : trigger != null ? (
               <div onClick={toggle} className="cursor-pointer">{trigger}</div>
             ) : (
@@ -130,7 +130,7 @@ function Sider({
                 onClick={toggle}
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 className={cn(
-                  'flex items-center w-full px-4 py-3 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors',
+                  'flex items-center w-full px-4 py-3 text-fg-disabled hover:bg-surface-subtle hover:text-fg-muted transition-colors',
                   collapsed ? 'justify-center' : 'gap-2',
                 )}
               >
@@ -181,8 +181,8 @@ function Footer({ children, className, bordered = true }: FooterProps) {
   return (
     <footer
       className={cn(
-        'shrink-0 bg-white px-4 py-3',
-        bordered && 'border-t border-gray-200',
+        'shrink-0 bg-surface px-4 py-3',
+        bordered && 'border-t border-border',
         className,
       )}
     >
@@ -216,11 +216,11 @@ function SiderNavGroup({ label, children }: SiderNavGroupProps) {
   return (
     <div className="mb-4">
       {!collapsed && (
-        <p className="px-4 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 whitespace-nowrap overflow-hidden">
+        <p className="px-4 mb-1 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled whitespace-nowrap overflow-hidden">
           {label}
         </p>
       )}
-      {collapsed && <div className="mx-3 my-1 border-t border-gray-100" />}
+      {collapsed && <div className="mx-3 my-1 border-t border-border-subtle" />}
       <ul className="space-y-0.5 px-2">
         {children}
       </ul>
@@ -249,7 +249,7 @@ function SiderNavItem({ icon, label, active = false, onClick, badge }: SiderNavI
           collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2',
           active
             ? 'bg-primary-50 text-primary font-medium'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+            : 'text-fg-muted hover:bg-surface-subtle hover:text-fg-2',
         )}
       >
         <span className="shrink-0 w-4 h-4 flex items-center justify-center">{icon}</span>
