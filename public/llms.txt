@@ -1,0 +1,87 @@
+# @dangbt/pro-ui
+
+> React component library for admin dashboards and data-heavy applications. Built on React Aria for accessibility. Supports dark/light/system themes via CSS semantic tokens.
+
+## Install
+
+```bash
+npm install @dangbt/pro-ui
+```
+
+## Links
+
+- npm: https://www.npmjs.com/package/@dangbt/pro-ui
+- GitHub: https://github.com/dangbt/pro-ui
+- Showcase: https://pro-ui.pages.dev
+- MCP Server: https://www.npmjs.com/package/mcp-pro-ui
+- CLI Scaffold: https://www.npmjs.com/package/create-pro-ui-app
+
+## Components
+
+- ProTable: Advanced data table. Server-side (request prop) or client-side (dataSource prop). Features: pagination, sorting, search/filter, column toggle, column pinning, row selection, bulk actions, expandable rows.
+- ProForm: Form builder with Zod validation. Field types: ProFormInput, ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup, ProFormCheckbox, ProFormSwitch, ProFormDatePicker, ProFormTextarea, ProFormNumberField.
+- Layout: App shell with collapsible sidebar navigation and header.
+- Modal: Accessible dialog. Use inside DialogTrigger from react-aria-components.
+- Drawer: Slide-in panel (left/right/bottom). Use inside DialogTrigger.
+- Popover: Floating anchored panel.
+- Tooltip: Hover/focus tooltip.
+- Menu: Dropdown action menu.
+- Toast: Global notifications. Mount ToastProvider once, call toast.success/error/warning/info() anywhere.
+- Alert: Inline alert (info/success/warning/danger variants).
+- Statistic: KPI metric card with value, prefix, suffix, trend indicator (up/down/neutral).
+- Steps: Multi-step progress indicator. Horizontal or vertical.
+- Empty: Empty state placeholder with optional image, title, description, action.
+- Badge: Status label (default/primary/success/warning/danger/info).
+- Card: Container with optional header and footer.
+- Avatar: User avatar with image or initials fallback. AvatarGroup stacks multiple.
+- Tabs: Accessible tab navigation.
+- Button: Variants solid/outline/ghost/danger. Use onPress not onClick.
+- Input, Textarea, NumberField, SearchField: Text input components.
+- Select, AsyncSelect, ComboBox: Dropdown and combobox components.
+- Checkbox, RadioGroup, Switch, ToggleButton: Selection components.
+- DatePicker, TimeField: Date and time inputs.
+- TagGroup, Slider, ColorPicker, FileTrigger, DropZone: Specialized inputs.
+- Spinner, Skeleton, ProgressBar, Meter: Loading and progress components.
+- Breadcrumbs, Toolbar, Disclosure, GridList, ListBox, Tree: Navigation and layout components.
+- ThemeProvider, useTheme: Dark/light/system theme context. Persist to localStorage. Toggle .dark class on html element.
+
+## App Setup
+
+```tsx
+import { ThemeProvider, ToastProvider } from '@dangbt/pro-ui'
+import '@dangbt/pro-ui/style'
+
+// Wrap app root:
+<ThemeProvider defaultTheme="system">
+  <ToastProvider />
+  {/* app content */}
+</ThemeProvider>
+```
+
+## Import Pattern
+
+```tsx
+// Always import from package root:
+import { Button, ProTable, ProForm, Modal, toast } from '@dangbt/pro-ui'
+```
+
+## Theming
+
+Uses CSS semantic tokens instead of hardcoded colors:
+- bg-surface (card backgrounds), bg-surface-subtle, bg-surface-raised, bg-canvas (page background)
+- text-fg (primary text), text-fg-2, text-fg-muted, text-fg-disabled
+- border-border (standard border), border-border-subtle
+- bg-primary, text-primary (brand color)
+
+## AI Tools
+
+MCP server for Claude Code / Cursor:
+```bash
+claude mcp add mcp-pro-ui -- npx -y mcp-pro-ui
+```
+
+CLI scaffold:
+```bash
+npx create-pro-ui-app my-app
+# Templates: minimal, admin-dashboard, saas-app
+```

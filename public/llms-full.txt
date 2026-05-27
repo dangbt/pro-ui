@@ -1,0 +1,254 @@
+# @dangbt/pro-ui — Full API Reference
+
+> Complete component reference for AI agents. See /llms.txt for summary.
+
+## ProTable
+
+Advanced data table component.
+
+Import: `import { ProTable } from '@dangbt/pro-ui'`
+Import types: `import type { ProColumnType, ProTableProps, QueryParams, RequestResult } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| columns | ProColumnType<T>[] | ✅ | — | Column definitions |
+| request | (params: QueryParams) => Promise<RequestResult<T>> | — | — | Server-side data fetcher. Mutually exclusive with dataSource. |
+| dataSource | T[] | — | — | Client-side data. Mutually exclusive with request. |
+| rowKey | keyof T \| ((record: T) => string) | ✅ | — | Unique row identifier |
+| headerTitle | string | — | — | Table header title |
+| toolBarRender | () => ReactNode[] | — | — | Extra toolbar buttons |
+| search | boolean | — | true | Hide search form when false |
+| loading | boolean | — | — | Override loading state |
+| pagination | { defaultPageSize?: number; pageSizeOptions?: number[] } | — | — | Pagination config |
+| rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Row checkboxes |
+| bulkActions | BulkActionDef<T>[] | — | — | Actions for selected rows |
+| expandedRowRender | (record: T) => ReactNode | — | — | Expanded row content |
+| rowClassName | (record: T, index: number) => string | — | — | Conditional row CSS |
+| onRow | (record: T, index: number) => { onClick?; onDoubleClick?; onContextMenu? } | — | — | Row event handlers |
+| size | 'sm' \| 'md' \| 'lg' | — | 'md' | Table density |
+
+### ProColumnType
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Column header |
+| dataIndex | keyof T & string | Data field name |
+| key | string | Unique column key |
+| valueType | 'text' \| 'number' \| 'date' \| 'dateRange' \| 'select' \| 'money' \| 'custom' | Render type |
+| valueEnum | Record<string, string \| { text: string; color?: string }> | Options for select valueType |
+| hideInSearch | boolean | Hide from search form |
+| hideInTable | boolean | Hide column by default |
+| disableHiding | boolean | Prevent user from hiding |
+| pinnable | boolean | Allow column pinning left/right |
+| render | (value, record, index) => ReactNode | Custom cell renderer |
+| sortable | boolean | Enable column sorting |
+| width | number \| string | Column width |
+| align | 'left' \| 'center' \| 'right' | Cell alignment |
+
+### Example — Server-side
+
+```tsx
+import { ProTable, Button } from '@dangbt/pro-ui'
+import type { ProColumnType } from '@dangbt/pro-ui'
+
+interface User { id: string; name: string; status: 'active' | 'inactive' }
+
+const columns: ProColumnType<User>[] = [
+  { title: 'Name', dataIndex: 'name', sortable: true },
+  { title: 'Status', dataIndex: 'status', valueType: 'select',
+    valueEnum: { active: { text: 'Active', color: 'success' }, inactive: 'Inactive' } },
+]
+
+<ProTable<User>
+  headerTitle="Users"
+  columns={columns}
+  rowKey="id"
+  request={async ({ current, pageSize, ...filters }) => {
+    const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
+    const data = await res.json()
+    return { data: data.items, total: data.total, success: true }
+  }}
+  toolBarRender={() => [<Button key="add" variant="solid">+ Add</Button>]}
+  rowSelection={{ onChange: (keys, rows) => {} }}
+  bulkActions={[{ label: 'Delete', danger: true, onClick: (keys) => {} }]}
+/>
+```
+
+---
+
+## ProForm + Field Components
+
+Import: `import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker, ProFormTextarea, ProFormNumberField, ProFormCheckbox, ProFormSwitch, ProFormRadioGroup, ProFormComboBox, ProFormAsyncSelect } from '@dangbt/pro-ui'`
+
+### ProForm Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| schema | ZodSchema | ✅ | Zod validation schema |
+| onSubmit | (values: T) => void \| Promise<void> | ✅ | Submit handler |
+| defaultValues | Partial<T> | — | Initial values |
+| layout | 'vertical' \| 'horizontal' | — | Label placement (default: vertical) |
+| cols | number | — | Grid columns (default: 1) |
+| loading | boolean | — | Loading state on submit button |
+| submitText | string | — | Submit button label (default: 'Submit') |
+| onReset | () => void | — | Reset callback |
+
+### Field Component Props (all fields)
+
+| Prop | Type | Description |
+|------|------|-------------|
+| name | string | Form field name (must match schema) |
+| label | string | Field label |
+| placeholder | string | Placeholder text |
+| description | string | Helper text |
+| isDisabled | boolean | Disable the field |
+
+### Example
+
+```tsx
+import { z } from 'zod'
+import { ProForm, ProFormInput, ProFormSelect, ProFormSwitch, ProFormDatePicker } from '@dangbt/pro-ui'
+
+const schema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  role: z.enum(['admin', 'user']),
+  active: z.boolean(),
+  birthDate: z.string().optional(),
+})
+
+<ProForm schema={schema} onSubmit={async (values) => { await saveUser(values) }} cols={2}>
+  <ProFormInput name="name" label="Name" />
+  <ProFormInput name="email" label="Email" type="email" />
+  <ProFormSelect name="role" label="Role" options={[{ value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
+  <ProFormSwitch name="active" label="Active" />
+  <ProFormDatePicker name="birthDate" label="Birth Date" />
+</ProForm>
+```
+
+---
+
+## ThemeProvider + useTheme
+
+```tsx
+import { ThemeProvider, useTheme } from '@dangbt/pro-ui'
+
+// Provider (wrap app root):
+<ThemeProvider defaultTheme="system" storageKey="my-theme">
+  {children}
+</ThemeProvider>
+
+// Hook (any child component):
+const { theme, resolvedTheme, setTheme } = useTheme()
+// theme: 'light' | 'dark' | 'system'
+// resolvedTheme: 'light' | 'dark' (resolved system preference)
+// setTheme: (theme: 'light' | 'dark' | 'system') => void
+```
+
+---
+
+## Toast
+
+```tsx
+import { ToastProvider, toast } from '@dangbt/pro-ui'
+
+// Mount once at app root:
+<ToastProvider position="top-right" />
+
+// Call anywhere:
+toast.success('Saved!', { duration: 3000 })
+toast.error('Something went wrong.')
+toast.warning('Please review.')
+toast.info('New update available.')
+// persistent (no auto-dismiss):
+toast.success('Done!', { persistent: true })
+```
+
+---
+
+## Button
+
+```tsx
+import { Button } from '@dangbt/pro-ui'
+
+// variant: 'solid' | 'outline' | 'ghost' | 'danger'
+// size: 'sm' | 'md' | 'lg'
+// IMPORTANT: use onPress, not onClick
+
+<Button variant="solid" size="md" onPress={handleSave} loading={isSaving}>Save</Button>
+<Button variant="outline" onPress={handleCancel}>Cancel</Button>
+<Button variant="ghost" size="sm"><Icon /> Action</Button>
+<Button variant="danger" onPress={handleDelete}>Delete</Button>
+<Button type="submit" variant="solid">Submit Form</Button>
+```
+
+---
+
+## Modal + Drawer
+
+Both use React Aria's DialogTrigger:
+
+```tsx
+import { Modal, Drawer, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+// Modal
+<DialogTrigger>
+  <Button variant="solid">Open Modal</Button>
+  <Modal title="Confirm" size="md"
+    footer={<div className="flex gap-2"><Button slot="close" variant="ghost">Cancel</Button><Button variant="solid">Confirm</Button></div>}
+  >
+    Modal content here
+  </Modal>
+</DialogTrigger>
+
+// Drawer
+<DialogTrigger>
+  <Button variant="outline">Open Drawer</Button>
+  <Drawer title="Filters" placement="right" size="md">
+    Drawer content here
+  </Drawer>
+</DialogTrigger>
+```
+
+---
+
+## Statistic
+
+```tsx
+import { Statistic } from '@dangbt/pro-ui'
+import { DollarSign } from 'lucide-react'
+
+<Statistic
+  title="Revenue"
+  value={125430}
+  prefix={<DollarSign size={16} />}
+  trend="up"
+  trendValue="+12%"
+  formatter={(v) => `$${Number(v).toLocaleString()}`}
+  size="md"
+/>
+```
+
+---
+
+## Semantic Color Tokens (for custom components)
+
+Use these in className instead of hardcoded Tailwind colors:
+
+```
+bg-canvas          — page background
+bg-surface         — card/panel background
+bg-surface-subtle  — secondary surface (table rows, hover)
+bg-surface-raised  — elevated surface (dropdowns, popovers)
+text-fg            — primary text
+text-fg-2          — secondary text
+text-fg-muted      — muted/placeholder text
+text-fg-disabled   — disabled state text
+border-border      — standard border
+border-border-subtle — subtle divider
+bg-primary         — brand primary
+text-primary       — brand primary text
+```
