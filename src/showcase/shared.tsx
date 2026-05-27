@@ -4,15 +4,18 @@ export function Demo({
   label,
   children,
   className,
+  wrapperClassName,
   center = true,
 }: {
   label: string
   children: React.ReactNode
   className?: string
+  /** Applied to the outer wrapper — use for col-span, row-span, etc. */
+  wrapperClassName?: string
   center?: boolean
 }) {
   return (
-    <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
+    <div className={cn('rounded-[var(--base-radius)] border border-gray-200 overflow-hidden', wrapperClassName)}>
       <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
         <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide select-none">
           {label}

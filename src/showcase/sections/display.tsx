@@ -432,7 +432,7 @@ export function StatisticSection() {
           </div>
         </Demo>
 
-        <Demo label="In Card context" center={false} className="sm:col-span-2">
+        <Demo label="In Card context" center={false} wrapperClassName="sm:col-span-2">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { title: 'Orders',    value: '1,284',   trend: { value: '18%',  direction: 'up'   as const } },
@@ -440,7 +440,7 @@ export function StatisticSection() {
               { title: 'Returns',   value: '34',      trend: { value: '2',    direction: 'down' as const } },
               { title: 'NPS Score', value: '72',      trend: { value: '+4',   direction: 'up'   as const } },
             ].map(s => (
-              <Card key={s.title} className="p-4">
+              <Card key={s.title} padding={false} className="p-4">
                 <Statistic title={s.title} value={s.value} trend={s.trend} size="md" />
               </Card>
             ))}
