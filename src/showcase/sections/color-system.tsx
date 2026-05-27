@@ -68,16 +68,16 @@ export function ColorSystemSection() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-gray-700">Status scales</p>
-          <span className="text-[11px] text-gray-400 font-mono hidden sm:block">color-mix(in oklch, var(--primary) 25%, anchor) → scale</span>
+          <p className="text-sm font-semibold text-fg-2">Status scales</p>
+          <span className="text-[11px] text-fg-disabled font-mono hidden sm:block">color-mix(in oklch, var(--primary) 25%, anchor) → scale</span>
         </div>
         <div className="space-y-5">
           {statuses.map(s => (
             <div key={s.name}>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 rounded-full shrink-0" style={{ background: `var(--${s.prefix})` }} />
-                <span className="text-xs font-semibold text-gray-700">{s.name}</span>
-                <span className="text-[10px] text-gray-400 font-mono">{s.anchor}</span>
+                <span className="text-xs font-semibold text-fg-2">{s.name}</span>
+                <span className="text-[10px] text-fg-disabled font-mono">{s.anchor}</span>
               </div>
               <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${statusSteps.length}, minmax(0, 1fr))` }}>
                 {statusSteps.map(step => <ThemeSwatch key={step} prefix={s.prefix} step={step} />)}
@@ -88,7 +88,7 @@ export function ColorSystemSection() {
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-gray-700 mb-3">Live — change primary color (top-right ↗) to see everything adapt</p>
+        <p className="text-sm font-semibold text-fg-2 mb-3">Live — change primary color (top-right ↗) to see everything adapt</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {[
             { variant: 'success' as const, title: 'Success', body: 'Deployed to production' },

@@ -88,7 +88,7 @@ export function ToolbarSection() {
             <Button size="sm" variant="ghost" aria-label="Redo">↪</Button>
           </Toolbar>
           {(bold || italic || underline) && (
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-fg-muted mt-2">
               Active: {[bold && 'Bold', italic && 'Italic', underline && 'Underline'].filter(Boolean).join(', ')} · Align: {align}
             </p>
           )}

@@ -30,11 +30,11 @@ function IconCard({ name }: { name: string }) {
       title={`Click to copy: ${name}`}
       className={cn(
         'flex flex-col items-center gap-2 p-3 rounded-[var(--base-radius)] border transition-all text-center group',
-        copied ? 'border-primary bg-primary-50 text-primary' : 'border-transparent hover:border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-gray-900',
+        copied ? 'border-primary bg-primary-50 text-primary' : 'border-transparent hover:border-border hover:bg-surface-subtle text-fg-muted hover:text-fg',
       )}
     >
       <Icon className="w-5 h-5 shrink-0" />
-      <span className={cn('text-[10px] font-mono leading-tight break-all', copied ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600')}>
+      <span className={cn('text-[10px] font-mono leading-tight break-all', copied ? 'text-primary' : 'text-fg-disabled group-hover:text-fg-muted')}>
         {copied ? '✓ copied' : name}
       </span>
     </button>
@@ -55,23 +55,23 @@ export function IconsSection() {
 
       <div className="flex items-center gap-3">
         <div className="relative max-w-xs w-full">
-          <LucideIcons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <LucideIcons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-disabled pointer-events-none" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter icons..."
-            className="w-full h-9 pl-9 pr-3 text-sm bg-white border border-gray-300 rounded-[var(--base-radius)] placeholder:text-gray-400 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="w-full h-9 pl-9 pr-3 text-sm bg-surface border border-border rounded-[var(--base-radius)] placeholder:text-fg-disabled outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
-        {search && <button onClick={() => setSearch('')} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>}
+        {search && <button onClick={() => setSearch('')} className="text-xs text-fg-disabled hover:text-fg-muted transition-colors">Clear</button>}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 text-sm">No icons match "{search}"</div>
+        <div className="text-center py-16 text-fg-disabled text-sm">No icons match "{search}"</div>
       ) : (
         <div className="space-y-8">
           {filtered.map(group => (
             <div key={group.group}>
               <div className="flex items-center gap-2 mb-3">
-                <h3 className="text-sm font-semibold text-gray-700">{group.group}</h3>
-                <span className="text-xs text-gray-400">{group.names.length}</span>
+                <h3 className="text-sm font-semibold text-fg-2">{group.group}</h3>
+                <span className="text-xs text-fg-disabled">{group.names.length}</span>
               </div>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-1">
                 {group.names.map(name => <IconCard key={name} name={name} />)}
@@ -81,9 +81,9 @@ export function IconsSection() {
         </div>
       )}
 
-      <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
-        <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
-          <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide">Usage example</span>
+      <div className="rounded-[var(--base-radius)] border border-border overflow-hidden">
+        <div className="px-3.5 py-2 border-b border-border-subtle bg-surface-subtle/80">
+          <span className="text-[11px] font-mono font-medium text-fg-disabled tracking-wide">Usage example</span>
         </div>
         <pre className="px-5 py-4 text-xs font-mono text-gray-300 bg-gray-950 overflow-x-auto leading-6">
           <span className="text-gray-500">{'// Install\n'}</span>

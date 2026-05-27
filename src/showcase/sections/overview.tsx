@@ -15,15 +15,15 @@ export function Overview() {
 
   return (
     <div className="space-y-8">
-      <div className="border border-gray-200 rounded-[var(--base-radius)] p-8 bg-gradient-to-br from-primary-50/60 to-white">
+      <div className="border border-border rounded-[var(--base-radius)] p-8 bg-gradient-to-br from-primary-50/60 to-surface">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 rounded-[var(--base-radius)] bg-primary flex items-center justify-center">
             <span className="text-white text-sm font-bold">P</span>
           </div>
-          <span className="font-bold text-gray-900 text-lg">pro-ui</span>
+          <span className="font-bold text-fg text-lg">pro-ui</span>
           <Badge color="info" size={size}>v{__APP_VERSION__}</Badge>
         </div>
-        <p className="text-gray-600 text-sm max-w-lg mb-6">
+        <p className="text-fg-muted text-sm max-w-lg mb-6">
           UI framework built on <strong>React Aria Components</strong> + <strong>Tailwind v4</strong>.
           Single <code className="text-primary bg-primary-50 px-1 rounded font-mono text-xs">--primary</code> token,
           3 radius presets, full accessibility out of the box.

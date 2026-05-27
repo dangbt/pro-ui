@@ -97,7 +97,7 @@ export function TooltipSection() {
         </Demo>
         <Demo label="trigger: icon button">
           <Tooltip content="More information">
-            <button className="w-7 h-7 rounded-full border border-gray-300 text-gray-400 hover:border-primary hover:text-primary transition-colors text-sm flex items-center justify-center">?</button>
+            <button className="w-7 h-7 rounded-full border border-border text-fg-disabled hover:border-primary hover:text-primary transition-colors text-sm flex items-center justify-center">?</button>
           </Tooltip>
         </Demo>
       </div>
@@ -150,8 +150,8 @@ export function PopoverSection() {
             triggerElement={<Button size={size} variant="secondary">Open popover</Button>}
             placement="bottom"
           >
-            <p className="text-sm text-gray-700 font-medium mb-1">Popover title</p>
-            <p className="text-xs text-gray-500">This is a popover with arbitrary content. Click outside to close.</p>
+            <p className="text-sm text-fg-2 font-medium mb-1">Popover title</p>
+            <p className="text-xs text-fg-muted">This is a popover with arbitrary content. Click outside to close.</p>
           </Popover>
         </Demo>
         <Demo label="With arrow">
@@ -160,7 +160,7 @@ export function PopoverSection() {
             placement="bottom"
             showArrow
           >
-            <p className="text-sm text-gray-600">Content with arrow indicator.</p>
+            <p className="text-sm text-fg-muted">Content with arrow indicator.</p>
           </Popover>
         </Demo>
         <Demo label="Placement top">
@@ -168,7 +168,7 @@ export function PopoverSection() {
             triggerElement={<Button size={size} variant="secondary">Top placement</Button>}
             placement="top"
           >
-            <p className="text-sm text-gray-600">Placed above the trigger.</p>
+            <p className="text-sm text-fg-muted">Placed above the trigger.</p>
           </Popover>
         </Demo>
         <Demo label="Placement right">
@@ -176,7 +176,7 @@ export function PopoverSection() {
             triggerElement={<Button size={size} variant="secondary">Right placement</Button>}
             placement="right"
           >
-            <p className="text-sm text-gray-600">Placed to the right.</p>
+            <p className="text-sm text-fg-muted">Placed to the right.</p>
           </Popover>
         </Demo>
       </div>
@@ -207,7 +207,7 @@ export function DrawerSection() {
               </>
             )}
           >
-            <p className="text-sm text-gray-600">This drawer slides in from the right. It's great for edit panels, detail views, and settings.</p>
+            <p className="text-sm text-fg-muted">This drawer slides in from the right. It's great for edit panels, detail views, and settings.</p>
             <div className="mt-4 space-y-3">
               <Input size={size} label="Full name" defaultValue="Alice Nguyen" />
               <Input size={size} label="Email" defaultValue="alice@example.com" />
@@ -224,7 +224,7 @@ export function DrawerSection() {
             title="Left Drawer"
             placement="left"
           >
-            <p className="text-sm text-gray-600">Slides in from the left — typically used for navigation menus or filters.</p>
+            <p className="text-sm text-fg-muted">Slides in from the left — typically used for navigation menus or filters.</p>
           </Drawer>
         </Demo>
 
@@ -235,7 +235,7 @@ export function DrawerSection() {
             placement="bottom"
             size="md"
           >
-            <p className="text-sm text-gray-600">Slides up from the bottom. Common on mobile for action sheets and quick forms.</p>
+            <p className="text-sm text-fg-muted">Slides up from the bottom. Common on mobile for action sheets and quick forms.</p>
           </Drawer>
         </Demo>
 
@@ -245,7 +245,7 @@ export function DrawerSection() {
             title="Large Drawer"
             size="lg"
           >
-            <p className="text-sm text-gray-600">Use <code className="bg-gray-100 px-1 rounded text-xs">size="lg"</code> (480 px) for complex edit forms.</p>
+            <p className="text-sm text-fg-muted">Use <code className="bg-surface-subtle px-1 rounded text-xs">size="lg"</code> (480 px) for complex edit forms.</p>
           </Drawer>
         </Demo>
 
@@ -255,7 +255,7 @@ export function DrawerSection() {
             title="No Overlay"
             withOverlay={false}
           >
-            <p className="text-sm text-gray-600">Pass <code className="bg-gray-100 px-1 rounded text-xs">withOverlay={'{false}'}</code> to skip the dark backdrop — click outside still closes.</p>
+            <p className="text-sm text-fg-muted">Pass <code className="bg-surface-subtle px-1 rounded text-xs">withOverlay={'{false}'}</code> to skip the dark backdrop — click outside still closes.</p>
           </Drawer>
         </Demo>
 

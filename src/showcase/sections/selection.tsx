@@ -115,17 +115,17 @@ export function TreeSection() {
       <SectionHeader title="Tree" description="Hierarchical data with expand/collapse and optional keyboard selection." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="File tree — no selection" center={false}>
-          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+          <div className="border border-border rounded-[var(--base-radius)] bg-surface p-1 w-full">
             <Tree items={TREE_DATA} />
           </div>
         </Demo>
         <Demo label="With single selection" center={false}>
-          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+          <div className="border border-border rounded-[var(--base-radius)] bg-surface p-1 w-full">
             <Tree items={TREE_DATA} selectionMode="single" defaultSelectedKeys={new Set(['button'])} />
           </div>
         </Demo>
         <Demo label="With multiple selection" center={false} className="col-span-full">
-          <div className="border border-gray-200 rounded-[var(--base-radius)] bg-white p-1 w-full">
+          <div className="border border-border rounded-[var(--base-radius)] bg-surface p-1 w-full">
             <Tree items={TREE_DATA} selectionMode="multiple" defaultSelectedKeys={new Set(['input', 'cn'])} />
           </div>
         </Demo>

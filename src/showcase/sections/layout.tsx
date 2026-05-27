@@ -41,7 +41,7 @@ export function LayoutSection() {
       <Demo label="Layout — header + sidebar + content + footer" center={false} className="!p-0 overflow-hidden">
         <Layout className="h-[480px] w-full">
           <Layout.Header bordered>
-            <div className="flex items-center gap-2 font-semibold text-gray-900 text-sm">
+            <div className="flex items-center gap-2 font-semibold text-fg text-sm">
               <div className="w-6 h-6 rounded-[var(--base-radius)] bg-primary flex items-center justify-center">
                 <span className="text-white text-xs font-bold">P</span>
               </div>
@@ -50,7 +50,7 @@ export function LayoutSection() {
             <div className="flex-1" />
             <div className="flex items-center gap-2">
               <Avatar name="Alice Nguyen" size="sm" />
-              <span className="text-sm text-gray-700 hidden sm:block">Alice Nguyen</span>
+              <span className="text-sm text-fg-2 hidden sm:block">Alice Nguyen</span>
             </div>
           </Layout.Header>
 
@@ -85,7 +85,7 @@ export function LayoutSection() {
 
             <Layout.Content>
               <div className="space-y-4">
-                <h2 className="text-lg font-bold text-gray-900 capitalize">{activeNav}</h2>
+                <h2 className="text-lg font-bold text-fg capitalize">{activeNav}</h2>
                 <div className="grid grid-cols-2 gap-3">
                   {[{ label: 'Total users', value: '12,430', color: 'bg-primary-50 text-primary-700' },
                     { label: 'Revenue',     value: '₫480M',  color: 'bg-success-50 text-success-700' },
@@ -104,7 +104,7 @@ export function LayoutSection() {
           </Layout.Body>
 
           <Layout.Footer bordered>
-            <p className="text-xs text-gray-400">© 2026 pro-ui. All rights reserved.</p>
+            <p className="text-xs text-fg-disabled">© 2026 pro-ui. All rights reserved.</p>
           </Layout.Footer>
         </Layout>
       </Demo>
@@ -112,7 +112,7 @@ export function LayoutSection() {
       <Demo label="Layout.Sider — collapsible (icon-only when collapsed)" center={false} className="!p-0 overflow-hidden">
         <Layout className="h-[480px] w-full">
           <Layout.Header bordered>
-            <div className={cn('flex items-center gap-2 font-semibold text-gray-900 text-sm transition-all duration-300', collapsed ? 'w-16 justify-center' : '')}>
+            <div className={cn('flex items-center gap-2 font-semibold text-fg text-sm transition-all duration-300', collapsed ? 'w-16 justify-center' : '')}>
               <div className="w-6 h-6 rounded-[var(--base-radius)] bg-primary flex items-center justify-center shrink-0">
                 <span className="text-white text-xs font-bold">P</span>
               </div>
@@ -161,7 +161,7 @@ export function LayoutSection() {
 
             <Layout.Content>
               <div className="space-y-4">
-                <h2 className="text-lg font-bold text-gray-900 capitalize">{activeNav2}</h2>
+                <h2 className="text-lg font-bold text-fg capitalize">{activeNav2}</h2>
                 <div className="p-3 bg-info-50 border border-info-200 rounded-[var(--base-radius)] text-sm text-info-700">
                   Click the <strong>Collapse</strong> button at the bottom of the sidebar to toggle icon-only mode.
                 </div>
@@ -175,7 +175,7 @@ export function LayoutSection() {
       <Demo label="Layout.Sider — right panel" center={false} className="!p-0 overflow-hidden">
         <Layout className="h-[360px] w-full">
           <Layout.Header height={48} bordered>
-            <span className="text-sm font-semibold text-gray-800">Document Editor</span>
+            <span className="text-sm font-semibold text-fg">Document Editor</span>
             <div className="flex-1" />
             <div className="flex items-center gap-2">
               <Button size="sm" variant="secondary">Preview</Button>
@@ -191,17 +191,17 @@ export function LayoutSection() {
             </Layout.Content>
             <Layout.Sider width={200} bordered>
               <div className="p-3 space-y-3">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Properties</p>
+                <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Properties</p>
                 <div className="space-y-2">
                   {[['Status', 'Draft'], ['Author', 'Alice'], ['Words', '1,240'], ['Last saved', '2m ago']].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between text-xs">
-                      <span className="text-gray-400">{k}</span>
-                      <span className="text-gray-700 font-medium">{v}</span>
+                      <span className="text-fg-disabled">{k}</span>
+                      <span className="text-fg-2 font-medium">{v}</span>
                     </div>
                   ))}
                 </div>
                 <Divider />
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tags</p>
+                <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Tags</p>
                 <div className="flex flex-wrap gap-1">
                   {['React', 'UI', 'Design'].map(t => <Badge key={t} size="sm" color="info">{t}</Badge>)}
                 </div>

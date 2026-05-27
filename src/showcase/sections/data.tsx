@@ -50,8 +50,8 @@ export function ProTableSection() {
 
       {/* Server-side mode */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Server-side mode — <code className="font-mono normal-case">request</code> prop</p>
-        <div className="text-xs text-gray-400 space-y-0.5 mb-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Server-side mode — <code className="font-mono normal-case">request</code> prop</p>
+        <div className="text-xs text-fg-disabled space-y-0.5 mb-2">
           <p>· <strong>Sort</strong> — click column headers · <strong>Pin</strong> — hover header → pin left/right</p>
           <p>· <strong>Visibility</strong> — toolbar columns icon · <strong>Select rows</strong> → sticky bulk action bar</p>
         </div>
@@ -68,7 +68,7 @@ export function ProTableSection() {
           rowSelection={{ onChange: (keys) => setSelectedKeys(keys) }}
           bulkActions={bulkActions}
           expandedRowRender={(r) => (
-            <div className="px-6 py-4 text-xs text-gray-600 space-y-1 bg-gray-50">
+            <div className="px-6 py-4 text-xs text-fg-muted space-y-1 bg-surface-subtle">
               <p><strong>ID:</strong> {r.id}</p>
               <p><strong>Email:</strong> {r.email}</p>
               <p><strong>Revenue:</strong> ₫{r.revenue.toLocaleString()}</p>
@@ -79,8 +79,8 @@ export function ProTableSection() {
 
       {/* Client-side mode */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Client-side mode — <code className="font-mono normal-case">dataSource</code> prop</p>
-        <div className="text-xs text-gray-400 mb-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Client-side mode — <code className="font-mono normal-case">dataSource</code> prop</p>
+        <div className="text-xs text-fg-disabled mb-2">
           <p>· Pagination, sort, and search all run in-browser — no network requests</p>
           <p>· <code className="font-mono">rowClassName</code> highlights admin rows · <code className="font-mono">onRow.onDoubleClick</code> opens an alert</p>
         </div>
@@ -206,7 +206,7 @@ export function ProFormSection() {
 
       {result && (
         <div className="bg-gray-900 rounded-[var(--base-radius)] p-4 text-sm font-mono text-green-400 overflow-auto">
-          <div className="text-gray-500 text-xs mb-2">onFinish output:</div>
+          <div className="text-fg-disabled text-xs mb-2">onFinish output:</div>
           <pre>{JSON.stringify(result, null, 2)}</pre>
         </div>
       )}

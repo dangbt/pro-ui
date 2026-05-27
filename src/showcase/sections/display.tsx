@@ -28,7 +28,7 @@ export function BadgeSection() {
             <Button size={size} variant="secondary">
               Messages <Badge size={size} color="danger" className="ml-1">9+</Badge>
             </Button>
-            <span className="text-sm text-gray-700">Status: <Badge size={size} color="success" className="ml-1">Online</Badge></span>
+            <span className="text-sm text-fg-2">Status: <Badge size={size} color="success" className="ml-1">Online</Badge></span>
           </div>
         </Demo>
         <Demo label="Badge — sizes" className="sm:col-span-2">
@@ -84,21 +84,21 @@ export function CardSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Demo label="Card — with header" center={false}>
           <Card title="Recent activity" extra={<Badge size={size} color="primary">Live</Badge>} className="w-full">
-            <p className="text-sm text-gray-500">3 events in the last hour.</p>
+            <p className="text-sm text-fg-muted">3 events in the last hour.</p>
           </Card>
         </Demo>
         <Demo label="Card — metric" center={false}>
           <Card title="Revenue" shadow className="w-full">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-gray-900">₫42M</span>
+              <span className="text-3xl font-bold text-fg">₫42M</span>
               <span className="text-sm text-success font-medium">↑ 8.2%</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">vs last month</p>
+            <p className="text-xs text-fg-disabled mt-1">vs last month</p>
           </Card>
         </Demo>
         <Demo label="Card — with footer" center={false}>
           <Card title="Confirm" footer={<div className="flex justify-end gap-2"><Button size={size} variant="secondary">Cancel</Button><Button size={size} variant="primary">Apply</Button></div>} className="w-full">
-            <p className="text-sm text-gray-500">Apply these settings to all projects?</p>
+            <p className="text-sm text-fg-muted">Apply these settings to all projects?</p>
           </Card>
         </Demo>
       </div>
@@ -210,7 +210,7 @@ export function SkeletonSection() {
           </div>
         </Demo>
         <Demo label="Divider — horizontal" center={false}>
-          <div className="w-full space-y-3 text-sm text-gray-500">
+          <div className="w-full space-y-3 text-sm text-fg-muted">
             <div>Content above</div>
             <Divider />
             <div>Content below</div>
@@ -219,7 +219,7 @@ export function SkeletonSection() {
           </div>
         </Demo>
         <Demo label="Divider — vertical">
-          <div className="flex items-stretch h-12 gap-4 text-sm text-gray-600">
+          <div className="flex items-stretch h-12 gap-4 text-sm text-fg-muted">
             <span className="flex items-center">Left</span>
             <Divider orientation="vertical" />
             <span className="flex items-center">Middle</span>
@@ -239,7 +239,7 @@ export function DisclosureSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
         <div className="space-y-3">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Standalone</p>
+          <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Standalone</p>
           <Disclosure title="What is React Aria?">
             React Aria is a library of unstyled, accessible UI components built by Adobe. It handles all the keyboard interactions, screen reader support, and accessibility semantics so you can focus on styling.
           </Disclosure>
@@ -252,13 +252,13 @@ export function DisclosureSection() {
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Accordion (single open)</p>
+          <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Accordion (single open)</p>
           <Accordion>
             <Disclosure title="Section 1 — Getting started">
-              Install the package, import the Tailwind entry point, and set <code className="bg-gray-100 px-1 rounded text-xs">--primary</code> in your CSS.
+              Install the package, import the Tailwind entry point, and set <code className="bg-surface-subtle px-1 rounded text-xs">--primary</code> in your CSS.
             </Disclosure>
             <Disclosure title="Section 2 — Theming">
-              Override <code className="bg-gray-100 px-1 rounded text-xs">--primary</code> and <code className="bg-gray-100 px-1 rounded text-xs">--base-radius</code> to retheme the entire library — all palettes are derived automatically.
+              Override <code className="bg-surface-subtle px-1 rounded text-xs">--primary</code> and <code className="bg-surface-subtle px-1 rounded text-xs">--base-radius</code> to retheme the entire library — all palettes are derived automatically.
             </Disclosure>
             <Disclosure title="Section 3 — ProTable & ProForm">
               ProTable gives you server-side pagination, sort, column visibility, and pinning out of the box. ProForm wraps react-hook-form with Zod validation.
@@ -267,9 +267,9 @@ export function DisclosureSection() {
         </div>
 
         <div className="sm:col-span-2 space-y-3">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Accordion — multiple open</p>
+          <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Accordion — multiple open</p>
           <Accordion allowsMultipleExpanded>
-            <Disclosure title="Can multiple panels be open?">Yes — pass <code className="bg-gray-100 px-1 rounded text-xs">allowsMultipleExpanded</code> to the Accordion.</Disclosure>
+            <Disclosure title="Can multiple panels be open?">Yes — pass <code className="bg-surface-subtle px-1 rounded text-xs">allowsMultipleExpanded</code> to the Accordion.</Disclosure>
             <Disclosure title="Is keyboard navigation supported?">Yes — Tab moves focus, Enter/Space toggles the panel. React Aria handles all interactions automatically.</Disclosure>
             <Disclosure title="Can I nest accordions?">You can nest Disclosure components but avoid nesting Accordion inside Accordion — it creates confusing UX.</Disclosure>
           </Accordion>
@@ -301,7 +301,7 @@ export function LinkSection() {
         </Demo>
 
         <Demo label="Inline in text" center={false}>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <p className="text-sm text-fg-muted leading-relaxed">
             This component is built on{' '}
             <Link href="#">React Aria Components</Link>
             {' '}and styled with{' '}
@@ -336,7 +336,7 @@ export function DropZoneSection() {
             onFiles={(fl) => setFiles(Array.from(fl).map(f => f.name))}
           />
           {files.length > 0 && (
-            <div className="mt-2 text-xs text-gray-500 space-y-0.5">
+            <div className="mt-2 text-xs text-fg-muted space-y-0.5">
               {files.map(f => <div key={f} className="font-mono">{f}</div>)}
             </div>
           )}
@@ -364,7 +364,7 @@ export function ColorPickerSection() {
         </Demo>
         <Demo label="Swatch palette" center={false}>
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-gray-600">Pick a preset</span>
+            <span className="text-xs font-medium text-fg-muted">Pick a preset</span>
             <ColorSwatchPicker colors={PRESETS} swatchSize="lg" />
           </div>
         </Demo>
@@ -481,7 +481,7 @@ export function EmptySection() {
         <Demo label="Custom image / icon" center={false}>
           <Empty
             image={
-              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-3xl">
+              <div className="w-16 h-16 rounded-2xl bg-surface-subtle flex items-center justify-center text-3xl">
                 📭
               </div>
             }

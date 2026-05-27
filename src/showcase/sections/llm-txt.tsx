@@ -603,14 +603,14 @@ export function LLMTxtSection() {
         </Button>
       </div>
 
-      <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between px-3.5 py-2 border-b border-gray-100 bg-gray-50/80">
-          <span className="text-[11px] font-mono font-medium text-gray-400 tracking-wide">
+      <div className="rounded-[var(--base-radius)] border border-border overflow-hidden">
+        <div className="flex items-center justify-between px-3.5 py-2 border-b border-border-subtle bg-surface-subtle/80">
+          <span className="text-[11px] font-mono font-medium text-fg-disabled tracking-wide">
             llm.txt — {LLM_TXT.length.toLocaleString()} characters · {LLM_TXT.split('\n').length} lines
           </span>
           <button
             onClick={handleCopy}
-            className="text-[11px] text-gray-400 hover:text-primary transition-colors font-mono"
+            className="text-[11px] text-fg-disabled hover:text-primary transition-colors font-mono"
           >
             {copied ? '✓ copied' : 'copy'}
           </button>
@@ -619,7 +619,7 @@ export function LLMTxtSection() {
           readOnly
           value={LLM_TXT}
           rows={30}
-          className="w-full px-5 py-4 text-xs font-mono text-gray-600 bg-gray-950 text-gray-300 resize-none outline-none leading-5"
+          className="w-full px-5 py-4 text-xs font-mono text-gray-300 bg-gray-950 resize-none outline-none leading-5"
         />
       </div>
     </div>

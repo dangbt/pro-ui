@@ -176,7 +176,7 @@ export function SelectSection() {
       <SectionHeader title="Select & ComboBox" description="Dropdown selection and autocomplete inputs." />
 
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700">Select</h3>
+        <h3 className="text-sm font-semibold text-fg-2">Select</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Demo label="Select" center={false}>
             <Select
@@ -248,8 +248,8 @@ export function SelectSection() {
 
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">AsyncSelect</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Server-side search with debounce and infinite scroll pagination.</p>
+          <h3 className="text-sm font-semibold text-fg-2">AsyncSelect</h3>
+          <p className="text-xs text-fg-disabled mt-0.5">Server-side search with debounce and infinite scroll pagination.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Demo label="AsyncSelect — country (75+ options, infinite scroll)" center={false}>
@@ -296,7 +296,7 @@ export function SelectSection() {
                 </Button>
               </div>
               {controlled && (
-                <p className="text-xs text-gray-400">value: <code className="text-primary">{controlled}</code></p>
+                <p className="text-xs text-fg-disabled">value: <code className="text-primary">{controlled}</code></p>
               )}
             </div>
           </Demo>
@@ -640,7 +640,7 @@ export function FileSection() {
               </Button>
             </FileTrigger>
             {files.length > 0 && (
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-fg-muted space-y-1">
                 {files.map(f => <li key={f} className="flex items-center gap-1.5"><span className="text-primary">✓</span>{f}</li>)}
               </ul>
             )}
