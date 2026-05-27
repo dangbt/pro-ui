@@ -11,6 +11,7 @@ interface ButtonProps extends Omit<RAButtonProps, 'className' | 'children'> {
   className?: string
   icon?: ReactNode
   children?: ReactNode
+  loading?: boolean
 }
 
 const variantCls: Record<Variant, string> = {
@@ -36,11 +37,14 @@ export function Button({
   className,
   icon,
   children,
+  loading = false,
+  isDisabled,
   ...props
 }: ButtonProps) {
   return (
     <RAButton
       {...props}
+      isDisabled={loading || isDisabled}
       className={cn(
         'inline-flex items-center justify-center font-medium transition-[colors,transform] cursor-pointer',
         'rounded-[var(--base-radius)]',
@@ -51,7 +55,10 @@ export function Button({
         className,
       )}
     >
-      {icon && <span className="shrink-0">{icon}</span>}
+      {loading && (
+        <span className="animate-spin rounded-full shrink-0 w-3.5 h-3.5 border-2 border-current border-t-transparent" />
+      )}
+      {!loading && icon && <span className="shrink-0">{icon}</span>}
       {children}
     </RAButton>
   )

@@ -13,12 +13,13 @@ interface InputProps extends Omit<TextFieldProps, 'className'> {
   label?: string
   description?: string
   placeholder?: string
-  type?: 'text' | 'email' | 'password' | 'url' | 'tel' | 'search'
+  type?: 'text' | 'email' | 'password' | 'url' | 'tel' | 'search' | 'datetime-local'
   size?: Size
   className?: string
+  inputClassName?: string
 }
 
-export function Input({ label, description, placeholder, type, size = 'md', className, ...props }: InputProps) {
+export function Input({ label, description, placeholder, type, size = 'md', className, inputClassName, ...props }: InputProps) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
@@ -36,6 +37,7 @@ export function Input({ label, description, placeholder, type, size = 'md', clas
           'disabled:bg-surface-subtle disabled:text-fg-disabled disabled:cursor-not-allowed',
           'data-[invalid]:border-danger data-[invalid]:focus:outline-danger',
           'w-full',
+          inputClassName,
         )}
       />
       {description && (
