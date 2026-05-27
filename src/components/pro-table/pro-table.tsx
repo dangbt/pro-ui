@@ -371,6 +371,8 @@ export function ProTable<T extends object>({
         />
       )}
 
+      {/* Table wrapper — bulk action sticky scoped to this block only */}
+      <div>
       <div className="bg-surface border border-border rounded-[var(--base-radius)] overflow-hidden">
         <Toolbar
           title={headerTitle}
@@ -552,7 +554,7 @@ export function ProTable<T extends object>({
         </div>
       </div>
 
-      {/* Bulk action bar — sticky island */}
+      {/* Bulk action bar — sticky within table wrapper only (not the filter) */}
       {rowSelection && selectedKeys.length > 0 && (
         <div className="sticky bottom-4 z-10 flex justify-center pointer-events-none">
           <div className="pointer-events-auto flex flex-wrap items-center gap-3 px-5 py-3 rounded-2xl bg-fg text-canvas shadow-[0_8px_32px_rgba(0,0,0,0.25)] max-w-[calc(100vw-2rem)]">
@@ -591,6 +593,7 @@ export function ProTable<T extends object>({
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
