@@ -353,7 +353,15 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
       </header>
 
       {/* Body */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Click-away backdrop — mobile only, doesn't cover header */}
+        {settingsOpen && (
+          <div
+            className="absolute inset-0 z-20 lg:hidden"
+            onClick={() => setSettingsOpen(false)}
+          />
+        )}
+
         {/* Preview */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-4 max-w-5xl">
@@ -618,34 +626,31 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Desktop sidebar */}
-        <div className="hidden lg:flex w-72 xl:w-80 shrink-0 border-l border-border bg-surface overflow-y-auto flex-col">
+        {/* Settings sidebar — always visible on lg+, slide-in panel on mobile */}
+        <div className={cn(
+          'w-72 xl:w-80 shrink-0 border-l border-border bg-surface flex-col overflow-y-auto',
+          // Desktop: always in flow
+          'lg:flex',
+          // Mobile: fixed below header, slide in from right
+          settingsOpen
+            ? 'flex fixed top-14 right-0 bottom-0 z-30 shadow-2xl'
+            : 'hidden',
+        )}>
+          {/* Mobile-only panel header with close button */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0 lg:hidden">
+            <span className="text-sm font-semibold text-fg-2">Customize</span>
+            <div className="flex items-center gap-2">
+              <button onClick={copy}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary"
+              >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
+              <button onClick={() => setSettingsOpen(false)}
+                className="w-7 h-7 flex items-center justify-center text-fg-disabled hover:text-fg-2 rounded-lg hover:bg-surface-subtle text-lg leading-none"
+              >✕</button>
+            </div>
+          </div>
           {ControlsContent}
         </div>
       </div>
-
-      {/* Mobile bottom sheet */}
-      {settingsOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setSettingsOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0">
-              <span className="text-sm font-semibold text-fg-2">Customize</span>
-              <div className="flex items-center gap-2">
-                <button onClick={copy}
-                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary"
-                >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
-                <button onClick={() => setSettingsOpen(false)}
-                  className="w-7 h-7 flex items-center justify-center text-fg-disabled hover:text-fg-2 rounded-lg hover:bg-surface-subtle text-lg leading-none"
-                >✕</button>
-              </div>
-            </div>
-            <div className="overflow-y-auto">
-              {ControlsContent}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
