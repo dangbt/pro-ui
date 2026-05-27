@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Menu as MenuIcon, Sun, Moon, Monitor } from 'lucide-react'
-import { Badge } from './components'
+import { Menu as MenuIcon, Sun, Moon } from 'lucide-react'
+import { Badge, Switch } from './components'
 import { ThemeProvider, useTheme } from './components/theme-provider'
 import { cn } from './lib/cn'
 import type { Size } from './lib/size'
-import type { Theme } from './components/theme-provider'
 
 import { ShowcaseSizeCtx } from './showcase/context'
 import { NAV } from './showcase/constants'
@@ -96,28 +95,36 @@ function getHashSection() {
   return ALL_IDS.has(id) ? id : 'overview'
 }
 
-/* ── Theme toggle button ─────────────────────────────── */
+/* ── Theme toggle (Switch: sun ☀ — track — moon 🌙) ─────── */
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
 
-  const cycle = (): Theme => {
-    if (theme === 'light') return 'dark'
-    if (theme === 'dark') return 'system'
-    return 'light'
-  }
+  // Resolve system preference so the Switch reflects actual appearance
+  const [sysDark, setSysDark] = useState(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const fn = (e: MediaQueryListEvent) => setSysDark(e.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [])
 
-  const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor
-  const label = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'
+  const isDark = theme === 'dark' || (theme === 'system' && sysDark)
 
   return (
-    <button
-      onClick={() => setTheme(cycle())}
-      title={`Theme: ${label} — click to cycle`}
-      className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-lg border border-border text-fg-muted hover:bg-surface-subtle transition-colors shrink-0"
+    <div
+      className="flex items-center gap-1.5 shrink-0"
+      title={isDark ? 'Dark — click to switch to light' : 'Light — click to switch to dark'}
     >
-      <Icon className="w-3.5 h-3.5" />
-      <span className="hidden sm:inline">{label}</span>
-    </button>
+      <Sun  className="w-3.5 h-3.5 text-fg-muted" />
+      <Switch
+        isSelected={isDark}
+        onChange={(selected) => setTheme(selected ? 'dark' : 'light')}
+        size="sm"
+      />
+      <Moon className="w-3.5 h-3.5 text-fg-muted" />
+    </div>
   )
 }
 

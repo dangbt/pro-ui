@@ -1,17 +1,50 @@
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, Sun, Moon } from 'lucide-react'
 import {
   Button, Input, Select, Switch, Checkbox, Slider, SearchField,
   NumberField, DatePicker, TagGroup, Badge, Alert, Avatar, AvatarGroup,
   ProgressBar, Meter, Spinner, Skeleton, Disclosure, Accordion, Tooltip,
   Tabs, ProTable,
 } from '../components'
+import { useTheme } from '../components/theme-provider'
 import { cn } from '../lib/cn'
 import type { Size } from '../lib/size'
 import { THEME_PRESETS, RADIUS_PRESETS, FONT_PRESETS } from './constants'
 import type { FontPreset } from './constants'
 import { mockRequest, THEME_PREVIEW_COLS } from './mock-data'
 import type { User } from './mock-data'
+
+/* ── Theme toggle (Switch: sun ☀ — track — moon 🌙) ─────── */
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  const [sysDark, setSysDark] = useState(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const fn = (e: MediaQueryListEvent) => setSysDark(e.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [])
+
+  const isDark = theme === 'dark' || (theme === 'system' && sysDark)
+
+  return (
+    <div
+      className="flex items-center gap-1.5 shrink-0"
+      title={isDark ? 'Dark — click to switch to light' : 'Light — click to switch to dark'}
+    >
+      <Sun  className="w-3.5 h-3.5 text-fg-muted" />
+      <Switch
+        isSelected={isDark}
+        onChange={(selected) => setTheme(selected ? 'dark' : 'light')}
+        size="sm"
+      />
+      <Moon className="w-3.5 h-3.5 text-fg-muted" />
+    </div>
+  )
+}
 
 export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
   const [primary, setPrimary] = useState('#6366f1')
@@ -108,16 +141,16 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
   ]
 
   const CtlLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">{children}</p>
+    <p className="text-[10px] font-semibold uppercase tracking-widest text-fg-disabled mb-2">{children}</p>
   )
   const PanelCard = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={cn('bg-white rounded-[var(--card-radius)] border border-gray-200 overflow-hidden', className)}>
+    <div className={cn('bg-surface rounded-[var(--card-radius)] border border-border overflow-hidden', className)}>
       {children}
     </div>
   )
   const PanelHeader = ({ title, action }: { title: string; action?: React.ReactNode }) => (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-      <p className="text-sm font-semibold text-gray-800">{title}</p>
+    <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+      <p className="text-sm font-semibold text-fg-2">{title}</p>
       {action}
     </div>
   )
@@ -140,10 +173,10 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
           </div>
           <div className="flex items-center gap-1.5 ml-auto">
             <input type="color" value={primary} onChange={e => handleColor(e.target.value)}
-              className="w-7 h-7 rounded border border-gray-200 cursor-pointer p-0.5 bg-white" />
+              className="w-7 h-7 rounded border border-border cursor-pointer p-0.5 bg-surface" />
             <input type="text" value={primary}
               onChange={e => { const v = e.target.value; if (/^#[0-9a-fA-F]{0,6}$/.test(v)) { setPrimary(v); if (/^#[0-9a-fA-F]{6}$/.test(v)) apply(v, radius, szSm, szMd, szLg) } }}
-              className="h-7 w-20 px-2 font-mono text-xs border border-gray-200 rounded focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent" />
+              className="h-7 w-20 px-2 font-mono text-xs border border-border rounded bg-surface text-fg focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent" />
           </div>
         </div>
         <div className="flex gap-0.5 mt-2">
@@ -164,7 +197,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
                 <input type="color" value={color ?? defaultHex} onChange={e => handle(e.target.value)}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
               </div>
-              <span className="text-[9px] text-gray-400">{label}</span>
+              <span className="text-[9px] text-fg-disabled">{label}</span>
               {color !== null && (
                 <button onClick={() => handle(null)} className="text-[9px] text-primary hover:underline">↺</button>
               )}
@@ -180,7 +213,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
           {RADIUS_PRESETS.map(r => (
             <button key={r.value} onClick={() => handleRadius(r.value)} title={r.value}
               className={cn('flex-1 h-8 text-xs font-medium border transition-all',
-                radius === r.value ? 'bg-primary text-white border-primary' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400')}
+                radius === r.value ? 'bg-primary text-white border-primary' : 'bg-surface text-fg-muted border-border hover:border-fg-muted')}
               style={{ borderRadius: r.value === '9999px' ? '9999px' : '5px' }}>
               {r.label}
             </button>
@@ -196,7 +229,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
             const fonts = FONT_PRESETS.filter(f => cat === 'Sans-serif' ? !f.mono : f.mono)
             return (
               <div key={cat}>
-                <p className="text-[9px] uppercase tracking-wider text-gray-300 mb-1">{cat}</p>
+                <p className="text-[9px] uppercase tracking-wider text-fg-disabled mb-1">{cat}</p>
                 <div className="flex flex-wrap gap-1">
                   {fonts.map(f => (
                     <button
@@ -207,7 +240,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
                         'px-2 py-1 text-xs border rounded transition-all',
                         fontPreset.name === f.name
                           ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400',
+                          : 'bg-surface text-fg-muted border-border hover:border-fg-muted',
                       )}
                     >
                       {f.name}
@@ -230,11 +263,11 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
             { label: 'LG', value: szLg, min: 36, max: 64, onChange: handleSzLg },
           ] as const).map(tier => (
             <div key={tier.label} className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 w-5 shrink-0">{tier.label}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-fg-disabled w-5 shrink-0">{tier.label}</span>
               <input type="range" min={tier.min} max={tier.max} value={tier.value}
                 onChange={e => tier.onChange(Number(e.target.value))}
-                className="flex-1 h-1.5 rounded-full cursor-pointer accent-primary bg-gray-200 appearance-none" />
-              <span className="text-[11px] font-mono text-gray-500 w-8 text-right shrink-0">{tier.value}px</span>
+                className="flex-1 h-1.5 rounded-full cursor-pointer accent-primary bg-border appearance-none" />
+              <span className="text-[11px] font-mono text-fg-muted w-8 text-right shrink-0">{tier.value}px</span>
             </div>
           ))}
         </div>
@@ -243,7 +276,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
       {/* CSS Export */}
       <div>
         <CtlLabel>Export CSS</CtlLabel>
-        <div className="rounded-[var(--base-radius)] border border-gray-200 overflow-hidden">
+        <div className="rounded-[var(--base-radius)] border border-border overflow-hidden">
           <pre className="bg-gray-950 text-gray-100 p-3 text-[11px] font-mono overflow-x-auto leading-relaxed">
             <span className="text-gray-500">@import </span><span className="text-green-400">"tailwindcss"</span><span className="text-gray-500">;</span>{'\n'}
             <span className="text-gray-500">@import </span><span className="text-green-400">"@dangbt/pro-ui/tailwind.css"</span><span className="text-gray-500">;</span>{'\n'}
@@ -280,28 +313,30 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
   )
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-canvas overflow-hidden">
       {/* Minimal header */}
-      <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-2 shrink-0 z-10">
+      <header className="h-14 bg-surface border-b border-border flex items-center px-4 gap-2 shrink-0 z-10">
         <button onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors shrink-0"
+          className="flex items-center gap-1.5 text-sm text-fg-muted hover:text-fg transition-colors shrink-0"
         >
           <span className="text-base leading-none">←</span>
           <span className="hidden sm:inline">Docs</span>
         </button>
-        <div className="w-px h-5 bg-gray-200 shrink-0" />
+        <div className="w-px h-5 bg-border shrink-0" />
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-6 h-6 rounded bg-primary flex items-center justify-center shrink-0">
             <span className="text-white text-xs font-bold">P</span>
           </div>
-          <span className="font-semibold text-sm text-gray-900 truncate hidden sm:block">Theme Builder</span>
+          <span className="font-semibold text-sm text-fg truncate hidden sm:block">Theme Builder</span>
         </div>
         <div className="flex-1" />
-        <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5 shrink-0">
+        {/* Theme toggle */}
+        <ThemeToggle />
+        <div className="flex items-center gap-1 border border-border rounded-lg p-0.5 shrink-0">
           {(['sm', 'md', 'lg'] as Size[]).map(sz => (
             <button key={sz} onClick={() => setPreviewSize(sz)}
               className={cn('px-2.5 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
-                previewSize === sz ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-700')}
+                previewSize === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
             >{sz}</button>
           ))}
         </div>
@@ -309,7 +344,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary hover:bg-primary-600 transition-colors shrink-0"
         >{copied ? '✓' : '⎘ Copy CSS'}</button>
         <button onClick={() => setSettingsOpen(true)}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors shrink-0 text-base"
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface text-fg-muted hover:bg-surface-subtle transition-colors shrink-0 text-base"
           aria-label="Customize"
         >⚙</button>
       </header>
@@ -323,9 +358,9 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
             {/* Stat cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {stats.map(st => (
-                <div key={st.label} className="bg-white rounded-[var(--card-radius)] border border-gray-200 p-4 space-y-1">
-                  <p className="text-xs text-gray-500">{st.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{st.value}</p>
+                <div key={st.label} className="bg-surface rounded-[var(--card-radius)] border border-border p-4 space-y-1">
+                  <p className="text-xs text-fg-muted">{st.label}</p>
+                  <p className="text-2xl font-bold text-fg">{st.value}</p>
                   <p className={cn('text-xs font-medium', st.up ? 'text-success-600' : 'text-danger-600')}>
                     {st.change} vs last month
                   </p>
@@ -452,9 +487,9 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
                       { id: 'details', label: 'Details', content: (
                         <div className="space-y-2 pt-3">
                           {['API requests','Error rate','Avg latency'].map(l => (
-                            <div key={l} className="flex justify-between text-sm py-1.5 border-b border-gray-50">
-                              <span className="text-gray-500">{l}</span>
-                              <span className="font-medium text-gray-800">{Math.floor(Math.random()*1000)}</span>
+                            <div key={l} className="flex justify-between text-sm py-1.5 border-b border-border-subtle">
+                              <span className="text-fg-muted">{l}</span>
+                              <span className="font-medium text-fg-2">{Math.floor(Math.random()*1000)}</span>
                             </div>
                           ))}
                         </div>
@@ -477,8 +512,8 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
                   <div className="p-4 flex flex-col items-center text-center gap-2">
                     <Avatar name="Alice Johnson" size="lg" />
                     <div>
-                      <p className="font-semibold text-gray-800">Alice Johnson</p>
-                      <p className="text-xs text-gray-400">alice@company.io</p>
+                      <p className="font-semibold text-fg-2">Alice Johnson</p>
+                      <p className="text-xs text-fg-disabled">alice@company.io</p>
                     </div>
                     <div className="flex gap-1.5">
                       <Badge color="success" size="sm">Admin</Badge>
@@ -547,10 +582,10 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
                       A React component library built on React Aria Components + Tailwind CSS v4 with full accessibility out of the box.
                     </Disclosure>
                     <Disclosure id="a2" title="How do I install it?">
-                      Run <code className="bg-gray-100 px-1 rounded text-xs font-mono">npm install @dangbt/pro-ui</code> and follow the Quick Start guide.
+                      Run <code className="bg-surface-subtle px-1 rounded text-xs font-mono">npm install @dangbt/pro-ui</code> and follow the Quick Start guide.
                     </Disclosure>
                     <Disclosure id="a3" title="Does it support dark mode?">
-                      The color system is CSS-variable based and can be extended to support dark mode with a few overrides.
+                      Yes! The color system is CSS-variable based — add <code className="bg-surface-subtle px-1 rounded text-xs font-mono">class="dark"</code> to <code className="bg-surface-subtle px-1 rounded text-xs font-mono">&lt;html&gt;</code> to switch.
                     </Disclosure>
                   </Accordion>
                 </div>
@@ -581,7 +616,7 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
         </div>
 
         {/* Desktop sidebar */}
-        <div className="hidden lg:flex w-72 xl:w-80 shrink-0 border-l border-gray-200 bg-white overflow-y-auto flex-col">
+        <div className="hidden lg:flex w-72 xl:w-80 shrink-0 border-l border-border bg-surface overflow-y-auto flex-col">
           {ControlsContent}
         </div>
       </div>
@@ -590,15 +625,15 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
       {settingsOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSettingsOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
-              <span className="text-sm font-semibold text-gray-800">Customize</span>
+          <div className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0">
+              <span className="text-sm font-semibold text-fg-2">Customize</span>
               <div className="flex items-center gap-2">
                 <button onClick={copy}
                   className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary"
                 >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
                 <button onClick={() => setSettingsOpen(false)}
-                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 text-lg leading-none"
+                  className="w-7 h-7 flex items-center justify-center text-fg-disabled hover:text-fg-2 rounded-lg hover:bg-surface-subtle text-lg leading-none"
                 >✕</button>
               </div>
             </div>

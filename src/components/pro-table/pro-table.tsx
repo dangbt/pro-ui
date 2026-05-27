@@ -352,7 +352,7 @@ export function ProTable<T extends object>({
   const canNext = table.getCanNextPage()
 
   const paginationBtnCls = cn(
-    'min-w-8 px-2 border border-border bg-surface text-fg-muted',
+    'inline-flex items-center justify-center min-w-8 px-2 border border-border bg-surface text-fg-muted',
     'rounded-[var(--base-radius)] hover:bg-surface-subtle transition-colors',
     'disabled:opacity-40 disabled:cursor-not-allowed',
     pageSizeCls[size],
@@ -474,7 +474,7 @@ export function ProTable<T extends object>({
                             <td
                               key={cell.id}
                               className={cn(
-                                'px-4 text-gray-700',
+                                'px-4 text-fg-2',
                                 rowPyCls[size],
                                 cellTextCls[size],
                                 cell.column.id === 'select' && 'px-3 text-center',
