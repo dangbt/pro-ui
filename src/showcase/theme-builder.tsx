@@ -334,7 +334,10 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
         <ThemeToggle />
         <div className="flex items-center gap-1 border border-border rounded-lg p-0.5 shrink-0">
           {(['sm', 'md', 'lg'] as Size[]).map(sz => (
-            <button key={sz} onClick={() => setPreviewSize(sz)}
+            <button key={sz} onClick={() => {
+              setPreviewSize(sz)
+              document.documentElement.style.setProperty('--sz', `var(--sz-${sz})`)
+            }}
               className={cn('px-2.5 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
                 previewSize === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
             >{sz}</button>
