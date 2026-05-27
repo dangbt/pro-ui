@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Menu as MenuIcon, Sun, Moon } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Menu as MenuIcon, Sun, Moon, SlidersHorizontal } from 'lucide-react'
 import { Badge, Switch } from './components'
 import { ThemeProvider, useTheme } from './components/theme-provider'
 import { cn } from './lib/cn'
@@ -128,6 +128,77 @@ function ThemeToggle() {
   )
 }
 
+/* ── Mobile settings dropdown ────────────────────────── */
+function MobileSettingsMenu({
+  size, setSize, radius, setRadius, applyTheme, primary,
+}: {
+  size: Size
+  setSize: (s: Size) => void
+  radius: RadiusMode
+  setRadius: (r: RadiusMode) => void
+  applyTheme: (r: RadiusMode, p: string) => void
+  primary: string
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative sm:hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={cn(
+          'w-8 h-8 flex items-center justify-center rounded-lg border transition-colors shrink-0',
+          open ? 'bg-primary text-white border-primary' : 'border-border text-fg-muted hover:bg-surface-subtle',
+        )}
+        title="Display settings"
+      >
+        <SlidersHorizontal className="w-3.5 h-3.5" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-52 bg-surface border border-border rounded-[var(--base-radius)] shadow-lg p-3 space-y-3 z-50">
+          {/* Size */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-fg-disabled mb-1.5">Size</p>
+            <div className="flex items-center border border-border rounded-lg p-0.5">
+              {(['sm', 'md', 'lg'] as Size[]).map(sz => (
+                <button key={sz}
+                  onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
+                  className={cn('flex-1 py-1.5 text-[11px] font-semibold uppercase rounded-md transition-all',
+                    size === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
+                >{sz}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Radius */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-fg-disabled mb-1.5">Radius</p>
+            <div className="flex items-center border border-border rounded-lg p-0.5">
+              {([['None','none'],['Medium','md'],['Large','lg']] as [string, RadiusMode][]).map(([label, val]) => (
+                <button key={val}
+                  onClick={() => { setRadius(val); applyTheme(val, primary) }}
+                  className={cn('flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all',
+                    radius === val ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
+                >{label}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Main App ────────────────────────────────────────── */
 function AppInner() {
   const [active, setActive] = useState(getHashSection)
@@ -222,25 +293,32 @@ function AppInner() {
             className="w-7 h-7 border border-border rounded cursor-pointer p-0.5 bg-surface shrink-0"
           />
 
-          {/* Size toggle — hidden on mobile */}
-          <div className="hidden sm:flex items-center border border-border rounded-lg p-0.5 shrink-0">
-            {(['sm', 'md', 'lg'] as Size[]).map(sz => (
-              <button key={sz} onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
-                className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
-                  size === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
-              >{sz}</button>
-            ))}
+          {/* Size + Radius toggles — inline on desktop */}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="flex items-center border border-border rounded-lg p-0.5">
+              {(['sm', 'md', 'lg'] as Size[]).map(sz => (
+                <button key={sz} onClick={() => { setSize(sz); document.documentElement.style.setProperty('--sz', SZ_MAP[sz]) }}
+                  className={cn('px-2 py-1 text-[11px] font-semibold uppercase rounded-md transition-all',
+                    size === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
+                >{sz}</button>
+              ))}
+            </div>
+            <div className="flex items-center border border-border rounded-lg p-0.5">
+              {([['0','none'],['M','md'],['L','lg']] as [string, RadiusMode][]).map(([label, val]) => (
+                <button key={val} onClick={() => { setRadius(val); applyTheme(val, primary) }}
+                  className={cn('px-2 py-1 text-[11px] font-semibold rounded-md transition-all',
+                    radius === val ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
+                >{label}</button>
+              ))}
+            </div>
           </div>
 
-          {/* Radius toggle — hidden on mobile */}
-          <div className="hidden sm:flex items-center border border-border rounded-lg p-0.5 shrink-0">
-            {([['0','none'],['M','md'],['L','lg']] as [string, RadiusMode][]).map(([label, val]) => (
-              <button key={val} onClick={() => { setRadius(val); applyTheme(val, primary) }}
-                className={cn('px-2 py-1 text-[11px] font-semibold rounded-md transition-all',
-                  radius === val ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
-              >{label}</button>
-            ))}
-          </div>
+          {/* Mobile: settings dropdown */}
+          <MobileSettingsMenu
+            size={size} setSize={setSize}
+            radius={radius} setRadius={setRadius}
+            applyTheme={applyTheme} primary={primary}
+          />
         </div>
       </header>
 
