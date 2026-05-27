@@ -1,0 +1,61 @@
+# Cursor Rules — @dangbt/pro-ui Project
+
+## UI Component Library
+This project uses **@dangbt/pro-ui**. Always use pro-ui components instead of building from scratch.
+
+## Import Rule
+```tsx
+// Always import from the package root
+import { Button, ProTable, Modal, Badge } from '@dangbt/pro-ui'
+```
+
+## Component Selection Guide
+
+| Need | Use |
+|------|-----|
+| Data table with pagination | `ProTable` with `request` prop (server) or `dataSource` prop (client) |
+| Form with validation | `ProForm` + `ProFormInput/Select/DatePicker` etc. |
+| App shell / sidebar nav | `Layout` component |
+| Modal / dialog | `Modal` inside `DialogTrigger` from react-aria-components |
+| Side panel / filter | `Drawer` inside `DialogTrigger` |
+| Floating menu | `Menu` inside `DialogTrigger` |
+| Toast notification | `toast.success()` / `toast.error()` (mount `<ToastProvider />` once at root) |
+| Inline alert | `Alert` with variant prop |
+| KPI metric | `Statistic` with trend prop |
+| Status label | `Badge` with variant: success/warning/danger/info |
+| Loading state | `Spinner` or `Skeleton` |
+| Empty state | `Empty` with title, description, action |
+| Multi-step UI | `Steps` |
+| Tab navigation | `Tabs` + `TabList` + `TabPanel` |
+| User avatar | `Avatar` (initials fallback) or `AvatarGroup` |
+| Dark/light toggle | `useTheme()` from ThemeProvider |
+
+## Button Rules
+- Use `onPress` not `onClick`
+- Variants: `solid` (primary action), `outline` (secondary), `ghost` (tertiary), `danger` (destructive)
+- Always set `type="submit"` on form submit buttons
+
+## Color / Theming Rules
+- Use semantic tokens NOT hardcoded Tailwind colors for theme-sensitive UI:
+  - ✅ `bg-surface`, `bg-surface-subtle`, `bg-canvas`, `text-fg`, `text-fg-muted`, `border-border`
+  - ❌ `bg-white`, `bg-gray-100`, `text-gray-900` (breaks dark mode)
+- Primary brand color: `text-primary`, `bg-primary`
+
+## ProTable Column Types
+valueType options: `'text'` | `'number'` | `'date'` | `'dateRange'` | `'select'` | `'money'` | `'custom'`
+
+## Required App Setup
+```tsx
+// Must be in App root:
+<ThemeProvider defaultTheme="system">
+  <ToastProvider />
+  {/* app content */}
+</ThemeProvider>
+```
+
+## MCP Server (optional, for AI assistance)
+```bash
+# Add to get live component API access in Cursor
+# Add to .cursor/mcp.json:
+# { "mcpServers": { "pro-ui": { "command": "npx", "args": ["-y", "mcp-pro-ui"] } } }
+```
