@@ -456,7 +456,11 @@ export function ProTable<T extends object>({
                     rowClassName?.(row.original, i),
                   )
                   const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
-                    if (expandedRowRender) toggleExpand(key)
+                    // Don't expand when clicking interactive elements (buttons, links, inputs…)
+                    const interactive = (e.target as HTMLElement).closest(
+                      'button, a, input, select, textarea, [role="button"], [role="menuitem"], [role="option"], [data-no-expand]',
+                    )
+                    if (expandedRowRender && !interactive) toggleExpand(key)
                     rowHandlers?.onClick?.(e)
                   }
                   return (
