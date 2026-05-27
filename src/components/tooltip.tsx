@@ -36,7 +36,7 @@ export function Tooltip({ children, content, delay = 400, className, ...props }:
               height="8"
               viewBox="0 0 8 8"
               className={cn(
-                'fill-gray-900',
+                'fill-fg',
                 placement === 'top' && 'rotate-180',
                 placement === 'left' && '-rotate-90',
                 placement === 'right' && 'rotate-90',

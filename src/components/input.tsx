@@ -6,6 +6,7 @@ import {
   Text,
   type TextFieldProps,
 } from 'react-aria-components'
+import type { ReactNode } from 'react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputText, inputPx, labelText, type Size } from '../lib/size'
 
@@ -17,9 +18,10 @@ interface InputProps extends Omit<TextFieldProps, 'className'> {
   size?: Size
   className?: string
   inputClassName?: string
+  errorMessage?: ReactNode
 }
 
-export function Input({ label, description, placeholder, type, size = 'md', className, inputClassName, ...props }: InputProps) {
+export function Input({ label, description, placeholder, type, size = 'md', className, inputClassName, errorMessage, ...props }: InputProps) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
@@ -43,7 +45,10 @@ export function Input({ label, description, placeholder, type, size = 'md', clas
       {description && (
         <Text slot="description" className="text-xs text-fg-muted">{description}</Text>
       )}
-      <FieldError className="text-xs text-danger" />
+      {errorMessage
+        ? <span className="text-xs text-danger">{errorMessage}</span>
+        : <FieldError className="text-xs text-danger" />
+      }
     </TextField>
   )
 }

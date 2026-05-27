@@ -16,15 +16,15 @@ export function Empty({ image, description = 'No data', children, className }: E
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-3 py-12 text-gray-400',
+        'flex flex-col items-center justify-center gap-3 py-12 text-fg-muted',
         className,
       )}
     >
-      <div className="text-gray-300">
+      <div className="text-fg-disabled">
         {image ?? <InboxIcon className="w-12 h-12" strokeWidth={1} />}
       </div>
       {description && (
-        <p className="text-sm text-gray-400">{description}</p>
+        <p className="text-sm text-fg-muted">{description}</p>
       )}
       {children && <div className="mt-1">{children}</div>}
     </div>

@@ -89,10 +89,10 @@ interface ColorFieldProps_ extends Omit<ColorFieldProps, 'className'> {
 export function ColorField({ label, size = 'md', className, ...props }: ColorFieldProps_) {
   return (
     <RAColorField {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className={cn('font-medium text-gray-600', labelText[size])}>{label}</Label>}
+      {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
       <Input
         className={cn(
-          'h-[var(--sz)] px-3 text-sm font-mono bg-white border border-gray-300 text-gray-900 rounded-[var(--base-radius)] w-full',
+          'h-[var(--sz)] px-3 text-sm font-mono bg-surface border border-border text-fg rounded-[var(--base-radius)] w-full',
           'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
           'data-[invalid]:border-danger',
         )}
@@ -143,7 +143,7 @@ interface ColorSliderProps_ extends Omit<ColorSliderProps, 'className'> {
 export function ColorSlider({ label, className, ...props }: ColorSliderProps_) {
   return (
     <RAColorSlider {...props} className={cn('flex flex-col gap-1', className)}>
-      {label && <Label className="text-xs font-medium text-gray-600">{label}</Label>}
+      {label && <Label className="text-xs font-medium text-fg-muted">{label}</Label>}
       <SliderTrack className="h-3 rounded-full outline-none relative">
         <ColorThumb className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary" />
       </SliderTrack>
@@ -164,15 +164,15 @@ export function ColorPicker({ label, presetColors, className, ...props }: ColorP
     <RAColorPicker {...props}>
       {({ color }) => (
         <div className={cn('flex flex-col gap-1', className)}>
-          {label && <span className="text-xs font-medium text-gray-600">{label}</span>}
+          {label && <span className="text-xs font-medium text-fg-muted">{label}</span>}
           <DialogTrigger>
-            <button className="flex items-center gap-2 h-[var(--sz)] px-3 bg-white border border-gray-300 rounded-[var(--base-radius)] cursor-pointer hover:border-gray-400 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+            <button className="flex items-center gap-2 h-[var(--sz)] px-3 bg-surface border border-border rounded-[var(--base-radius)] cursor-pointer hover:border-fg-disabled transition-colors focus-visible:outline-2 focus-visible:outline-primary">
               <RAColorSwatch color={color} className="w-5 h-5 rounded border border-black/10 shrink-0" />
-              <span className="text-sm font-mono text-gray-700">{color.toString('hex')}</span>
+              <span className="text-sm font-mono text-fg-2">{color.toString('hex')}</span>
             </button>
             <Popover
               placement="bottom start"
-              className="bg-white border border-gray-200 shadow-xl rounded-[var(--base-radius)] z-50 p-4 w-64 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out"
+              className="bg-surface border border-border shadow-xl rounded-[var(--base-radius)] z-50 p-4 w-64 entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out"
             >
               <Dialog className="outline-none flex flex-col gap-3">
                 <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness" />

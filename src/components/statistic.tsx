@@ -32,7 +32,7 @@ const valueSizeCls = {
 const trendCls = {
   up:      'text-success bg-success/10',
   down:    'text-danger bg-danger/10',
-  neutral: 'text-gray-500 bg-gray-100',
+  neutral: 'text-fg-muted bg-surface-subtle',
 }
 
 const trendArrow = {
@@ -61,15 +61,15 @@ export function Statistic({
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {/* Title */}
-      <span className="text-sm text-gray-500">{title}</span>
+      <span className="text-sm text-fg-muted">{title}</span>
 
       {/* Value row */}
       <div className="flex items-baseline gap-1.5 flex-wrap">
-        {prefix && <span className="text-gray-400 text-sm">{prefix}</span>}
-        <span className={cn('text-gray-900 tabular-nums', valueSizeCls[size])}>
+        {prefix && <span className="text-fg-disabled text-sm">{prefix}</span>}
+        <span className={cn('text-fg tabular-nums', valueSizeCls[size])}>
           {displayValue}
         </span>
-        {suffix && <span className="text-gray-400 text-sm">{suffix}</span>}
+        {suffix && <span className="text-fg-disabled text-sm">{suffix}</span>}
         {trend && (
           <span
             className={cn(

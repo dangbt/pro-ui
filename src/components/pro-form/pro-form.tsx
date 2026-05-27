@@ -135,7 +135,7 @@ export function ProFormItem({ name, label, required, description, className, chi
   if (layout === 'horizontal') {
     return (
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-3">
-        <span className={cn('shrink-0 font-medium text-gray-600 leading-none sm:w-28 sm:text-right', labelText[size], labelHorizontalPt[size])}>
+        <span className={cn('shrink-0 font-medium text-fg-muted leading-none sm:w-28 sm:text-right', labelText[size], labelHorizontalPt[size])}>
           {required && <span className="text-danger mr-0.5">*</span>}
           {label}
         </span>

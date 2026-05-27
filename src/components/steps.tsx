@@ -36,23 +36,23 @@ function resolveStatus(index: number, current: number, override?: StepStatus): S
 
 const iconContainerCls: Record<StepStatus, string> = {
   finish:  'bg-primary border-primary text-white',
-  process: 'bg-white border-primary text-primary ring-2 ring-primary/20',
-  wait:    'bg-white border-gray-300 text-gray-400',
-  error:   'bg-white border-danger text-danger ring-2 ring-danger/20',
+  process: 'bg-surface border-primary text-primary ring-2 ring-primary/20',
+  wait:    'bg-surface border-border text-fg-disabled',
+  error:   'bg-surface border-danger text-danger ring-2 ring-danger/20',
 }
 
 const titleCls: Record<StepStatus, string> = {
-  finish:  'text-gray-800',
+  finish:  'text-fg',
   process: 'text-primary font-semibold',
-  wait:    'text-gray-400',
+  wait:    'text-fg-disabled',
   error:   'text-danger font-semibold',
 }
 
 const connectorCls: Record<StepStatus, string> = {
   finish:  'bg-primary',
-  process: 'bg-gray-200',
-  wait:    'bg-gray-200',
-  error:   'bg-gray-200',
+  process: 'bg-border',
+  wait:    'bg-border',
+  error:   'bg-border',
 }
 
 const sizeCfg = {
@@ -149,7 +149,7 @@ export function Steps({
                 {item.title}
               </p>
               {item.description && (
-                <p className={cn('mt-0.5 text-gray-400', sz.desc)}>
+                <p className={cn('mt-0.5 text-fg-muted', sz.desc)}>
                   {item.description}
                 </p>
               )}
