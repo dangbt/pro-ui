@@ -29,6 +29,18 @@ npm install react-aria-components lucide-react tailwindcss \
   zod @internationalized/date
 ```
 
+### React 19 compatibility
+
+This library ships types compiled against React 18. If you're using **React 19**, add `skipLibCheck` to your `tsconfig.json` to avoid potential type conflicts:
+
+```json
+{
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}
+```
+
 ---
 
 ## Quick Start

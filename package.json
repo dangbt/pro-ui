@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.0.30",
+  "version": "1.1.0",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "keywords": [
@@ -50,6 +50,7 @@
     "@hookform/resolvers": ">=3",
     "@internationalized/date": ">=3",
     "@tanstack/react-table": ">=8",
+    "@types/react": ">=18",
     "lucide-react": ">=0.400.0",
     "react": ">=18",
     "react-aria-components": ">=1",
@@ -57,6 +58,11 @@
     "react-hook-form": ">=7",
     "tailwindcss": ">=4",
     "zod": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "dependencies": {
     "clsx": "2.1.1",

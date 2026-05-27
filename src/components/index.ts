@@ -40,6 +40,7 @@ export { ProgressBar }                  from './progress-bar'
 export { Meter }                        from './meter'
 export { Alert }                        from './alert'
 export { Spinner }                      from './spinner'
+export { ToastProvider, toast, useToast } from './toast'
 
 /* ── Display ───────────────────────────────────────────── */
 export { Badge }                        from './badge'
@@ -81,3 +82,4 @@ export type { TreeNode }                from './tree'
 export type { Color }                   from './color-picker'
 export type { ProTableProps, ProColumnType, QueryParams, RequestResult, ValueType, ValueEnum, BulkActionDef } from './pro-table'
 export type { ProFormLayout, FieldPath, FieldValues } from './pro-form'
+export type { ToastVariant, ToastOptions, ToastProviderProps } from './toast'

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Button, Input, Select, Modal, ConfirmModal, Tooltip, Menu, Popover,
+  Button, Input, Select, Modal, ConfirmModal, Tooltip, Menu, Popover, toast,
 } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
@@ -47,6 +47,35 @@ export function ModalSection() {
             danger
             onConfirm={() => alert('Deleted')}
           />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+export function ToastSection() {
+  const size = useShowcaseSize()
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Toast / Notification" description="Global notifications triggered imperatively — works inside and outside the React tree. Mount &lt;ToastProvider /&gt; once at your app root." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Variants">
+          <div className="flex flex-wrap gap-2">
+            <Button size={size} variant="secondary" onPress={() => toast.success('Changes saved successfully')}>Success</Button>
+            <Button size={size} variant="secondary" onPress={() => toast.error('Something went wrong', { title: 'Error' })}>Error</Button>
+            <Button size={size} variant="secondary" onPress={() => toast.warning('Session expires in 5 minutes')}>Warning</Button>
+            <Button size={size} variant="secondary" onPress={() => toast.info('New version available')}>Info</Button>
+          </div>
+        </Demo>
+        <Demo label="With title">
+          <div className="flex flex-wrap gap-2">
+            <Button size={size} variant="primary" onPress={() => toast.success('Your file has been uploaded.', { title: 'Upload complete' })}>
+              With title
+            </Button>
+            <Button size={size} variant="secondary" onPress={() => toast.custom('This notification stays until dismissed.', { variant: 'info', title: 'Persistent', duration: 0 })}>
+              Persistent
+            </Button>
+          </div>
         </Demo>
       </div>
     </div>
