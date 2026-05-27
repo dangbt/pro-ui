@@ -1,4 +1,6 @@
+import React from 'react'
 import {
+  DialogTrigger,
   Modal as RAModal,
   ModalOverlay,
   Dialog,
@@ -17,6 +19,13 @@ interface ModalProps extends Omit<ModalOverlayProps, 'className' | 'children'> {
   footer?: React.ReactNode | ((props: { close: () => void }) => React.ReactNode)
   size?: ModalSize
   className?: string
+  /**
+   * Optional trigger element. When provided the modal manages its own open
+   * state via DialogTrigger and pressed:scale-95 on the trigger is neutralised
+   * (React Aria keeps data-pressed=true while the overlay is open).
+   * When omitted, use isOpen / onOpenChange for controlled mode.
+   */
+  triggerElement?: React.ReactNode
 }
 
 const sizeMap: Record<ModalSize, string> = {
@@ -27,14 +36,14 @@ const sizeMap: Record<ModalSize, string> = {
   full: 'max-w-full mx-4',
 }
 
-export function Modal({
+function ModalPanel({
   title,
   children,
   footer,
   size = 'md',
   className,
   ...props
-}: ModalProps) {
+}: Omit<ModalProps, 'triggerElement'>) {
   return (
     <ModalOverlay
       {...props}
@@ -60,10 +69,7 @@ export function Modal({
               {/* Header */}
               {title && (
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                  <Heading
-                    slot="title"
-                    className="text-base font-semibold text-gray-800"
-                  >
+                  <Heading slot="title" className="text-base font-semibold text-gray-800">
                     {title}
                   </Heading>
                   <button
@@ -93,6 +99,30 @@ export function Modal({
       </RAModal>
     </ModalOverlay>
   )
+}
+
+export function Modal({ triggerElement, ...props }: ModalProps) {
+  if (triggerElement) {
+    // Neutralise pressed:scale-95 — React Aria keeps data-pressed=true on
+    // the trigger while the overlay is open, so the button stays scaled down.
+    const trigger = React.isValidElement(triggerElement)
+      ? React.cloneElement(triggerElement as React.ReactElement<{ className?: string }>, {
+          className: cn(
+            (triggerElement as React.ReactElement<{ className?: string }>).props.className,
+            'pressed:scale-100',
+          ),
+        })
+      : triggerElement
+
+    return (
+      <DialogTrigger>
+        {trigger}
+        <ModalPanel {...props} />
+      </DialogTrigger>
+    )
+  }
+
+  return <ModalPanel {...props} />
 }
 
 /* Convenience: ConfirmModal */

@@ -1,4 +1,6 @@
+import React from 'react'
 import {
+  DialogTrigger,
   Modal as RAModal,
   ModalOverlay,
   Dialog,
@@ -22,6 +24,13 @@ interface DrawerProps extends Omit<ModalOverlayProps, 'className' | 'children'> 
   className?: string
   /** Show overlay backdrop (default: true) */
   withOverlay?: boolean
+  /**
+   * Optional trigger element. When provided the drawer manages its own open
+   * state via DialogTrigger and pressed:scale-95 on the trigger is neutralised
+   * (React Aria keeps data-pressed=true while the overlay is open).
+   * When omitted, use isOpen / onOpenChange for controlled mode.
+   */
+  triggerElement?: React.ReactNode
 }
 
 /* Width map for left/right drawers */
@@ -48,7 +57,7 @@ const placementPanelCls: Record<DrawerPlacement, string> = {
   bottom: 'inset-x-0 bottom-0 w-full flex-col entering:slide-in-from-bottom exiting:slide-out-to-bottom',
 }
 
-export function Drawer({
+function DrawerPanel({
   title,
   children,
   footer,
@@ -57,7 +66,7 @@ export function Drawer({
   className,
   withOverlay = true,
   ...props
-}: DrawerProps) {
+}: Omit<DrawerProps, 'triggerElement'>) {
   const isVertical = placement === 'left' || placement === 'right'
 
   return (
@@ -85,10 +94,7 @@ export function Drawer({
               {/* Header */}
               {title && (
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                  <Heading
-                    slot="title"
-                    className="text-base font-semibold text-gray-800"
-                  >
+                  <Heading slot="title" className="text-base font-semibold text-gray-800">
                     {title}
                   </Heading>
                   <button
@@ -118,4 +124,28 @@ export function Drawer({
       </RAModal>
     </ModalOverlay>
   )
+}
+
+export function Drawer({ triggerElement, ...props }: DrawerProps) {
+  if (triggerElement) {
+    // Neutralise pressed:scale-95 — React Aria keeps data-pressed=true on
+    // the trigger while the overlay is open, so the button stays scaled down.
+    const trigger = React.isValidElement(triggerElement)
+      ? React.cloneElement(triggerElement as React.ReactElement<{ className?: string }>, {
+          className: cn(
+            (triggerElement as React.ReactElement<{ className?: string }>).props.className,
+            'pressed:scale-100',
+          ),
+        })
+      : triggerElement
+
+    return (
+      <DialogTrigger>
+        {trigger}
+        <DrawerPanel {...props} />
+      </DialogTrigger>
+    )
+  }
+
+  return <DrawerPanel {...props} />
 }

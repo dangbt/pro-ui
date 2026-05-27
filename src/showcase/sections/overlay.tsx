@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   Button, Input, Select, Modal, ConfirmModal, Drawer, Tooltip, Menu, Popover, toast,
 } from '../../components'
@@ -6,8 +5,6 @@ import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 
 export function ModalSection() {
-  const [open, setOpen] = useState(false)
-  const [confirm, setConfirm] = useState(false)
   const size = useShowcaseSize()
 
   return (
@@ -15,10 +12,8 @@ export function ModalSection() {
       <SectionHeader title="Modal & Dialog" description="Accessible dialogs with focus management via React Aria." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Demo label="Modal — form">
-          <Button size={size} variant="primary" onPress={() => setOpen(true)}>Open Modal</Button>
           <Modal
-            isOpen={open}
-            onOpenChange={setOpen}
+            triggerElement={<Button size={size} variant="primary">Open Modal</Button>}
             title="Edit Profile"
             footer={({ close }) => (
               <>
@@ -37,10 +32,8 @@ export function ModalSection() {
           </Modal>
         </Demo>
         <Demo label="ConfirmModal — danger">
-          <Button size={size} variant="danger" onPress={() => setConfirm(true)}>Delete Account</Button>
           <ConfirmModal
-            isOpen={confirm}
-            onOpenChange={setConfirm}
+            triggerElement={<Button size={size} variant="danger">Delete Account</Button>}
             title="Delete Account"
             description="This action is permanent. All data will be removed."
             confirmLabel="Yes, delete"
@@ -193,11 +186,6 @@ export function PopoverSection() {
 
 export function DrawerSection() {
   const size = useShowcaseSize()
-  const [right, setRight]   = useState(false)
-  const [left, setLeft]     = useState(false)
-  const [bottom, setBottom] = useState(false)
-  const [lg, setLg]         = useState(false)
-  const [noOverlay, setNoOverlay] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -208,8 +196,10 @@ export function DrawerSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
         <Demo label="placement: right (default)">
-          <Button size={size} variant="primary" onPress={() => setRight(true)}>Open right drawer</Button>
-          <Drawer isOpen={right} onOpenChange={setRight} title="Right Drawer" placement="right"
+          <Drawer
+            triggerElement={<Button size={size} variant="primary">Open right drawer</Button>}
+            title="Right Drawer"
+            placement="right"
             footer={({ close }) => (
               <>
                 <Button size={size} variant="secondary" onPress={close}>Cancel</Button>
@@ -229,29 +219,42 @@ export function DrawerSection() {
         </Demo>
 
         <Demo label="placement: left">
-          <Button size={size} variant="secondary" onPress={() => setLeft(true)}>Open left drawer</Button>
-          <Drawer isOpen={left} onOpenChange={setLeft} title="Left Drawer" placement="left">
+          <Drawer
+            triggerElement={<Button size={size} variant="secondary">Open left drawer</Button>}
+            title="Left Drawer"
+            placement="left"
+          >
             <p className="text-sm text-gray-600">Slides in from the left — typically used for navigation menus or filters.</p>
           </Drawer>
         </Demo>
 
         <Demo label="placement: bottom">
-          <Button size={size} variant="secondary" onPress={() => setBottom(true)}>Open bottom sheet</Button>
-          <Drawer isOpen={bottom} onOpenChange={setBottom} title="Bottom Sheet" placement="bottom" size="md">
+          <Drawer
+            triggerElement={<Button size={size} variant="secondary">Open bottom sheet</Button>}
+            title="Bottom Sheet"
+            placement="bottom"
+            size="md"
+          >
             <p className="text-sm text-gray-600">Slides up from the bottom. Common on mobile for action sheets and quick forms.</p>
           </Drawer>
         </Demo>
 
         <Demo label="size: lg">
-          <Button size={size} variant="secondary" onPress={() => setLg(true)}>Large drawer</Button>
-          <Drawer isOpen={lg} onOpenChange={setLg} title="Large Drawer" size="lg">
+          <Drawer
+            triggerElement={<Button size={size} variant="secondary">Large drawer</Button>}
+            title="Large Drawer"
+            size="lg"
+          >
             <p className="text-sm text-gray-600">Use <code className="bg-gray-100 px-1 rounded text-xs">size="lg"</code> (480 px) for complex edit forms.</p>
           </Drawer>
         </Demo>
 
         <Demo label="withOverlay: false">
-          <Button size={size} variant="ghost" onPress={() => setNoOverlay(true)}>No backdrop</Button>
-          <Drawer isOpen={noOverlay} onOpenChange={setNoOverlay} title="No Overlay" withOverlay={false}>
+          <Drawer
+            triggerElement={<Button size={size} variant="ghost">No backdrop</Button>}
+            title="No Overlay"
+            withOverlay={false}
+          >
             <p className="text-sm text-gray-600">Pass <code className="bg-gray-100 px-1 rounded text-xs">withOverlay={'{false}'}</code> to skip the dark backdrop — click outside still closes.</p>
           </Drawer>
         </Demo>
