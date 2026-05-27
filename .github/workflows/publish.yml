@@ -32,6 +32,8 @@ jobs:
           name: dist
           path: |
             dist/
+            src/components/
+            src/lib/
             tailwind.css
             theme.css
             package.json
@@ -41,8 +43,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           version: 10.33.0
@@ -51,16 +51,11 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@dangbt'
-          cache: 'pnpm'
 
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
-
-      - name: Install dependencies (no build)
-        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Publish to npm
         run: pnpm publish --no-git-checks --access public
@@ -74,8 +69,6 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           version: 10.33.0
@@ -84,16 +77,11 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@dangbt'
-          cache: 'pnpm'
 
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
-
-      - name: Install dependencies (no build)
-        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Publish to GitHub Packages
         run: pnpm publish --no-git-checks
