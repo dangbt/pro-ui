@@ -332,7 +332,8 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
         <div className="flex-1" />
         {/* Theme toggle */}
         <ThemeToggle />
-        <div className="flex items-center gap-1 border border-border rounded-lg p-0.5 shrink-0">
+        {/* Size picker — desktop only; mobile gets it inside settings panel */}
+        <div className="hidden sm:flex items-center gap-1 border border-border rounded-lg p-0.5 shrink-0">
           {(['sm', 'md', 'lg'] as Size[]).map(sz => (
             <button key={sz} onClick={() => {
               setPreviewSize(sz)
@@ -343,11 +344,21 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
             >{sz}</button>
           ))}
         </div>
+        {/* Copy CSS — full label on desktop, icon-only on mobile */}
         <button onClick={copy}
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary hover:bg-primary-600 transition-colors shrink-0"
-        >{copied ? '✓' : '⎘ Copy CSS'}</button>
-        <button onClick={() => setSettingsOpen(true)}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface text-fg-muted hover:bg-surface-subtle transition-colors shrink-0 text-base"
+        >
+          <span>{copied ? '✓' : '⎘'}</span>
+          <span className="hidden sm:inline">{copied ? '' : 'Copy CSS'}</span>
+        </button>
+        {/* Settings trigger — mobile only */}
+        <button onClick={() => setSettingsOpen(o => !o)}
+          className={cn(
+            'lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border transition-colors shrink-0 text-base',
+            settingsOpen
+              ? 'bg-primary text-white border-primary'
+              : 'border-border bg-surface text-fg-muted hover:bg-surface-subtle',
+          )}
           aria-label="Customize"
         >⚙</button>
       </header>
@@ -636,16 +647,26 @@ export function ThemeBuilderPage({ onBack }: { onBack: () => void }) {
             ? 'flex fixed top-14 right-0 bottom-0 z-30 shadow-2xl'
             : 'hidden',
         )}>
-          {/* Mobile-only panel header with close button */}
+          {/* Mobile-only panel header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0 lg:hidden">
             <span className="text-sm font-semibold text-fg-2">Customize</span>
-            <div className="flex items-center gap-2">
-              <button onClick={copy}
-                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border bg-primary text-white border-primary"
-              >{copied ? '✓ Copied!' : '⎘ Copy CSS'}</button>
-              <button onClick={() => setSettingsOpen(false)}
-                className="w-7 h-7 flex items-center justify-center text-fg-disabled hover:text-fg-2 rounded-lg hover:bg-surface-subtle text-lg leading-none"
-              >✕</button>
+            <button onClick={() => setSettingsOpen(false)}
+              className="w-7 h-7 flex items-center justify-center text-fg-disabled hover:text-fg-2 rounded-lg hover:bg-surface-subtle text-lg leading-none"
+            >✕</button>
+          </div>
+          {/* Size picker — mobile only (desktop uses header) */}
+          <div className="px-4 py-3 border-b border-border-subtle lg:hidden">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-fg-disabled mb-2">Preview size</p>
+            <div className="flex items-center border border-border rounded-lg p-0.5">
+              {(['sm', 'md', 'lg'] as Size[]).map(sz => (
+                <button key={sz} onClick={() => {
+                  setPreviewSize(sz)
+                  document.documentElement.style.setProperty('--sz', `var(--sz-${sz})`)
+                }}
+                  className={cn('flex-1 py-1.5 text-[11px] font-semibold uppercase rounded-md transition-all',
+                    previewSize === sz ? 'bg-primary text-white' : 'text-fg-disabled hover:text-fg-2')}
+                >{sz}</button>
+              ))}
             </div>
           </div>
           {ControlsContent}
