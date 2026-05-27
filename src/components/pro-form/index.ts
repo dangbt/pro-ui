@@ -5,6 +5,8 @@ export {
   ProFormNumberField,
   ProFormSelect,
   ProFormAsyncSelect,
+  ProFormComboBox,
+  ProFormRadioGroup,
   ProFormCheckbox,
   ProFormSwitch,
   ProFormDatePicker,

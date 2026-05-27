@@ -61,12 +61,23 @@ export interface RequestResult<T> {
 
 export interface ProTableProps<T extends object> {
   columns: ProColumnType<T>[]
-  request: (params: QueryParams) => Promise<RequestResult<T>>
+  /**
+   * Server-side data fetcher. Mutually exclusive with `dataSource`.
+   * Called on every page/sort/search change.
+   */
+  request?: (params: QueryParams) => Promise<RequestResult<T>>
+  /**
+   * Client-side static data. Mutually exclusive with `request`.
+   * Pagination, sorting, and filtering run in-browser.
+   */
+  dataSource?: T[]
   rowKey: keyof T | ((record: T) => string)
   headerTitle?: string
   toolBarRender?: () => ReactNode[]
   /** set false to hide search form entirely */
   search?: boolean
+  /** override loading state (applies to request mode) */
+  loading?: boolean
   pagination?: {
     defaultPageSize?: number
     pageSizeOptions?: number[]
@@ -77,5 +88,13 @@ export interface ProTableProps<T extends object> {
   bulkActions?: BulkActionDef<T>[]
   /** render additional content below a row when expanded; row becomes clickable to toggle */
   expandedRowRender?: (record: T) => ReactNode
+  /** add CSS classes to a row based on the record */
+  rowClassName?: (record: T, index: number) => string
+  /** row event handlers */
+  onRow?: (record: T, index: number) => {
+    onClick?: React.MouseEventHandler<HTMLTableRowElement>
+    onDoubleClick?: React.MouseEventHandler<HTMLTableRowElement>
+    onContextMenu?: React.MouseEventHandler<HTMLTableRowElement>
+  }
   size?: Size
 }

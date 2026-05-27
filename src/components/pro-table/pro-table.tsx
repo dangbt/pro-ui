@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { Fragment, useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
   type SortingState,
   type PaginationState,
@@ -25,6 +26,18 @@ const pageSizeCls: Record<Size, string> = {
   sm: 'h-[var(--sz)] px-2 text-xs',
   md: 'h-[var(--sz)] px-3 text-sm',
   lg: 'h-[var(--sz)] px-3 text-base',
+}
+
+const rowPyCls: Record<Size, string> = {
+  sm: 'py-1.5',
+  md: 'py-2.5',
+  lg: 'py-3.5',
+}
+
+const cellTextCls: Record<Size, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
 }
 
 function IndeterminateCheckbox({
@@ -150,18 +163,23 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 export function ProTable<T extends object>({
   columns: columnDefs,
   request,
+  dataSource,
   rowKey,
   headerTitle,
   toolBarRender,
   search = true,
+  loading: loadingProp,
   pagination: paginationConfig,
   rowSelection,
   bulkActions,
   expandedRowRender,
+  rowClassName,
+  onRow,
   size = 'sm',
 }: ProTableProps<T>) {
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
+  const isClientMode = !request && dataSource !== undefined
 
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
   const toggleExpand = (key: string) => {
     setExpandedKeys(prev => {
       const next = new Set(prev)
@@ -169,10 +187,14 @@ export function ProTable<T extends object>({
       return next
     })
   }
-  const [data, setData] = useState<T[]>([])
+
+  // Server-side state
+  const [serverData, setServerData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [loadingServer, setLoadingServer] = useState(false)
   const [searchParams, setSearchParams] = useState<Record<string, unknown>>({})
+
+  // Shared state
   const [sorting, setSorting] = useState<SortingState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -184,23 +206,40 @@ export function ProTable<T extends object>({
   )
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
+  // Client-side: filter dataSource by searchParams
+  const filteredClientData = useMemo(() => {
+    if (!isClientMode || !dataSource) return []
+    if (Object.keys(searchParams).length === 0) return dataSource
+    return dataSource.filter(row => {
+      return Object.entries(searchParams).every(([key, val]) => {
+        if (val === undefined || val === null || val === '') return true
+        const cell = (row as Record<string, unknown>)[key]
+        return String(cell ?? '').toLowerCase().includes(String(val).toLowerCase())
+      })
+    })
+  }, [isClientMode, dataSource, searchParams])
+
+  const loading = loadingProp ?? loadingServer
+
   const fetchData = useCallback(
     async (params: QueryParams) => {
-      setLoading(true)
+      if (!request) return
+      setLoadingServer(true)
       try {
         const result = await request(params)
         if (result.success) {
-          setData(result.data)
+          setServerData(result.data)
           setTotal(result.total)
         }
       } finally {
-        setLoading(false)
+        setLoadingServer(false)
       }
     },
     [request],
   )
 
   useEffect(() => {
+    if (isClientMode) return
     const sort = sorting[0]
     fetchData({
       current: pagination.pageIndex + 1,
@@ -208,7 +247,7 @@ export function ProTable<T extends object>({
       ...(sort && { sort: sort.id, order: sort.desc ? 'desc' : 'asc' }),
       ...searchParams,
     })
-  }, [pagination.pageIndex, pagination.pageSize, sorting, searchParams, fetchData])
+  }, [pagination.pageIndex, pagination.pageSize, sorting, searchParams, fetchData, isClientMode])
 
   const handleSearch = useCallback((params: Record<string, unknown>) => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
@@ -220,7 +259,11 @@ export function ProTable<T extends object>({
     setSearchParams({})
   }, [])
 
-  useEffect(() => { setRowSelectionState({}) }, [data])
+  // In client mode: use filteredClientData; in server mode: use serverData
+  const tableData = isClientMode ? filteredClientData : serverData
+  const serverTotal = isClientMode ? filteredClientData.length : total
+
+  useEffect(() => { setRowSelectionState({}) }, [tableData])
 
   const selectionColumn: ColumnDef<T> = {
     id: 'select',
@@ -271,7 +314,7 @@ export function ProTable<T extends object>({
   ]
 
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     state: { sorting, pagination, rowSelection: rowSelectionState, columnVisibility, columnPinning },
     onSortingChange: setSorting,
@@ -281,8 +324,10 @@ export function ProTable<T extends object>({
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
-    rowCount: total,
+    // Client mode: table handles pagination internally
+    ...(isClientMode
+      ? { getPaginationRowModel: getPaginationRowModel() }
+      : { manualPagination: true, rowCount: serverTotal }),
     enableRowSelection: !!rowSelection,
   })
 
@@ -307,9 +352,10 @@ export function ProTable<T extends object>({
   const canNext = table.getCanNextPage()
 
   const paginationBtnCls = cn(
-    'h-8 min-w-8 px-2 text-sm border border-border bg-white text-gray-600',
+    'min-w-8 px-2 border border-border bg-white text-gray-600',
     'rounded-[var(--base-radius)] hover:bg-gray-50 transition-colors',
     'disabled:opacity-40 disabled:cursor-not-allowed',
+    pageSizeCls[size],
   )
 
   const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
@@ -330,7 +376,7 @@ export function ProTable<T extends object>({
           title={headerTitle}
           actions={toolBarRender?.()}
           columnToggles={columnToggles}
-          onRefresh={() =>
+          onRefresh={isClientMode ? undefined : () =>
             fetchData({
               current: pagination.pageIndex + 1,
               pageSize: pagination.pageSize,
@@ -342,7 +388,7 @@ export function ProTable<T extends object>({
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-border">
+            <thead className="bg-gray-50 border-b border-border sticky top-0 z-[1]">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => {
@@ -403,15 +449,23 @@ export function ProTable<T extends object>({
                 table.getRowModel().rows.map((row, i) => {
                   const key = getRowKey(row.original, i)
                   const expanded = expandedKeys.has(key)
+                  const rowHandlers = onRow?.(row.original, i)
+                  const rowCls = cn(
+                    'hover:bg-gray-50 transition-colors',
+                    (expandedRowRender || rowHandlers?.onClick) && 'cursor-pointer',
+                    rowClassName?.(row.original, i),
+                  )
+                  const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
+                    if (expandedRowRender) toggleExpand(key)
+                    rowHandlers?.onClick?.(e)
+                  }
                   return (
-                    <>
+                    <Fragment key={key}>
                       <tr
-                        key={key}
-                        onClick={expandedRowRender ? () => toggleExpand(key) : undefined}
-                        className={cn(
-                          'hover:bg-gray-50 transition-colors',
-                          expandedRowRender && 'cursor-pointer',
-                        )}
+                        onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
+                        onDoubleClick={rowHandlers?.onDoubleClick}
+                        onContextMenu={rowHandlers?.onContextMenu}
+                        className={rowCls}
                       >
                         {row.getVisibleCells().map(cell => {
                           const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
@@ -420,7 +474,9 @@ export function ProTable<T extends object>({
                             <td
                               key={cell.id}
                               className={cn(
-                                'px-4 py-3 text-gray-700',
+                                'px-4 text-gray-700',
+                                rowPyCls[size],
+                                cellTextCls[size],
                                 cell.column.id === 'select' && 'px-3 text-center',
                                 cell.column.id === 'expand' && 'px-2 text-center',
                                 align === 'center' && 'text-center',
@@ -435,13 +491,13 @@ export function ProTable<T extends object>({
                         })}
                       </tr>
                       {expandedRowRender && expanded && (
-                        <tr key={`${key}-expanded`} className="bg-gray-50">
+                        <tr className="bg-gray-50">
                           <td colSpan={columns.length} className="px-0 py-0">
                             {expandedRowRender(row.original)}
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   )
                 })
               )}
@@ -452,7 +508,7 @@ export function ProTable<T extends object>({
         {/* Pagination */}
         <div className="flex flex-wrap items-center justify-center sm:justify-between px-4 py-2.5 border-t border-border gap-2">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>Total {total.toLocaleString()} records</span>
+            <span>Total {serverTotal.toLocaleString()} records</span>
             <select
               value={pagination.pageSize}
               onChange={e => setPagination(prev => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))}

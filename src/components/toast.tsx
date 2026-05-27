@@ -124,7 +124,6 @@ function ToastEntry({ item }: { item: ToastItem }) {
   return (
     <div
       role="alert"
-      aria-live="assertive"
       className={cn(
         'flex gap-3 px-4 py-3 border text-sm rounded-[var(--base-radius)] shadow-lg w-80 max-w-[calc(100vw-2rem)]',
         'transition-all duration-300 ease-in-out',

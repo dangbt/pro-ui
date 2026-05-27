@@ -5,12 +5,15 @@ import { Textarea } from '../textarea'
 import { NumberField } from '../number-field'
 import { Select } from '../select'
 import { AsyncSelect } from '../async-select'
+import { ComboBox } from '../combo-box'
+import { RadioGroup } from '../radio-group'
 import { Checkbox } from '../checkbox'
 import { Switch } from '../switch'
 import { DatePicker } from '../date-picker'
 import { ProFormItem, useSize } from './pro-form'
 import type { SelectOption } from '../select'
 import type { AsyncSelectOption, AsyncSelectFetchResult } from '../async-select'
+import type { ComboBoxOption } from '../combo-box'
 import type { DateValue } from '../date-picker'
 import type { Size } from '../../lib/size'
 
@@ -204,6 +207,75 @@ export function ProFormAsyncSelect<T extends AsyncSelectOption = AsyncSelectOpti
             debounceMs={debounceMs}
             defaultLabel={defaultLabel}
             className="w-full"
+          />
+        )}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormComboBox ─────────────────────────────────────────── */
+
+interface ProFormComboBoxProps extends BaseProps {
+  options: ComboBoxOption[]
+}
+
+export function ProFormComboBox({ name, label, required, description, placeholder, className, isDisabled, options }: ProFormComboBoxProps) {
+  const { control } = useFormContext()
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue=""
+        render={({ field }) => (
+          <ComboBox
+            selectedKey={field.value ?? null}
+            onSelectionChange={key => field.onChange(key ? String(key) : '')}
+            inputValue={field.value ?? ''}
+            onInputChange={field.onChange}
+            onBlur={field.onBlur}
+            placeholder={placeholder ?? 'Type to search…'}
+            isDisabled={isDisabled}
+            options={options}
+            className="w-full"
+          />
+        )}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormRadioGroup ───────────────────────────────────────── */
+
+interface RadioOption { value: string; label: string; description?: string; disabled?: boolean }
+interface ProFormRadioGroupProps {
+  name: string
+  label?: string
+  required?: boolean
+  description?: string
+  options: RadioOption[]
+  orientation?: 'horizontal' | 'vertical'
+  size?: Size
+  className?: string
+  isDisabled?: boolean
+}
+
+export function ProFormRadioGroup({ name, label, required, description, options, orientation = 'vertical', className, isDisabled }: ProFormRadioGroupProps) {
+  const { control } = useFormContext()
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue=""
+        render={({ field }) => (
+          <RadioGroup
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            isDisabled={isDisabled}
+            orientation={orientation}
+            options={options}
           />
         )}
       />

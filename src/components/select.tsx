@@ -39,6 +39,7 @@ export function Select({ label, placeholder, options, size = 'md', className, ..
           'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-0',
           'hover:border-gray-400 transition-colors',
           'pressed:bg-gray-50',
+          'invalid:border-danger invalid:focus-visible:outline-danger',
         )}
       >
         <SelectValue className="text-gray-700 data-[placeholder]:text-gray-400">

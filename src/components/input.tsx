@@ -2,6 +2,8 @@ import {
   TextField,
   Label,
   Input as RAInput,
+  FieldError,
+  Text,
   type TextFieldProps,
 } from 'react-aria-components'
 import { cn } from '../lib/cn'
@@ -9,13 +11,14 @@ import { inputHeight, inputText, inputPx, labelText, type Size } from '../lib/si
 
 interface InputProps extends Omit<TextFieldProps, 'className'> {
   label?: string
+  description?: string
   placeholder?: string
   type?: 'text' | 'email' | 'password' | 'url' | 'tel' | 'search'
   size?: Size
   className?: string
 }
 
-export function Input({ label, placeholder, type, size = 'md', className, ...props }: InputProps) {
+export function Input({ label, description, placeholder, type, size = 'md', className, ...props }: InputProps) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
@@ -35,6 +38,10 @@ export function Input({ label, placeholder, type, size = 'md', className, ...pro
           'w-full',
         )}
       />
+      {description && (
+        <Text slot="description" className="text-xs text-gray-400">{description}</Text>
+      )}
+      <FieldError className="text-xs text-danger" />
     </TextField>
   )
 }
