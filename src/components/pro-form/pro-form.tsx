@@ -37,6 +37,7 @@ interface ProFormProps<T extends FieldValues> {
   schema: ZodLike<T>
   defaultValues?: DefaultValues<T>
   onFinish: (values: T) => void | Promise<void>
+  onReset?: () => void
   layout?: ProFormLayout
   size?: Size
   submitText?: string
@@ -51,6 +52,7 @@ export function ProForm<T extends FieldValues>({
   schema,
   defaultValues,
   onFinish,
+  onReset,
   layout = 'vertical',
   size = 'md',
   submitText = 'Submit',
@@ -81,7 +83,7 @@ export function ProForm<T extends FieldValues>({
               {submitText}
             </Button>
             {showReset && (
-              <Button type="button" variant="secondary" size={size} onPress={() => reset()}>
+              <Button type="button" variant="secondary" size={size} onPress={() => { reset(); onReset?.() }}>
                 {resetText}
               </Button>
             )}

@@ -33,7 +33,7 @@ interface BaseProps {
 /* ── ProFormInput ───────────────────────────────────────────── */
 
 interface ProFormInputProps extends BaseProps {
-  type?: 'text' | 'email' | 'password' | 'url' | 'tel'
+  type?: 'text' | 'email' | 'password' | 'url' | 'tel' | 'datetime-local'
   inputClassName?: string
 }
 
