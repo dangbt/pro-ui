@@ -57,8 +57,14 @@ jobs:
         with:
           name: dist
 
-      - name: Publish to npm
-        run: pnpm publish --no-git-checks --access public --ignore-scripts
+      - name: Publish to npm (skip if already published)
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@dangbt/pro-ui@${VERSION}" version > /dev/null 2>&1; then
+            echo "v${VERSION} already exists on npm — skipping."
+          else
+            pnpm publish --no-git-checks --access public --ignore-scripts
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -83,7 +89,13 @@ jobs:
         with:
           name: dist
 
-      - name: Publish to GitHub Packages
-        run: pnpm publish --no-git-checks --ignore-scripts
+      - name: Publish to GitHub Packages (skip if already published)
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@dangbt/pro-ui@${VERSION}" version > /dev/null 2>&1; then
+            echo "v${VERSION} already exists on GitHub Packages — skipping."
+          else
+            pnpm publish --no-git-checks --ignore-scripts
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
