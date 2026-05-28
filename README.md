@@ -166,9 +166,31 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ---
 
+## Roadmap & Pro Tier
+
+Pro components (RichTextEditor, KanbanBoard, GanttChart, AdvancedFilters, DataGrid…) are planned for v2.0.
+
+**[View full roadmap →](ROADMAP.md)**
+
+---
+
+## Sponsors
+
+pro-ui is MIT-licensed and free forever. If it saves you time, please consider sponsoring:
+
+| Tier | Price | Benefits |
+|---|---|---|
+| ☕ Coffee | $5/mo | Name in SPONSORS.md |
+| 🚀 Pro Supporter | $15/mo | Early access to Pro components |
+| 🏢 Team | $50/mo | Logo on README + priority support |
+
+**[Become a sponsor →](https://github.com/sponsors/dangbt)**
+
+---
+
 ## License
 
-MIT © [Dâng Bùi Tấn](https://github.com/dangbt)
+MIT © [Dâng Bùi Tấn](https://github.com/dangbt) · [SPONSORS.md](SPONSORS.md)
 
 <div align="center">
   <sub>If pro-ui saves you time, consider <a href="https://github.com/sponsors/dangbt">sponsoring ☕</a></sub>
