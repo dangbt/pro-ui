@@ -12,6 +12,14 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    group: 'Integration',
+    items: [
+      { id: 'llm-txt',    label: 'LLM.txt'     },
+      { id: 'mcp',        label: 'MCP Server'   },
+      { id: 'create-app', label: 'Create App'   },
+    ],
+  },
+  {
     group: 'Form',
     items: [
       { id: 'button',        label: 'Button'              },
@@ -82,14 +90,6 @@ export const NAV: NavGroup[] = [
     group: 'Layout',
     items: [
       { id: 'layout', label: 'Layout & Sider' },
-    ],
-  },
-  {
-    group: 'Integration',
-    items: [
-      { id: 'llm-txt',    label: 'LLM.txt'     },
-      { id: 'mcp',        label: 'MCP Server'   },
-      { id: 'create-app', label: 'Create App'   },
     ],
   },
 ]
