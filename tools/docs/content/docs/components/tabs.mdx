@@ -1,0 +1,48 @@
+---
+title: Tabs
+description: Accessible tab navigation with keyboard support. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Tabs, TabList, Tab, TabPanel } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Tabs defaultSelectedKey="overview">
+  <TabList>
+    <Tab id="overview">Overview</Tab>
+    <Tab id="activity">Activity</Tab>
+    <Tab id="settings">Settings</Tab>
+  </TabList>
+  <TabPanel id="overview">Overview content here</TabPanel>
+  <TabPanel id="activity">Activity feed here</TabPanel>
+  <TabPanel id="settings">Settings form here</TabPanel>
+</Tabs>
+```
+
+## Controlled
+
+```tsx
+const [tab, setTab] = useState('overview')
+
+<Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)}>
+  <TabList>
+    <Tab id="overview">Overview</Tab>
+    <Tab id="settings">Settings</Tab>
+  </TabList>
+  <TabPanel id="overview">...</TabPanel>
+  <TabPanel id="settings">...</TabPanel>
+</Tabs>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `defaultSelectedKey` | `string` | — | Default selected tab key (uncontrolled) |
+| `selectedKey` | `string` | — | Controlled selected key |
+| `onSelectionChange` | `(key: Key) => void` | — | Called on tab change |

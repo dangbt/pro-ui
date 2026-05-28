@@ -1,0 +1,77 @@
+---
+title: Modal
+description: Accessible modal dialog with focus trap, backdrop, and animation. Built on React Aria DialogTrigger.
+---
+
+## Import
+
+```tsx
+import { Modal, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+```
+
+## Basic modal
+
+```tsx
+import { DialogTrigger } from 'react-aria-components'
+
+<DialogTrigger>
+  <Button variant="solid">Open Modal</Button>
+  <Modal title="Confirm Action">
+    <p>Are you sure you want to continue?</p>
+  </Modal>
+</DialogTrigger>
+```
+
+## With footer
+
+```tsx
+<Modal
+  title="Delete User"
+  footer={
+    <div className="flex gap-2 justify-end">
+      <Button variant="ghost" slot="close">Cancel</Button>
+      <Button variant="danger" onPress={handleDelete}>Delete</Button>
+    </div>
+  }
+>
+  This action cannot be undone.
+</Modal>
+```
+
+## Controlled (open/close programmatically)
+
+```tsx
+const [open, setOpen] = useState(false)
+
+<Button onPress={() => setOpen(true)}>Open</Button>
+
+<Modal
+  isOpen={open}
+  onOpenChange={setOpen}
+  title="Settings"
+>
+  {/* content */}
+</Modal>
+```
+
+## Sizes
+
+```tsx
+<Modal size="sm">...</Modal>   {/* narrow */}
+<Modal size="md">...</Modal>   {/* default */}
+<Modal size="lg">...</Modal>   {/* wide */}
+<Modal size="xl">...</Modal>   {/* very wide */}
+<Modal size="full">...</Modal> {/* full screen */}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | — | Modal header title |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'` | `'md'` | Modal width |
+| `footer` | `ReactNode` | — | Footer content |
+| `isOpen` | `boolean` | — | Controlled open state |
+| `onOpenChange` | `(open: boolean) => void` | — | Called on open/close |
+| `children` | `ReactNode` | ✅ | Modal body |

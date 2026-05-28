@@ -1,0 +1,63 @@
+---
+title: Avatar
+description: User avatar with image, initials fallback, and size variants. AvatarGroup stacks multiple avatars.
+---
+
+## Import
+
+```tsx
+import { Avatar, AvatarGroup } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+{/* With image */}
+<Avatar src="/avatar.jpg" name="John Doe" />
+
+{/* Initials fallback */}
+<Avatar name="Jane Smith" />
+
+{/* Initials only, no name */}
+<Avatar />
+```
+
+## Sizes
+
+```tsx
+<Avatar name="John Doe" size="sm" />
+<Avatar name="John Doe" size="md" />
+<Avatar name="John Doe" size="lg" />
+<Avatar name="John Doe" size="xl" />
+```
+
+## AvatarGroup
+
+```tsx
+<AvatarGroup max={3}>
+  <Avatar name="Alice" />
+  <Avatar name="Bob" />
+  <Avatar name="Charlie" />
+  <Avatar name="Diana" />
+  <Avatar name="Edward" />
+</AvatarGroup>
+```
+
+Shows the first 3, then `+2` overflow indicator.
+
+## Props
+
+### Avatar
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `src` | `string` | — | Image URL |
+| `name` | `string` | — | Name for initials fallback and `aria-label` |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | Avatar size |
+
+### AvatarGroup
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `max` | `number` | — | Maximum avatars to show before overflow indicator |
+| `children` | `ReactNode` | ✅ | Avatar components |

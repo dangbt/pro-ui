@@ -1,0 +1,31 @@
+---
+title: Textarea
+description: Multi-line text input with label, description, and error state.
+---
+
+## Import
+
+```tsx
+import { Textarea } from '@dangbt/pro-ui'
+```
+
+## Usage
+
+```tsx
+<Textarea
+  label="Bio"
+  placeholder="Tell us about yourself..."
+  rows={4}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Textarea label |
+| `placeholder` | `string` | — | Placeholder text |
+| `description` | `string` | — | Helper text |
+| `errorMessage` | `string` | — | Error state text |
+| `rows` | `number` | `3` | Number of visible rows |
+| `isDisabled` | `boolean` | — | Disable the textarea |

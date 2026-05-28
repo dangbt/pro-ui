@@ -1,0 +1,40 @@
+---
+title: TagInput
+description: Multi-value tag input for comma-separated or enter-separated tag entry.
+---
+
+## Import
+
+```tsx
+import { TagInput } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<TagInput label="Tags" placeholder="Add tags..." />
+```
+
+## Controlled
+
+```tsx
+const [tags, setTags] = useState(['react', 'typescript'])
+
+<TagInput
+  label="Technologies"
+  value={tags}
+  onChange={setTags}
+  placeholder="Add technology..."
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label |
+| `value` | `string[]` | — | Controlled tags |
+| `defaultValue` | `string[]` | — | Uncontrolled default |
+| `onChange` | `(tags: string[]) => void` | — | Called on change |
+| `placeholder` | `string` | — | Placeholder |
+| `maxTags` | `number` | — | Maximum number of tags |

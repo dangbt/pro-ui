@@ -1,0 +1,62 @@
+---
+title: Button
+description: Accessible button with variants, sizes, loading state, and icon support. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Button } from '@dangbt/pro-ui'
+```
+
+## Variants
+
+```tsx
+<Button variant="solid" onPress={handleSave}>Save</Button>
+<Button variant="outline" onPress={handleCancel}>Cancel</Button>
+<Button variant="ghost" onPress={handleEdit}>Edit</Button>
+<Button variant="danger" onPress={handleDelete}>Delete</Button>
+```
+
+## Sizes
+
+```tsx
+<Button size="sm">Small</Button>
+<Button size="md">Medium</Button>
+<Button size="lg">Large</Button>
+```
+
+## With icon
+
+```tsx
+import { Plus, Trash2 } from 'lucide-react'
+
+<Button variant="solid" onPress={handleAdd}>
+  <Plus size={16} /> Add Item
+</Button>
+
+<Button variant="danger" onPress={handleDelete}>
+  <Trash2 size={16} /> Delete
+</Button>
+```
+
+## Loading state
+
+```tsx
+<Button variant="solid" loading={isSubmitting} type="submit">
+  {isSubmitting ? 'Saving...' : 'Save'}
+</Button>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `variant` | `'solid' \| 'outline' \| 'ghost' \| 'danger'` | `'outline'` | Visual style |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Button size |
+| `loading` | `boolean` | — | Show spinner and disable |
+| `isDisabled` | `boolean` | — | Disable the button |
+| `onPress` | `() => void` | — | Press handler (use `onPress`, not `onClick`) |
+| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | HTML button type |
+
+> **Note:** Use `onPress` (not `onClick`) — this is the React Aria pattern and handles keyboard + pointer events correctly.

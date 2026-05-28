@@ -1,0 +1,59 @@
+---
+title: Select
+description: Accessible dropdown select with keyboard navigation. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Select } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Select
+  label="Role"
+  placeholder="Select a role"
+  options={[
+    { value: 'admin', label: 'Administrator' },
+    { value: 'editor', label: 'Editor' },
+    { value: 'viewer', label: 'Viewer (read-only)' },
+  ]}
+/>
+```
+
+## Controlled
+
+```tsx
+const [value, setValue] = useState('editor')
+
+<Select
+  label="Role"
+  value={value}
+  onChange={(v) => setValue(v)}
+  options={options}
+/>
+```
+
+## With error
+
+```tsx
+<Select
+  label="Country"
+  options={countries}
+  errorMessage="Please select a country"
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Select label |
+| `placeholder` | `string` | — | Placeholder when no value selected |
+| `options` | `{ value: string; label: string }[]` | ✅ | Options list |
+| `value` | `string` | — | Controlled value |
+| `onChange` | `(value: string) => void` | — | Called on selection |
+| `errorMessage` | `string` | — | Error state text |
+| `isDisabled` | `boolean` | — | Disable the select |

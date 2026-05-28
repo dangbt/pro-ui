@@ -1,0 +1,52 @@
+---
+title: Card
+description: Container card with optional header, footer, padding, and shadow.
+---
+
+## Import
+
+```tsx
+import { Card } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Card>
+  <p>Simple card content.</p>
+</Card>
+```
+
+## With header and footer
+
+```tsx
+<Card
+  header={<h3 className="font-semibold">Account Settings</h3>}
+  footer={
+    <div className="flex justify-end gap-2">
+      <Button variant="ghost">Cancel</Button>
+      <Button variant="solid">Save</Button>
+    </div>
+  }
+>
+  {/* card body */}
+</Card>
+```
+
+## No padding (for full-bleed content)
+
+```tsx
+<Card noPadding>
+  <img src="/image.jpg" className="w-full rounded-t-lg" alt="" />
+  <div className="p-4">Description</div>
+</Card>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `header` | `ReactNode` | — | Card header content |
+| `footer` | `ReactNode` | — | Card footer content |
+| `noPadding` | `boolean` | — | Remove default padding |
+| `children` | `ReactNode` | ✅ | Card body content |

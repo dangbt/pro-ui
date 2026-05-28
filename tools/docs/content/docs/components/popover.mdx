@@ -1,0 +1,44 @@
+---
+title: Popover
+description: Floating popover panel anchored to a trigger element. Good for contextual menus and info panels.
+---
+
+## Import
+
+```tsx
+import { Popover, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+```
+
+## Basic usage
+
+```tsx
+<DialogTrigger>
+  <Button variant="ghost" size="sm">ⓘ Info</Button>
+  <Popover>
+    <p className="text-sm">This is additional context information.</p>
+  </Popover>
+</DialogTrigger>
+```
+
+## With placement
+
+```tsx
+<DialogTrigger>
+  <Button>Options</Button>
+  <Popover placement="bottom-end" showArrow={false}>
+    <div className="flex flex-col gap-1 min-w-[160px]">
+      <button className="text-sm text-left px-3 py-2 hover:bg-muted rounded">Edit</button>
+      <button className="text-sm text-left px-3 py-2 hover:bg-muted rounded text-destructive">Delete</button>
+    </div>
+  </Popover>
+</DialogTrigger>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `placement` | `Placement` | `'bottom'` | Placement relative to trigger |
+| `showArrow` | `boolean` | `true` | Show arrow pointing to trigger |
+| `children` | `ReactNode` | ✅ | Popover content |

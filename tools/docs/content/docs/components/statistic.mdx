@@ -1,0 +1,78 @@
+---
+title: Statistic
+description: KPI metric display with trend indicator, prefix/suffix, and custom formatter.
+---
+
+## Import
+
+```tsx
+import { Statistic } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Statistic title="Total Revenue" value={125430} />
+```
+
+## With trend indicator
+
+```tsx
+<Statistic
+  title="Monthly Revenue"
+  value={125430}
+  trend="up"
+  trendValue="+12.5%"
+/>
+
+<Statistic
+  title="Churn Rate"
+  value="3.2%"
+  trend="down"
+  trendValue="-0.5%"
+/>
+```
+
+## With prefix/suffix and formatter
+
+```tsx
+import { DollarSign } from 'lucide-react'
+
+<Statistic
+  title="Revenue"
+  value={125430}
+  prefix={<DollarSign size={16} />}
+  formatter={(v) => Number(v).toLocaleString()}
+  trend="up"
+  trendValue="+12%"
+/>
+
+<Statistic
+  title="Uptime"
+  value={99.9}
+  suffix="%"
+/>
+```
+
+## Dashboard grid
+
+```tsx
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <Card><Statistic title="Users" value={2847} trend="up" trendValue="+8%" /></Card>
+  <Card><Statistic title="Revenue" value={48200} formatter={(v) => `$${v.toLocaleString()}`} /></Card>
+  <Card><Statistic title="Churn" value="2.1%" trend="down" trendValue="-0.3%" /></Card>
+</div>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | ✅ | Metric label |
+| `value` | `number \| string` | ✅ | The metric value |
+| `prefix` | `ReactNode` | — | Content before value |
+| `suffix` | `ReactNode` | — | Content after value |
+| `trend` | `'up' \| 'down' \| 'neutral'` | — | Trend direction |
+| `trendValue` | `string` | — | Trend delta text (e.g. `"+12%"`) |
+| `formatter` | `(value: number \| string) => ReactNode` | — | Custom value formatter |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Display size |

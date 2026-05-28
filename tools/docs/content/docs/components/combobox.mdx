@@ -1,0 +1,49 @@
+---
+title: ComboBox
+description: Searchable dropdown with filtering. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { ComboBox } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<ComboBox
+  label="Framework"
+  options={[
+    { value: 'react', label: 'React' },
+    { value: 'vue', label: 'Vue' },
+    { value: 'svelte', label: 'Svelte' },
+    { value: 'solid', label: 'SolidJS' },
+  ]}
+  placeholder="Search frameworks..."
+/>
+```
+
+## Controlled
+
+```tsx
+const [value, setValue] = useState('')
+
+<ComboBox
+  label="Country"
+  options={countries}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label |
+| `options` | `{ value: string; label: string }[]` | ✅ | Options list |
+| `value` | `string` | — | Controlled value |
+| `onChange` | `(value: string) => void` | — | Called on selection |
+| `placeholder` | `string` | — | Placeholder text |
+| `isDisabled` | `boolean` | — | Disable |

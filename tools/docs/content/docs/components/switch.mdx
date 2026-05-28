@@ -1,0 +1,38 @@
+---
+title: Switch
+description: Toggle switch for boolean settings. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Switch } from '@dangbt/pro-ui'
+```
+
+## Usage
+
+```tsx
+<Switch>Email notifications</Switch>
+
+<Switch defaultSelected>Dark mode</Switch>
+```
+
+## Controlled
+
+```tsx
+const [on, setOn] = useState(false)
+
+<Switch isSelected={on} onChange={setOn}>
+  Enable feature flags
+</Switch>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `isSelected` | `boolean` | — | Controlled state |
+| `defaultSelected` | `boolean` | — | Uncontrolled default |
+| `onChange` | `(selected: boolean) => void` | — | Called on change |
+| `isDisabled` | `boolean` | — | Disable the switch |
+| `children` | `ReactNode` | — | Label |

@@ -1,0 +1,51 @@
+---
+title: Alert
+description: Inline alert message with icon and color variants for info, success, warning, and error states.
+---
+
+## Import
+
+```tsx
+import { Alert } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Alert variant="info" title="Did you know?">
+  You can export your data as CSV from the table toolbar.
+</Alert>
+
+<Alert variant="warning" title="Trial expiring">
+  Your trial expires in 3 days. Upgrade to keep access.
+</Alert>
+
+<Alert variant="danger">
+  Failed to save changes. Please try again.
+</Alert>
+
+<Alert variant="success" title="Saved!">
+  Your changes have been saved successfully.
+</Alert>
+```
+
+## Dismissible
+
+```tsx
+const [show, setShow] = useState(true)
+
+{show && (
+  <Alert variant="warning" onDismiss={() => setShow(false)}>
+    Please review the highlighted fields.
+  </Alert>
+)}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `variant` | `'info' \| 'success' \| 'warning' \| 'danger'` | `'info'` | Alert severity |
+| `title` | `string` | — | Alert headline |
+| `onDismiss` | `() => void` | — | If provided, shows a dismiss button |
+| `children` | `ReactNode` | ✅ | Alert body text |

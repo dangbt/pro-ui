@@ -1,0 +1,90 @@
+---
+title: Quick Start
+description: Get up and running with @dangbt/pro-ui in under 5 minutes.
+---
+
+## Option 1 — CLI scaffolder (recommended)
+
+```bash
+npx create-pro-ui-app my-app
+```
+
+Choose from 3 templates:
+
+| Template | What you get |
+|---|---|
+| `minimal` | React + Vite + pro-ui, bare setup |
+| `admin-dashboard` | Sidebar, dashboard, users table, settings, auth pages |
+| `saas-app` | Login, register, onboarding, dashboard, profile |
+
+The CLI installs dependencies and opens the app ready to run.
+
+## Option 2 — Manual setup
+
+**1. Install**
+
+```bash
+npm install @dangbt/pro-ui
+```
+
+**2. Add styles**
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+@import "@dangbt/pro-ui/styles";
+```
+
+**3. Wrap your app**
+
+```tsx
+// src/main.tsx
+import { ThemeProvider, ToastProvider } from '@dangbt/pro-ui'
+
+createRoot(document.getElementById('root')!).render(
+  <ThemeProvider>
+    <ToastProvider>
+      <App />
+    </ToastProvider>
+  </ThemeProvider>
+)
+```
+
+**4. Use components**
+
+```tsx
+import { Button, Modal, ProTable } from '@dangbt/pro-ui'
+```
+
+## Recommended Vite config
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+## TypeScript
+
+pro-ui ships with full TypeScript types. No extra `@types` packages needed.
+
+Key generic types:
+
+```tsx
+import type { ProColumnType, ProFormField } from '@dangbt/pro-ui'
+
+const columns: ProColumnType<User>[] = [...]
+const fields: ProFormField[] = [...]
+```
+
+## Next steps
+
+- [MCP setup](/docs/guides/mcp-setup) — connect Claude Code / Cursor
+- [Theming](/docs/guides/theming) — dark mode and custom colors
+- [ProTable](/docs/components/pro-table) — data table reference
+- [ProForm](/docs/components/pro-form) — form builder reference

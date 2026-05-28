@@ -1,0 +1,61 @@
+---
+title: Toast
+description: Global toast notifications. Mount ToastProvider once at app root, call toast() anywhere.
+---
+
+## Import
+
+```tsx
+import { ToastProvider, toast } from '@dangbt/pro-ui'
+```
+
+## Setup
+
+Mount `ToastProvider` once in your app root:
+
+```tsx
+// src/main.tsx or App.tsx
+import { ToastProvider } from '@dangbt/pro-ui'
+
+export function App() {
+  return (
+    <>
+      <ToastProvider />
+      {/* rest of app */}
+    </>
+  )
+}
+```
+
+## Usage
+
+Call `toast` from anywhere in your app:
+
+```tsx
+toast.success('User created successfully!')
+toast.error('Something went wrong.')
+toast.warning('Your session expires in 5 minutes.')
+toast.info('New version available — refresh to update.')
+```
+
+## With options
+
+```tsx
+toast.success('Saved!', {
+  duration: 5000,    // ms, default 4000
+})
+
+toast.error('Upload failed.', {
+  duration: 8000,
+})
+```
+
+## ToastProvider props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `position` | `'top-right' \| 'top-center' \| 'bottom-right' \| 'bottom-center'` | `'top-right'` | Toast position |
+
+```tsx
+<ToastProvider position="bottom-right" />
+```

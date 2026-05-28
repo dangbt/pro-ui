@@ -1,0 +1,42 @@
+---
+title: RadioGroup
+description: Accessible radio button group. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { RadioGroup, Radio } from '@dangbt/pro-ui'
+```
+
+## Usage
+
+```tsx
+<RadioGroup label="Plan" defaultValue="pro">
+  <Radio value="free">Free</Radio>
+  <Radio value="pro">Pro ($9/mo)</Radio>
+  <Radio value="team">Team ($49/mo)</Radio>
+</RadioGroup>
+```
+
+## Controlled
+
+```tsx
+const [plan, setPlan] = useState('pro')
+
+<RadioGroup label="Plan" value={plan} onChange={setPlan}>
+  <Radio value="free">Free</Radio>
+  <Radio value="pro">Pro</Radio>
+</RadioGroup>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Group label |
+| `value` | `string` | — | Controlled value |
+| `defaultValue` | `string` | — | Uncontrolled default |
+| `onChange` | `(value: string) => void` | — | Called on selection change |
+| `isDisabled` | `boolean` | — | Disable all radios |
+| `orientation` | `'horizontal' \| 'vertical'` | `'vertical'` | Layout orientation |

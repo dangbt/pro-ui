@@ -1,0 +1,38 @@
+---
+title: Spinner
+description: Loading spinner with size variants.
+---
+
+## Import
+
+```tsx
+import { Spinner } from '@dangbt/pro-ui'
+```
+
+## Usage
+
+```tsx
+{isLoading && <Spinner />}
+
+{isLoading && <Spinner size="sm" />}
+{isLoading && <Spinner size="lg" />}
+```
+
+## Centered overlay
+
+```tsx
+<div className="relative min-h-[200px]">
+  {isLoading && (
+    <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+      <Spinner size="lg" />
+    </div>
+  )}
+  <Content />
+</div>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Spinner size |

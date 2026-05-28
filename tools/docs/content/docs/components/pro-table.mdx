@@ -1,0 +1,199 @@
+---
+title: ProTable
+description: Advanced data table with server-side pagination, sorting, filtering, row selection, bulk actions, and expandable rows.
+---
+
+`ProTable` is the flagship component of pro-ui. It replaces 300–500 lines of data table boilerplate with a single component.
+
+## Import
+
+```tsx
+import { ProTable } from '@dangbt/pro-ui'
+import type { ProColumnType } from '@dangbt/pro-ui'
+```
+
+## Basic example
+
+```tsx
+interface User {
+  id: string
+  name: string
+  email: string
+  status: 'active' | 'inactive'
+  createdAt: string
+}
+
+const columns: ProColumnType<User>[] = [
+  { title: 'Name', dataIndex: 'name', sortable: true },
+  { title: 'Email', dataIndex: 'email' },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    valueType: 'select',
+    valueEnum: {
+      active: { text: 'Active', color: 'success' },
+      inactive: { text: 'Inactive', color: 'default' },
+    },
+  },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },
+]
+
+export function UsersPage() {
+  return (
+    <ProTable<User>
+      headerTitle="Users"
+      columns={columns}
+      rowKey="id"
+      request={async ({ current, pageSize, ...filters }) => {
+        const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
+        const data = await res.json()
+        return { data: data.items, total: data.total, success: true }
+      }}
+    />
+  )
+}
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `columns` | `ProColumnType<T>[]` | ✅ | — | Column definitions |
+| `rowKey` | `keyof T \| ((record: T) => string)` | ✅ | — | Unique key for each row |
+| `request` | `(params: QueryParams) => Promise<RequestResult<T>>` | — | — | Server-side data fetcher. Mutually exclusive with `dataSource` |
+| `dataSource` | `T[]` | — | — | Client-side static data. Mutually exclusive with `request` |
+| `headerTitle` | `string` | — | — | Table header title |
+| `toolBarRender` | `() => ReactNode[]` | — | — | Extra buttons in the toolbar |
+| `search` | `boolean` | — | `true` | Set `false` to hide the search form |
+| `loading` | `boolean` | — | — | Override loading state |
+| `pagination` | `{ defaultPageSize?: number; pageSizeOptions?: number[] }` | — | — | Pagination config |
+| `rowSelection` | `{ onChange?: (keys: string[], rows: T[]) => void }` | — | — | Enable row selection with checkboxes |
+| `bulkActions` | `BulkActionDef<T>[]` | — | — | Actions shown when rows are selected |
+| `expandedRowRender` | `(record: T) => ReactNode` | — | — | Render content below expanded row |
+| `rowClassName` | `(record: T, index: number) => string` | — | — | Add CSS classes to rows conditionally |
+| `onRow` | `(record: T, index: number) => handlers` | — | — | Row event handlers (onClick, onDoubleClick, onContextMenu) |
+| `size` | `'sm' \| 'md' \| 'lg'` | — | `'md'` | Table density |
+
+## Server-side mode
+
+Use the `request` prop for server-side pagination, search, and filtering. The function receives:
+
+```ts
+interface QueryParams {
+  current: number        // current page (1-based)
+  pageSize: number       // rows per page
+  search?: string        // search input value
+  sorter?: {
+    field: string
+    order: 'ascend' | 'descend'
+  }
+  filters?: Record<string, string | string[]>
+}
+```
+
+Return:
+
+```ts
+interface RequestResult<T> {
+  data: T[]
+  total: number
+  success: boolean
+}
+```
+
+## Client-side mode
+
+Use `dataSource` for static or pre-fetched data:
+
+```tsx
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  dataSource={users}
+/>
+```
+
+ProTable handles client-side filtering, sorting, and pagination automatically.
+
+## Row selection + bulk actions
+
+```tsx
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  request={fetchUsers}
+  rowSelection={{
+    onChange: (selectedKeys, selectedRows) => {
+      setSelected(selectedKeys)
+    },
+  }}
+  bulkActions={[
+    {
+      label: 'Delete selected',
+      danger: true,
+      onClick: async (keys) => {
+        await deleteUsers(keys)
+      },
+    },
+    {
+      label: 'Export CSV',
+      onClick: (keys, rows) => exportToCSV(rows),
+    },
+  ]}
+/>
+```
+
+## Toolbar with extra buttons
+
+```tsx
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  request={fetchUsers}
+  toolBarRender={() => [
+    <Button key="add" variant="solid" onPress={() => setAddOpen(true)}>
+      Add User
+    </Button>,
+    <Button key="export" variant="outline" onPress={handleExport}>
+      Export
+    </Button>,
+  ]}
+/>
+```
+
+## Column definition reference
+
+```ts
+interface ProColumnType<T> {
+  title: string
+  dataIndex: keyof T
+  key?: string
+  sortable?: boolean
+  width?: number | string
+  align?: 'left' | 'center' | 'right'
+  fixed?: 'left' | 'right'
+  hidden?: boolean
+  valueType?: 'date' | 'select' | 'boolean' | 'number'
+  valueEnum?: Record<string, { text: string; color?: string }>
+  render?: (value: any, record: T, index: number) => ReactNode
+  filters?: { label: string; value: string }[]
+}
+```
+
+## Expandable rows
+
+```tsx
+<ProTable<Order>
+  columns={columns}
+  rowKey="id"
+  request={fetchOrders}
+  expandedRowRender={(record) => (
+    <div className="p-4">
+      <h4 className="font-medium">Order items</h4>
+      {record.items.map(item => (
+        <div key={item.id}>{item.name} × {item.qty}</div>
+      ))}
+    </div>
+  )}
+/>
+```

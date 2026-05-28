@@ -1,0 +1,58 @@
+---
+title: Input
+description: Text input field with label, description, error, and prefix/suffix icons. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Input } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Input label="Email" type="email" placeholder="you@example.com" />
+```
+
+## With prefix icon
+
+```tsx
+import { Search, Mail } from 'lucide-react'
+
+<Input label="Email" prefix={<Mail size={14} />} type="email" />
+<Input label="Search" prefix={<Search size={14} />} placeholder="Search..." />
+```
+
+## With error
+
+```tsx
+<Input
+  label="Username"
+  errorMessage="Username is already taken"
+/>
+```
+
+## With helper text
+
+```tsx
+<Input
+  label="Password"
+  type="password"
+  description="Minimum 8 characters"
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Input label |
+| `type` | `string` | `'text'` | HTML input type |
+| `placeholder` | `string` | — | Placeholder text |
+| `description` | `string` | — | Helper text below input |
+| `errorMessage` | `string` | — | Error text (also sets invalid state) |
+| `prefix` | `ReactNode` | — | Icon or text before input |
+| `suffix` | `ReactNode` | — | Icon or text after input |
+| `isDisabled` | `boolean` | — | Disable the input |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Input size |

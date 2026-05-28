@@ -1,0 +1,37 @@
+---
+title: Tooltip
+description: Accessible tooltip on hover/focus with customizable placement. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Tooltip, Button } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+import { Info } from 'lucide-react'
+
+<Tooltip content="This field is required for compliance">
+  <Button variant="ghost" size="sm"><Info size={14} /></Button>
+</Tooltip>
+```
+
+## Placements
+
+```tsx
+<Tooltip content="Tooltip text" placement="top">...</Tooltip>
+<Tooltip content="Tooltip text" placement="bottom">...</Tooltip>
+<Tooltip content="Tooltip text" placement="left">...</Tooltip>
+<Tooltip content="Tooltip text" placement="right">...</Tooltip>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `content` | `string \| ReactNode` | ✅ | Tooltip text or content |
+| `placement` | `Placement` | `'top'` | Tooltip placement |
+| `children` | `ReactNode` | ✅ | Trigger element |

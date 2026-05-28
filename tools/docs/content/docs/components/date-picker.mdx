@@ -1,0 +1,49 @@
+---
+title: DatePicker
+description: Accessible date picker with calendar popover. Built on React Aria and @internationalized/date.
+---
+
+## Import
+
+```tsx
+import { DatePicker } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<DatePicker label="Start Date" />
+```
+
+## Controlled
+
+```tsx
+import { parseDate } from '@internationalized/date'
+
+const [date, setDate] = useState(parseDate('2025-01-01'))
+
+<DatePicker label="Due Date" value={date} onChange={setDate} />
+```
+
+## With min/max
+
+```tsx
+<DatePicker
+  label="Appointment"
+  minValue={today(getLocalTimeZone())}
+  maxValue={parseDate('2025-12-31')}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Picker label |
+| `value` | `CalendarDate` | — | Controlled date value |
+| `defaultValue` | `CalendarDate` | — | Uncontrolled default |
+| `onChange` | `(date: CalendarDate) => void` | — | Called on date selection |
+| `minValue` | `CalendarDate` | — | Minimum selectable date |
+| `maxValue` | `CalendarDate` | — | Maximum selectable date |
+| `isDisabled` | `boolean` | — | Disable the picker |
+| `errorMessage` | `string` | — | Error state text |

@@ -1,0 +1,40 @@
+---
+title: Checkbox
+description: Accessible checkbox input. Built on React Aria.
+---
+
+## Import
+
+```tsx
+import { Checkbox } from '@dangbt/pro-ui'
+```
+
+## Usage
+
+```tsx
+<Checkbox>Remember me</Checkbox>
+
+<Checkbox defaultSelected>
+  I agree to the Terms of Service
+</Checkbox>
+```
+
+## Controlled
+
+```tsx
+const [checked, setChecked] = useState(false)
+
+<Checkbox isSelected={checked} onChange={setChecked}>
+  Enable notifications
+</Checkbox>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `isSelected` | `boolean` | — | Controlled checked state |
+| `defaultSelected` | `boolean` | — | Uncontrolled default state |
+| `onChange` | `(selected: boolean) => void` | — | Called on change |
+| `isDisabled` | `boolean` | — | Disable the checkbox |
+| `children` | `ReactNode` | — | Label content |

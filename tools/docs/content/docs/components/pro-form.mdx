@@ -1,0 +1,204 @@
+---
+title: ProForm
+description: Schema-driven form builder with Zod validation, grid layout, and rich field components.
+---
+
+`ProForm` builds complete forms from a Zod schema. It handles layout, validation, error display, and loading state automatically.
+
+## Import
+
+```tsx
+import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker, ProFormTextarea } from '@dangbt/pro-ui'
+```
+
+## Basic example
+
+```tsx
+import { z } from 'zod'
+import { ProForm, ProFormInput, ProFormSelect } from '@dangbt/pro-ui'
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
+  role: z.enum(['admin', 'user', 'viewer']),
+})
+
+type FormValues = z.infer<typeof schema>
+
+export function CreateUserForm() {
+  return (
+    <ProForm<FormValues>
+      schema={schema}
+      onSubmit={async (values) => {
+        await fetch('/api/users', {
+          method: 'POST',
+          body: JSON.stringify(values),
+        })
+      }}
+      defaultValues={{ role: 'user' }}
+      submitText="Create User"
+    >
+      <ProFormInput name="name" label="Full Name" placeholder="John Doe" />
+      <ProFormInput name="email" label="Email" type="email" />
+      <ProFormSelect
+        name="role"
+        label="Role"
+        options={[
+          { value: 'admin', label: 'Admin' },
+          { value: 'user', label: 'User' },
+          { value: 'viewer', label: 'Viewer' },
+        ]}
+      />
+    </ProForm>
+  )
+}
+```
+
+## ProForm props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `schema` | `ZodSchema` | ✅ | — | Zod schema for validation |
+| `onSubmit` | `(values: T) => void \| Promise<void>` | ✅ | — | Submit handler with validated values |
+| `defaultValues` | `Partial<T>` | — | — | Initial form values |
+| `layout` | `'vertical' \| 'horizontal'` | — | `'vertical'` | Label placement |
+| `cols` | `number` | — | `1` | Grid columns for the form |
+| `loading` | `boolean` | — | — | Show loading state on submit button |
+| `submitText` | `string` | — | `'Submit'` | Submit button label |
+| `onReset` | `() => void` | — | — | Called when form resets |
+
+## Multi-column layout
+
+Use `cols` for a grid layout:
+
+```tsx
+<ProForm schema={schema} onSubmit={handleSubmit} cols={2}>
+  <ProFormInput name="firstName" label="First Name" />
+  <ProFormInput name="lastName" label="Last Name" />
+  <ProFormInput name="email" label="Email" colSpan={2} />
+  <ProFormSelect name="country" label="Country" options={countries} />
+  <ProFormSelect name="timezone" label="Timezone" options={timezones} />
+</ProForm>
+```
+
+## Field components
+
+### ProFormInput
+
+```tsx
+<ProFormInput
+  name="email"
+  label="Email"
+  type="email"
+  placeholder="you@example.com"
+  description="We'll never share your email"
+/>
+```
+
+Props: `name`, `label`, `type`, `placeholder`, `description`, `colSpan`
+
+### ProFormSelect
+
+```tsx
+<ProFormSelect
+  name="role"
+  label="Role"
+  placeholder="Select a role..."
+  options={[
+    { value: 'admin', label: 'Administrator' },
+    { value: 'editor', label: 'Editor' },
+    { value: 'viewer', label: 'Viewer (read-only)' },
+  ]}
+/>
+```
+
+### ProFormTextarea
+
+```tsx
+<ProFormTextarea
+  name="bio"
+  label="Biography"
+  placeholder="Tell us about yourself..."
+  rows={4}
+  colSpan={2}
+/>
+```
+
+### ProFormDatePicker
+
+```tsx
+<ProFormDatePicker
+  name="startDate"
+  label="Start Date"
+/>
+```
+
+### ProFormCheckbox
+
+```tsx
+<ProFormCheckbox name="agreeTerms" label="I agree to the Terms of Service" />
+```
+
+### ProFormSwitch
+
+```tsx
+<ProFormSwitch name="notifications" label="Email notifications" />
+```
+
+### ProFormRadioGroup
+
+```tsx
+<ProFormRadioGroup
+  name="plan"
+  label="Plan"
+  options={[
+    { value: 'free', label: 'Free' },
+    { value: 'pro', label: 'Pro ($9/mo)' },
+    { value: 'team', label: 'Team ($49/mo)' },
+  ]}
+/>
+```
+
+### ProFormComboBox
+
+```tsx
+<ProFormComboBox
+  name="country"
+  label="Country"
+  options={countries}
+  placeholder="Search countries..."
+/>
+```
+
+### ProFormAsyncSelect
+
+```tsx
+<ProFormAsyncSelect
+  name="userId"
+  label="Assigned To"
+  loadOptions={async (query) => {
+    const res = await fetch(`/api/users?q=${query}`)
+    const users = await res.json()
+    return users.map(u => ({ value: u.id, label: u.name }))
+  }}
+/>
+```
+
+## Edit form (with defaultValues)
+
+```tsx
+<ProForm
+  schema={userSchema}
+  defaultValues={user}
+  onSubmit={async (values) => {
+    await fetch(`/api/users/${user.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(values),
+    })
+  }}
+  submitText="Save Changes"
+>
+  <ProFormInput name="name" label="Name" />
+  <ProFormInput name="email" label="Email" />
+</ProForm>
+```

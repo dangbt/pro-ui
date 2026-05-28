@@ -1,0 +1,102 @@
+---
+title: Theming
+description: Dark/light/system mode and custom color tokens in @dangbt/pro-ui.
+---
+
+pro-ui uses CSS semantic tokens with Tailwind CSS v4. Dark mode works automatically — no configuration needed.
+
+## ThemeProvider
+
+Wrap your app with `ThemeProvider`:
+
+```tsx
+import { ThemeProvider } from '@dangbt/pro-ui'
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      {/* your app */}
+    </ThemeProvider>
+  )
+}
+```
+
+`ThemeProvider` defaults to `system` (follows OS preference). It persists the user's choice in `localStorage`.
+
+## useTheme hook
+
+```tsx
+import { useTheme } from '@dangbt/pro-ui'
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  )
+}
+```
+
+### `useTheme` return value
+
+| Property | Type | Description |
+|---|---|---|
+| `theme` | `'light' \| 'dark' \| 'system'` | Current theme setting |
+| `resolvedTheme` | `'light' \| 'dark'` | Actual applied theme (resolves `system`) |
+| `setTheme` | `(theme: Theme) => void` | Update theme |
+
+## Custom primary color
+
+Override the `--primary` CSS variable in your stylesheet:
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+@import "@dangbt/pro-ui/styles";
+
+:root {
+  --primary: 234 89% 74%;         /* indigo */
+  --primary-foreground: 0 0% 100%;
+}
+
+/* Optional: different value for dark mode */
+.dark {
+  --primary: 234 89% 60%;
+}
+```
+
+The color format follows HSL without `hsl()` — just the three values, space-separated.
+
+### Example: change to blue
+
+```css
+:root {
+  --primary: 217 91% 60%;     /* blue-500 */
+  --primary-foreground: 0 0% 100%;
+}
+```
+
+### Example: change to emerald
+
+```css
+:root {
+  --primary: 160 84% 39%;     /* emerald-600 */
+  --primary-foreground: 0 0% 100%;
+}
+```
+
+## Token reference
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `--background` | white | gray-950 | Page background |
+| `--foreground` | gray-900 | gray-50 | Default text |
+| `--muted` | gray-100 | gray-800 | Muted backgrounds |
+| `--muted-foreground` | gray-500 | gray-400 | Secondary text |
+| `--border` | gray-200 | gray-700 | Borders and dividers |
+| `--primary` | indigo-500 | indigo-400 | Brand color |
+| `--primary-foreground` | white | white | Text on primary |
+| `--destructive` | red-500 | red-400 | Error/danger |
+| `--success` | emerald-500 | emerald-400 | Success states |

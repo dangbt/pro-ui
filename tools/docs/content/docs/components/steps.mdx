@@ -1,0 +1,74 @@
+---
+title: Steps
+description: Multi-step progress indicator with horizontal/vertical orientation, error state, and clickable steps.
+---
+
+## Import
+
+```tsx
+import { Steps } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+import { useState } from 'react'
+
+const [step, setStep] = useState(0)
+
+<Steps
+  current={step}
+  items={[
+    { title: 'Account', description: 'Create your account' },
+    { title: 'Profile', description: 'Set up your profile' },
+    { title: 'Done', description: 'All set!' },
+  ]}
+/>
+```
+
+## Clickable steps
+
+```tsx
+<Steps
+  current={step}
+  onChange={setStep}
+  items={[...]}
+/>
+```
+
+## Vertical
+
+```tsx
+<Steps direction="vertical" current={step} items={[...]} />
+```
+
+## Error state
+
+```tsx
+<Steps
+  current={1}
+  items={[
+    { title: 'Upload', status: 'finish' },
+    { title: 'Validate', status: 'error', description: 'File format invalid' },
+    { title: 'Process', status: 'wait' },
+  ]}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `StepItem[]` | ✅ | Step definitions |
+| `current` | `number` | ✅ | Zero-based index of current step |
+| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction |
+| `onChange` | `(index: number) => void` | — | Called on step click (makes steps clickable) |
+
+### StepItem
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | `string` | Step label |
+| `description` | `string` | Optional subtitle |
+| `status` | `'wait' \| 'process' \| 'finish' \| 'error'` | Override status |
+| `icon` | `ReactNode` | Custom step icon |

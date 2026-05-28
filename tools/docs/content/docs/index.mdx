@@ -1,0 +1,56 @@
+---
+title: Introduction
+description: AI-native React UI library — ProTable, ProForm, Layout, and 30+ accessible components.
+---
+
+**@dangbt/pro-ui** is a React component library built on [React Aria Components](https://react-spectrum.adobe.com/react-aria/) and [Tailwind CSS v4](https://tailwindcss.com).
+
+It ships with a **built-in MCP server** (`mcp-pro-ui`) — so Claude Code, Cursor, and Windsurf know your exact component API and generate correct code on the first try.
+
+## Key features
+
+- **ProTable** — server-side data table with search, sort, pagination, row selection, bulk actions, and column visibility in one component
+- **ProForm** — schema-driven forms with Zod validation
+- **Layout** — sidebar or horizontal top navigation with 3 variants and two-level sub-navigation
+- **30+ components** — Button, Modal, Drawer, Tabs, Badge, Alert, Statistic, Steps, Toast, Avatar, and more
+- **MCP Server** — `mcp-pro-ui` gives AI coding assistants the exact component API
+- **CLI** — `create-pro-ui-app` scaffolds a complete project in 30 seconds
+- **Dark/Light/System theme** — zero config, CSS semantic tokens
+
+## Installation
+
+```bash
+npm install @dangbt/pro-ui
+```
+
+Add styles to your CSS entry point:
+
+```css
+@import "tailwindcss";
+@import "@dangbt/pro-ui/styles";
+```
+
+## Quick example
+
+```tsx
+import { Button, Modal, ProTable } from '@dangbt/pro-ui'
+```
+
+→ [Quick start guide](/docs/guides/quick-start)
+
+## AI-native setup (MCP)
+
+Configure Claude Code, Cursor, or Windsurf to know every component API:
+
+```json
+{
+  "mcpServers": {
+    "pro-ui": {
+      "command": "npx",
+      "args": ["mcp-pro-ui"]
+    }
+  }
+}
+```
+
+→ [Full MCP setup guide](/docs/guides/mcp-setup)

@@ -1,0 +1,60 @@
+---
+title: Drawer
+description: Slide-in panel from left, right, or bottom. Ideal for filter panels, mobile nav, and detail views.
+---
+
+## Import
+
+```tsx
+import { Drawer, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+```
+
+## Basic drawer
+
+```tsx
+<DialogTrigger>
+  <Button variant="outline">Open Filters</Button>
+  <Drawer title="Filter Options" placement="right">
+    {/* filter form */}
+  </Drawer>
+</DialogTrigger>
+```
+
+## Placements
+
+```tsx
+<Drawer placement="right">...</Drawer>   {/* default */}
+<Drawer placement="left">...</Drawer>
+<Drawer placement="bottom">...</Drawer>
+```
+
+## Controlled
+
+```tsx
+const [open, setOpen] = useState(false)
+
+<Button onPress={() => setOpen(true)}>View Details</Button>
+
+<Drawer
+  isOpen={open}
+  onOpenChange={setOpen}
+  title="User Details"
+  placement="right"
+  size="lg"
+>
+  {/* detail content */}
+</Drawer>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `placement` | `'left' \| 'right' \| 'bottom'` | `'right'` | Slide-in edge |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Width (or height for bottom) |
+| `title` | `string` | — | Drawer header title |
+| `withOverlay` | `boolean` | `true` | Show backdrop overlay |
+| `isOpen` | `boolean` | — | Controlled open state |
+| `onOpenChange` | `(open: boolean) => void` | — | Called on open/close |
+| `children` | `ReactNode` | ✅ | Drawer body |

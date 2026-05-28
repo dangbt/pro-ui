@@ -1,0 +1,161 @@
+---
+title: Layout
+description: App shell with collapsible sidebar or horizontal top navigation. Handles responsive mobile drawer automatically.
+---
+
+`Layout` is a compound component that provides the full app shell. Choose between sidebar navigation (`Layout.Sider`) or horizontal top navigation (`Layout.TopNav`).
+
+## Import
+
+```tsx
+import { Layout } from '@dangbt/pro-ui'
+```
+
+## Sidebar layout
+
+```tsx
+import { Layout } from '@dangbt/pro-ui'
+import { LayoutDashboard, Users, Settings } from 'lucide-react'
+
+export function App() {
+  return (
+    <Layout>
+      <Layout.Sider>
+        <Layout.Nav>
+          <Layout.Nav.Group label="Main">
+            <Layout.Nav.Item icon={<LayoutDashboard size={16} />} href="/">
+              Dashboard
+            </Layout.Nav.Item>
+            <Layout.Nav.Item icon={<Users size={16} />} href="/users" active>
+              Users
+            </Layout.Nav.Item>
+          </Layout.Nav.Group>
+
+          <Layout.Nav.Group label="Account">
+            <Layout.Nav.Item icon={<Settings size={16} />} href="/settings">
+              Settings
+            </Layout.Nav.Item>
+          </Layout.Nav.Group>
+        </Layout.Nav>
+      </Layout.Sider>
+
+      <Layout.Body>
+        <Layout.Header>
+          <h1 className="text-lg font-semibold">Page Title</h1>
+        </Layout.Header>
+        <Layout.Content>
+          {/* page content */}
+        </Layout.Content>
+      </Layout.Body>
+    </Layout>
+  )
+}
+```
+
+## Horizontal top navigation
+
+```tsx
+import { Layout } from '@dangbt/pro-ui'
+
+export function App() {
+  return (
+    <Layout>
+      <Layout.TopNav variant="pill">
+        <Layout.TopNav.Brand>
+          <span className="font-bold text-primary">MyApp</span>
+        </Layout.TopNav.Brand>
+
+        <Layout.TopNav.Menu>
+          <Layout.TopNav.Item href="/" active>Dashboard</Layout.TopNav.Item>
+          <Layout.TopNav.Item href="/users">Users</Layout.TopNav.Item>
+          <Layout.TopNav.Item href="/settings">Settings</Layout.TopNav.Item>
+        </Layout.TopNav.Menu>
+
+        <Layout.TopNav.Actions>
+          <Avatar name="John Doe" size="sm" />
+        </Layout.TopNav.Actions>
+      </Layout.TopNav>
+
+      <Layout.Content>
+        {/* page content */}
+      </Layout.Content>
+    </Layout>
+  )
+}
+```
+
+## TopNav variants
+
+```tsx
+// Pill — rounded active indicator (default)
+<Layout.TopNav variant="pill">
+
+// Line — underline tab style (GitHub/Stripe-like)
+<Layout.TopNav variant="line">
+
+// Bold — text color + weight for active item (Linear-style)
+<Layout.TopNav variant="bold">
+```
+
+## Two-level navigation
+
+Use `Layout.TopNav.Sub` for a secondary navigation bar below the main nav:
+
+```tsx
+<Layout.TopNav variant="line">
+  <Layout.TopNav.Brand>...</Layout.TopNav.Brand>
+  <Layout.TopNav.Menu>
+    <Layout.TopNav.Item href="/docs" active>Docs</Layout.TopNav.Item>
+    <Layout.TopNav.Item href="/api">API</Layout.TopNav.Item>
+  </Layout.TopNav.Menu>
+</Layout.TopNav>
+
+<Layout.TopNav.Sub>
+  <Layout.TopNav.Sub.Item href="/docs/quick-start" active>Quick Start</Layout.TopNav.Sub.Item>
+  <Layout.TopNav.Sub.Item href="/docs/components">Components</Layout.TopNav.Sub.Item>
+  <Layout.TopNav.Sub.Item href="/docs/guides">Guides</Layout.TopNav.Sub.Item>
+</Layout.TopNav.Sub>
+```
+
+## TopNav with dropdowns
+
+```tsx
+<Layout.TopNav.Item
+  dropdown={[
+    { label: 'ProTable', onClick: () => navigate('/docs/pro-table') },
+    { label: 'ProForm', onClick: () => navigate('/docs/pro-form') },
+    { divider: true },
+    { label: 'All components →', onClick: () => navigate('/docs/components') },
+  ]}
+>
+  Components
+</Layout.TopNav.Item>
+```
+
+## Compound component reference
+
+### Sidebar
+
+| Component | Description |
+|---|---|
+| `Layout` | Root wrapper |
+| `Layout.Sider` | Collapsible sidebar |
+| `Layout.Body` | Main content area (right of sidebar) |
+| `Layout.Header` | Top bar inside body |
+| `Layout.Content` | Scrollable content area |
+| `Layout.Footer` | Bottom bar |
+| `Layout.Nav` | Navigation container in sidebar |
+| `Layout.Nav.Group` | Labeled group of nav items |
+| `Layout.Nav.Item` | Single navigation link |
+
+### TopNav
+
+| Component | Props | Description |
+|---|---|---|
+| `Layout.TopNav` | `variant?: 'pill' \| 'line' \| 'bold'` | Horizontal nav bar |
+| `Layout.TopNav.Brand` | — | Left brand/logo slot |
+| `Layout.TopNav.Menu` | — | Navigation items container |
+| `Layout.TopNav.Item` | `href, active, dropdown` | Single nav link |
+| `Layout.TopNav.Actions` | — | Right-side actions slot |
+| `Layout.TopNav.Sub` | — | Secondary nav bar |
+| `Layout.TopNav.Sub.Item` | `href, active` | Sub navigation link |

@@ -1,0 +1,35 @@
+---
+title: Empty
+description: Empty state placeholder with optional custom image, title, description, and action button.
+---
+
+## Import
+
+```tsx
+import { Empty, Button } from '@dangbt/pro-ui'
+```
+
+## Basic usage
+
+```tsx
+<Empty
+  title="No users yet"
+  description="Add your first user to get started."
+  action={<Button variant="solid" onPress={() => setAddOpen(true)}>Add User</Button>}
+/>
+```
+
+## Minimal (just title)
+
+```tsx
+<Empty title="No results found" />
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | `'No data'` | Empty state headline |
+| `description` | `string` | — | Supporting text |
+| `image` | `ReactNode` | — | Custom illustration or icon |
+| `action` | `ReactNode` | — | CTA button or link |

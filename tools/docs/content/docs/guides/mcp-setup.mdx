@@ -1,0 +1,128 @@
+---
+title: MCP Setup (AI-native)
+description: Connect Claude Code, Cursor, or Windsurf to pro-ui's component API for zero-hallucination code generation.
+---
+
+`mcp-pro-ui` is an MCP server that gives AI coding assistants 5 tools to discover and use pro-ui components correctly.
+
+## Why?
+
+Without MCP, AI generates wrong prop names:
+
+```tsx
+// ❌ What Claude hallucinates
+<ProTable
+  data={users}           // wrong — it's request or dataSource
+  onPageChange={...}     // doesn't exist
+  rowsPerPage={10}       // wrong — it's pagination.defaultPageSize
+/>
+```
+
+With MCP, Claude calls `get_component_api("ProTable")` first, then generates:
+
+```tsx
+// ✅ What Claude generates with MCP
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  request={async ({ current, pageSize }) => {
+    const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
+    const data = await res.json()
+    return { data: data.items, total: data.total, success: true }
+  }}
+  rowSelection={{ onChange: (keys) => setSelected(keys) }}
+  bulkActions={[{ label: 'Delete', danger: true, onClick: (keys) => {} }]}
+/>
+```
+
+## Setup
+
+### Claude Code
+
+Add to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "pro-ui": {
+      "command": "npx",
+      "args": ["mcp-pro-ui"]
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json` (project-level) or `~/.cursor/mcp.json` (global):
+
+```json
+{
+  "mcpServers": {
+    "pro-ui": {
+      "command": "npx",
+      "args": ["mcp-pro-ui"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "pro-ui": {
+      "command": "npx",
+      "args": ["mcp-pro-ui"]
+    }
+  }
+}
+```
+
+## Available tools
+
+| Tool | Description |
+|---|---|
+| `list_components` | Browse all 30+ components with category and description |
+| `get_component_api` | Full props, types, and defaults for a specific component |
+| `get_component_example` | Copy-paste code snippet |
+| `search_components` | Find the right component for a use case |
+| `scaffold_page` | Generate a full page (dashboard, crud-list, settings, login) |
+
+## Example prompts
+
+```
+Scaffold me an admin dashboard page with a users table and KPI cards using pro-ui
+```
+
+```
+Add a form to create a new user with name, email, and role fields using pro-ui ProForm
+```
+
+```
+What's the exact API for the ProTable component?
+```
+
+## CLAUDE.md (bonus)
+
+Add a `CLAUDE.md` to your project root. Claude Code reads it at the start of every conversation:
+
+```markdown
+# CLAUDE.md
+
+## Component Library
+This project uses @dangbt/pro-ui exclusively.
+Never use shadcn/ui, MUI, Ant Design, or other libraries.
+
+## Import pattern
+import { Button, Modal, ProTable, ProForm } from '@dangbt/pro-ui'
+
+## Key notes
+- ProTable: use `request` prop for server-side, `dataSource` for client-side
+- ProForm: requires `schema` (Zod) + `fields` array
+- Layout: use Layout.Sider for sidebar, Layout.TopNav for horizontal nav
+- All components support dark mode automatically via ThemeProvider
+```
