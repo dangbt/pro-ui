@@ -12,6 +12,7 @@ import { Overview }       from './showcase/sections/overview'
 import { ColorSystemSection } from './showcase/sections/color-system'
 import { IconsSection }   from './showcase/sections/icons'
 import { LLMTxtSection }  from './showcase/sections/llm-txt'
+import { MCPSection, CreateAppSection } from './showcase/sections/getting-started'
 import {
   ButtonSection, ToggleButtonSection, TextInputsSection, SelectSection,
   DateSection, CheckboxSection, TogglesSection, SliderSection,
@@ -82,6 +83,8 @@ const SECTIONS: Record<string, React.ReactNode> = {
   proform:         <ProFormSection />,
   layout:          <LayoutSection />,
   'llm-txt':       <LLMTxtSection />,
+  'mcp':           <MCPSection />,
+  'create-app':    <CreateAppSection />,
 }
 
 type RadiusMode = 'none' | 'md' | 'lg'

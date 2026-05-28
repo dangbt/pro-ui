@@ -87,7 +87,9 @@ export const NAV: NavGroup[] = [
   {
     group: 'Integration',
     items: [
-      { id: 'llm-txt', label: 'LLM.txt' },
+      { id: 'llm-txt',    label: 'LLM.txt'     },
+      { id: 'mcp',        label: 'MCP Server'   },
+      { id: 'create-app', label: 'Create App'   },
     ],
   },
 ]
