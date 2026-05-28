@@ -8,8 +8,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/@dangbt/pro-ui?style=flat-square&color=10b981)](https://www.npmjs.com/package/@dangbt/pro-ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square)](https://tailwindcss.com)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/dangbt?style=flat-square&color=ea4aaa&label=sponsor)](https://github.com/sponsors/dangbt)
 
-[**Docs →**](https://pro-ui-docs.pages.dev) · [**Live Showcase →**](https://pro-ui.pages.dev) · [npm](https://www.npmjs.com/package/@dangbt/pro-ui) · [MCP Server](https://www.npmjs.com/package/mcp-pro-ui) · [Pro Template →](https://pro-admin-demo.pages.dev)
+[**Docs →**](https://pro-ui-docs.pages.dev) · [**Live Showcase →**](https://pro-ui.pages.dev) · [npm](https://www.npmjs.com/package/@dangbt/pro-ui) · [MCP Server](https://www.npmjs.com/package/mcp-pro-ui) · [Pro Template →](https://pro-admin-demo.pages.dev) · [**Sponsor ☕**](https://github.com/sponsors/dangbt)
 
 </div>
 

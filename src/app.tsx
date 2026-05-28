@@ -289,6 +289,17 @@ function AppInner() {
               <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474C23.214 24 24 23.214 24 22.237V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.009-10.382h-3.456l-.009 10.382H5.13z" />
             </svg>
           </a>
+          <a
+            href="https://github.com/sponsors/dangbt"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Sponsor on GitHub"
+            className="p-1.5 rounded-lg text-fg-muted hover:text-pink-500 hover:bg-surface-subtle transition-colors"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.593c-.527-.512-6.583-6.12-8.5-8.075C1.235 11.094 1.2 8.25 2.854 6.416A5.002 5.002 0 0 1 7.1 5.001c1.456 0 2.7.632 3.645 1.613L12 7.91l1.255-1.296C14.2 5.633 15.444 5 16.9 5a5.002 5.002 0 0 1 4.246 1.415C22.8 8.25 22.765 11.094 20.5 13.518c-1.917 1.954-7.973 7.563-8.5 8.075z" />
+            </svg>
+          </a>
         </div>
 
         {/* Controls */}
