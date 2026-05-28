@@ -1,6 +1,6 @@
 {
   "name": "mcp-pro-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for @dangbt/pro-ui — lets AI agents (Claude Code, Cursor, Copilot) browse components, get API references, and generate React code",
   "keywords": [
     "mcp",
@@ -13,10 +13,11 @@
     "cursor",
     "ai"
   ],
-  "homepage": "https://github.com/dangbt/pro-ui",
+  "homepage": "https://github.com/dangbt/pro-ui/tree/main/tools/mcp-pro-ui",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dangbt/mcp-pro-ui.git"
+    "url": "https://github.com/dangbt/pro-ui.git",
+    "directory": "tools/mcp-pro-ui"
   },
   "license": "MIT",
   "author": "Dâng Bùi Tấn <buitandang96@gmail.com>",

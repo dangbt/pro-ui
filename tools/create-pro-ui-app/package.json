@@ -1,6 +1,6 @@
 {
   "name": "create-pro-ui-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create a React + @dangbt/pro-ui app in seconds — like create-react-app but with pro-grade components built in",
   "keywords": [
     "create-react-app",
@@ -13,10 +13,11 @@
     "template",
     "cli"
   ],
-  "homepage": "https://github.com/dangbt/create-pro-ui-app",
+  "homepage": "https://github.com/dangbt/pro-ui/tree/main/tools/create-pro-ui-app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dangbt/create-pro-ui-app.git"
+    "url": "https://github.com/dangbt/pro-ui.git",
+    "directory": "tools/create-pro-ui-app"
   },
   "license": "MIT",
   "author": "Dâng Bùi Tấn <buitandang96@gmail.com>",
