@@ -153,7 +153,7 @@ const columns: ProColumnType<User>[] = [
 
 Complete admin dashboard — 8 pages, Recharts charts, auth flow, dark mode.
 
-**[→ Live Demo](https://pro-admin-demo.pages.dev)** &nbsp;|&nbsp; **[→ Get Template ($79)](https://pro-ui.lemonsqueezy.com)**
+**[→ Live Demo](https://pro-admin-demo.pages.dev)** &nbsp;|&nbsp; **[→ Get Template ($79)](https://prouiadmin.lemonsqueezy.com/checkout/buy/d10a5885-0c86-4fba-9eee-33b4de31413f)**
 
 Dashboard · Analytics · Users · Settings · Login · Register · Forgot Password · 404
 
