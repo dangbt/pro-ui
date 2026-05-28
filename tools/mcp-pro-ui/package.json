@@ -1,0 +1,47 @@
+{
+  "name": "mcp-pro-ui",
+  "version": "1.0.0",
+  "description": "MCP server for @dangbt/pro-ui — lets AI agents (Claude Code, Cursor, Copilot) browse components, get API references, and generate React code",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "react",
+    "ui",
+    "components",
+    "pro-ui",
+    "claude",
+    "cursor",
+    "ai"
+  ],
+  "homepage": "https://github.com/dangbt/pro-ui",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dangbt/mcp-pro-ui.git"
+  },
+  "license": "MIT",
+  "author": "Dâng Bùi Tấn <buitandang96@gmail.com>",
+  "type": "module",
+  "bin": {
+    "mcp-pro-ui": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,20 @@
+# Cursor Rules — @dangbt/pro-ui Project
+
+## UI Library
+Use @dangbt/pro-ui. Import from package root: `import { Button, ProTable } from '@dangbt/pro-ui'`
+
+## Component Map
+- Data table → ProTable (request/dataSource prop)
+- Form → ProForm + ProFormInput/Select/etc (Zod schema)
+- App shell → Layout
+- Modal/dialog → Modal inside DialogTrigger
+- Side panel → Drawer inside DialogTrigger
+- Notifications → toast.success/error/warning
+- KPI metric → Statistic
+- Status chip → Badge (success/warning/danger/info)
+
+## Button: use `onPress` not `onClick`. Variants: solid/outline/ghost/danger.
+
+## Colors: use semantic tokens (bg-surface, text-fg, border-border) not bg-white/text-gray-*.
+
+## App root needs: <ThemeProvider><ToastProvider /></ThemeProvider>

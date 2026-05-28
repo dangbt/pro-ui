@@ -1,0 +1,49 @@
+{
+  "name": "create-pro-ui-app",
+  "version": "1.0.0",
+  "description": "Create a React + @dangbt/pro-ui app in seconds — like create-react-app but with pro-grade components built in",
+  "keywords": [
+    "create-react-app",
+    "react",
+    "vite",
+    "pro-ui",
+    "scaffold",
+    "admin",
+    "dashboard",
+    "template",
+    "cli"
+  ],
+  "homepage": "https://github.com/dangbt/create-pro-ui-app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dangbt/create-pro-ui-app.git"
+  },
+  "license": "MIT",
+  "author": "Dâng Bùi Tấn <buitandang96@gmail.com>",
+  "type": "module",
+  "bin": {
+    "create-pro-ui-app": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "kleur": "^4.1.5",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/prompts": "^2.4.9",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -44,7 +44,11 @@
     "build": "tsc -b && vite build",
     "build:lib": "vite build -c vite.lib.config.ts && tsc -p tsconfig.lib.json",
     "prepublishOnly": "pnpm build:lib",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tools:build": "pnpm -r --filter './tools/**' build",
+    "tools:publish": "pnpm -r --filter './tools/**' publish --no-git-checks",
+    "mcp:dev": "pnpm --filter mcp-pro-ui dev",
+    "cli:dev": "pnpm --filter create-pro-ui-app dev"
   },
   "peerDependencies": {
     "@hookform/resolvers": ">=3",
