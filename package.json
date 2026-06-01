@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.3.20",
+  "version": "1.3.21",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "keywords": [
@@ -35,6 +35,7 @@
     "theme.css"
   ],
   "sideEffects": false,
+  "registry": "https://pro-ui.pages.dev/registry.json",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
@@ -47,8 +48,12 @@
     "preview": "vite preview",
     "tools:build": "pnpm -r --filter './tools/**' build",
     "tools:publish": "pnpm -r --filter './tools/**' publish --no-git-checks",
+    "gen:llms": "node generate-llms-full.mjs",
+    "gen:registry": "node generate-registry.mjs",
     "mcp:dev": "pnpm --filter mcp-pro-ui dev",
-    "cli:dev": "pnpm --filter create-pro-ui-app dev"
+    "cli:dev": "pnpm --filter create-pro-ui-app dev",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
     "@hookform/resolvers": ">=3",
@@ -76,6 +81,10 @@
   "devDependencies": {
     "@hookform/resolvers": "5.4.0",
     "@internationalized/date": "3.12.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@storybook/addon-a11y": "^10.4.1",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
     "@tailwindcss/vite": "4.3.0",
     "@tanstack/react-table": "8.21.3",
     "@types/node": "^25.9.1",
@@ -88,6 +97,7 @@
     "react-aria-components": "1.17.0",
     "react-dom": "18.3.1",
     "react-hook-form": "7.76.1",
+    "storybook": "^10.4.1",
     "tailwindcss": "4.3.0",
     "typescript": "5.9.3",
     "vite": "6.4.2",

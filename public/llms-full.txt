@@ -1,13 +1,29 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
+> Generated from mcp-pro-ui components-data. Total: 50 components.
+
+## App Setup
+
+```tsx
+import { ThemeProvider, ToastProvider } from '@dangbt/pro-ui'
+import '@dangbt/pro-ui/style'
+
+<ThemeProvider defaultTheme="system">
+  <ToastProvider />
+  {/* app content */}
+</ThemeProvider>
+```
+
+---
+
+# Data Display & Tables
 
 ## ProTable
 
-Advanced data table component.
+Advanced data table with server-side pagination, sorting, filtering, column toggling, column pinning, row selection, bulk actions, and expandable rows. Supports both server-side (request) and client-side (dataSource) modes.
 
 Import: `import { ProTable } from '@dangbt/pro-ui'`
-Import types: `import type { ProColumnType, ProTableProps, QueryParams, RequestResult } from '@dangbt/pro-ui'`
 
 ### Props
 
@@ -15,240 +31,1785 @@ Import types: `import type { ProColumnType, ProTableProps, QueryParams, RequestR
 |------|------|----------|---------|-------------|
 | columns | ProColumnType<T>[] | ✅ | — | Column definitions |
 | request | (params: QueryParams) => Promise<RequestResult<T>> | — | — | Server-side data fetcher. Mutually exclusive with dataSource. |
-| dataSource | T[] | — | — | Client-side data. Mutually exclusive with request. |
-| rowKey | keyof T \| ((record: T) => string) | ✅ | — | Unique row identifier |
+| dataSource | T[] | — | — | Client-side static data. Mutually exclusive with request. |
+| rowKey | keyof T | ((record: T) => string) | ✅ | — | Unique key for each row |
 | headerTitle | string | — | — | Table header title |
-| toolBarRender | () => ReactNode[] | — | — | Extra toolbar buttons |
-| search | boolean | — | true | Hide search form when false |
+| toolBarRender | () => ReactNode[] | — | — | Render extra buttons in the toolbar |
+| search | boolean | — | `true` | Set false to hide search form |
 | loading | boolean | — | — | Override loading state |
 | pagination | { defaultPageSize?: number; pageSizeOptions?: number[] } | — | — | Pagination config |
-| rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Row checkboxes |
-| bulkActions | BulkActionDef<T>[] | — | — | Actions for selected rows |
-| expandedRowRender | (record: T) => ReactNode | — | — | Expanded row content |
-| rowClassName | (record: T, index: number) => string | — | — | Conditional row CSS |
+| rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Enable row selection with checkboxes |
+| bulkActions | BulkActionDef<T>[] | — | — | Actions shown when rows are selected |
+| expandedRowRender | (record: T) => ReactNode | — | — | Render content below expanded row |
+| rowClassName | (record: T, index: number) => string | — | — | Add CSS classes to rows conditionally |
 | onRow | (record: T, index: number) => { onClick?; onDoubleClick?; onContextMenu? } | — | — | Row event handlers |
-| size | 'sm' \| 'md' \| 'lg' | — | 'md' | Table density |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Table density size |
 
-### ProColumnType
-
-| Field | Type | Description |
-|-------|------|-------------|
-| title | string | Column header |
-| dataIndex | keyof T & string | Data field name |
-| key | string | Unique column key |
-| valueType | 'text' \| 'number' \| 'date' \| 'dateRange' \| 'select' \| 'money' \| 'custom' | Render type |
-| valueEnum | Record<string, string \| { text: string; color?: string }> | Options for select valueType |
-| hideInSearch | boolean | Hide from search form |
-| hideInTable | boolean | Hide column by default |
-| disableHiding | boolean | Prevent user from hiding |
-| pinnable | boolean | Allow column pinning left/right |
-| render | (value, record, index) => ReactNode | Custom cell renderer |
-| sortable | boolean | Enable column sorting |
-| width | number \| string | Column width |
-| align | 'left' \| 'center' \| 'right' | Cell alignment |
-
-### Example — Server-side
+### Example
 
 ```tsx
-import { ProTable, Button } from '@dangbt/pro-ui'
+import { ProTable } from '@dangbt/pro-ui'
 import type { ProColumnType } from '@dangbt/pro-ui'
 
-interface User { id: string; name: string; status: 'active' | 'inactive' }
+interface User {
+  id: string
+  name: string
+  email: string
+  status: 'active' | 'inactive'
+  createdAt: string
+}
 
 const columns: ProColumnType<User>[] = [
   { title: 'Name', dataIndex: 'name', sortable: true },
-  { title: 'Status', dataIndex: 'status', valueType: 'select',
-    valueEnum: { active: { text: 'Active', color: 'success' }, inactive: 'Inactive' } },
+  { title: 'Email', dataIndex: 'email' },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    valueType: 'select',
+    valueEnum: {
+      active: { text: 'Active', color: 'success' },
+      inactive: { text: 'Inactive', color: 'default' },
+    },
+  },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },
 ]
 
-<ProTable<User>
-  headerTitle="Users"
-  columns={columns}
-  rowKey="id"
-  request={async ({ current, pageSize, ...filters }) => {
-    const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
-    const data = await res.json()
-    return { data: data.items, total: data.total, success: true }
-  }}
-  toolBarRender={() => [<Button key="add" variant="solid">+ Add</Button>]}
-  rowSelection={{ onChange: (keys, rows) => {} }}
-  bulkActions={[{ label: 'Delete', danger: true, onClick: (keys) => {} }]}
-/>
+export function UsersPage() {
+  return (
+    <ProTable<User>
+      headerTitle="Users"
+      columns={columns}
+      rowKey="id"
+      request={async ({ current, pageSize, ...filters }) => {
+        const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
+        const data = await res.json()
+        return { data: data.items, total: data.total, success: true }
+      }}
+      toolBarRender={() => [
+        <Button key="add" variant="solid" onPress={() => {}}>Add User</Button>
+      ]}
+      rowSelection={{ onChange: (keys, rows) => console.log(keys, rows) }}
+      bulkActions={[
+        { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },
+      ]}
+    />
+  )
+}
 ```
 
 ---
 
-## ProForm + Field Components
+# Forms & Inputs
+
+## ProForm
+
+Form builder with Zod validation, grid layout, and a rich set of field components. Uses react-hook-form under the hood.
 
 Import: `import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker, ProFormTextarea, ProFormNumberField, ProFormCheckbox, ProFormSwitch, ProFormRadioGroup, ProFormComboBox, ProFormAsyncSelect } from '@dangbt/pro-ui'`
 
-### ProForm Props
+### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| schema | ZodSchema | ✅ | Zod validation schema |
-| onSubmit | (values: T) => void \| Promise<void> | ✅ | Submit handler |
-| defaultValues | Partial<T> | — | Initial values |
-| layout | 'vertical' \| 'horizontal' | — | Label placement (default: vertical) |
-| cols | number | — | Grid columns (default: 1) |
-| loading | boolean | — | Loading state on submit button |
-| submitText | string | — | Submit button label (default: 'Submit') |
-| onReset | () => void | — | Reset callback |
-
-### Field Component Props (all fields)
-
-| Prop | Type | Description |
-|------|------|-------------|
-| name | string | Form field name (must match schema) |
-| label | string | Field label |
-| placeholder | string | Placeholder text |
-| description | string | Helper text |
-| isDisabled | boolean | Disable the field |
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| schema | ZodSchema | ✅ | — | Zod schema for validation |
+| onSubmit | (values: T) => void | Promise<void> | ✅ | — | Submit handler with validated values |
+| defaultValues | Partial<T> | — | — | Initial form values |
+| layout | 'vertical' | 'horizontal' | — | `'vertical'` | Label placement |
+| cols | number | — | `1` | Grid columns for the form |
+| loading | boolean | — | — | Show loading state on submit button |
+| submitText | string | — | `'Submit'` | Submit button label |
+| onReset | () => void | — | — | Called when form resets |
 
 ### Example
 
 ```tsx
 import { z } from 'zod'
-import { ProForm, ProFormInput, ProFormSelect, ProFormSwitch, ProFormDatePicker } from '@dangbt/pro-ui'
+import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker } from '@dangbt/pro-ui'
 
 const schema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  role: z.enum(['admin', 'user']),
-  active: z.boolean(),
-  birthDate: z.string().optional(),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
+  role: z.enum(['admin', 'user', 'viewer']),
+  joinDate: z.string().optional(),
 })
 
-<ProForm schema={schema} onSubmit={async (values) => { await saveUser(values) }} cols={2}>
-  <ProFormInput name="name" label="Name" />
-  <ProFormInput name="email" label="Email" type="email" />
-  <ProFormSelect name="role" label="Role" options={[{ value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
-  <ProFormSwitch name="active" label="Active" />
-  <ProFormDatePicker name="birthDate" label="Birth Date" />
-</ProForm>
-```
+type FormValues = z.infer<typeof schema>
 
----
-
-## ThemeProvider + useTheme
-
-```tsx
-import { ThemeProvider, useTheme } from '@dangbt/pro-ui'
-
-// Provider (wrap app root):
-<ThemeProvider defaultTheme="system" storageKey="my-theme">
-  {children}
-</ThemeProvider>
-
-// Hook (any child component):
-const { theme, resolvedTheme, setTheme } = useTheme()
-// theme: 'light' | 'dark' | 'system'
-// resolvedTheme: 'light' | 'dark' (resolved system preference)
-// setTheme: (theme: 'light' | 'dark' | 'system') => void
-```
-
----
-
-## Toast
-
-```tsx
-import { ToastProvider, toast } from '@dangbt/pro-ui'
-
-// Mount once at app root:
-<ToastProvider position="top-right" />
-
-// Call anywhere:
-toast.success('Saved!', { duration: 3000 })
-toast.error('Something went wrong.')
-toast.warning('Please review.')
-toast.info('New update available.')
-// persistent (no auto-dismiss):
-toast.success('Done!', { persistent: true })
+export function CreateUserForm() {
+  return (
+    <ProForm<FormValues>
+      schema={schema}
+      onSubmit={async (values) => {
+        await fetch('/api/users', {
+          method: 'POST',
+          body: JSON.stringify(values),
+        })
+      }}
+      defaultValues={{ role: 'user' }}
+      cols={2}
+      submitText="Create User"
+    >
+      <ProFormInput name="name" label="Full Name" placeholder="John Doe" />
+      <ProFormInput name="email" label="Email" type="email" />
+      <ProFormSelect
+        name="role"
+        label="Role"
+        options={[
+          { value: 'admin', label: 'Admin' },
+          { value: 'user', label: 'User' },
+          { value: 'viewer', label: 'Viewer' },
+        ]}
+      />
+      <ProFormDatePicker name="joinDate" label="Join Date" />
+    </ProForm>
+  )
+}
 ```
 
 ---
 
 ## Button
 
+Accessible button with variants (solid, outline, ghost, danger), sizes, loading state, and icon support. Built on React Aria.
+
+Import: `import { Button } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| variant | 'primary' | 'secondary' | 'ghost' | 'danger' | — | `'secondary'` | Visual style |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Button size |
+| loading | boolean | — | — | Show spinner and disable interaction |
+| isDisabled | boolean | — | — | Disable the button |
+| onPress | () => void | — | — | Press handler (use onPress, not onClick) |
+| type | 'button' | 'submit' | 'reset' | — | `'button'` | HTML button type |
+
+### Example
+
 ```tsx
 import { Button } from '@dangbt/pro-ui'
+import { Plus, Trash2 } from 'lucide-react'
 
-// variant: 'solid' | 'outline' | 'ghost' | 'danger'
-// size: 'sm' | 'md' | 'lg'
-// IMPORTANT: use onPress, not onClick
-
-<Button variant="solid" size="md" onPress={handleSave} loading={isSaving}>Save</Button>
-<Button variant="outline" onPress={handleCancel}>Cancel</Button>
-<Button variant="ghost" size="sm"><Icon /> Action</Button>
+// Variants
+<Button variant="primary" onPress={handleSave}>Save</Button>
+<Button variant="secondary" onPress={handleCancel}>Cancel</Button>
+<Button variant="ghost" onPress={handleEdit}>Edit</Button>
 <Button variant="danger" onPress={handleDelete}>Delete</Button>
-<Button type="submit" variant="solid">Submit Form</Button>
+
+// With icon
+<Button variant="primary" onPress={handleAdd}>
+  <Plus size={16} /> Add Item
+</Button>
+
+// Loading state
+<Button variant="primary" loading={isSubmitting} type="submit">
+  Submit
+</Button>
 ```
 
 ---
 
-## Modal + Drawer
+## Input
 
-Both use React Aria's DialogTrigger:
+Text input field with label, description, error message, prefix/suffix icons. Built on React Aria.
+
+Import: `import { Input } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Input label |
+| type | string | — | `'text'` | HTML input type (text, email, password, etc.) |
+| placeholder | string | — | — | Placeholder text |
+| description | string | — | — | Helper text below input |
+| errorMessage | string | — | — | Error text (also sets invalid state) |
+| prefix | ReactNode | — | — | Icon or text before input |
+| suffix | ReactNode | — | — | Icon or text after input |
+| isDisabled | boolean | — | — | Disable the input |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Input size |
+
+### Example
 
 ```tsx
-import { Modal, Drawer, Button } from '@dangbt/pro-ui'
-import { DialogTrigger } from 'react-aria-components'
+import { Input } from '@dangbt/pro-ui'
+import { Search, Mail } from 'lucide-react'
 
-// Modal
-<DialogTrigger>
-  <Button variant="solid">Open Modal</Button>
-  <Modal title="Confirm" size="md"
-    footer={<div className="flex gap-2"><Button slot="close" variant="ghost">Cancel</Button><Button variant="solid">Confirm</Button></div>}
-  >
-    Modal content here
-  </Modal>
-</DialogTrigger>
-
-// Drawer
-<DialogTrigger>
-  <Button variant="outline">Open Drawer</Button>
-  <Drawer title="Filters" placement="right" size="md">
-    Drawer content here
-  </Drawer>
-</DialogTrigger>
+<Input label="Email" type="email" placeholder="you@example.com" prefix={<Mail size={14} />} />
+<Input label="Search" placeholder="Search..." prefix={<Search size={14} />} />
+<Input label="Name" errorMessage="Name is required" />
 ```
 
 ---
 
-## Statistic
+## Select
+
+Accessible dropdown select with keyboard navigation, search, and custom option rendering.
+
+Import: `import { Select } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Select label |
+| placeholder | string | — | — | Placeholder when no value selected |
+| options | { value: string; label: string }[] | ✅ | — | Options list |
+| errorMessage | string | — | — | Error state text |
+| isDisabled | boolean | — | — | Disable the select |
+
+### Example
 
 ```tsx
-import { Statistic } from '@dangbt/pro-ui'
-import { DollarSign } from 'lucide-react'
+import { Select } from '@dangbt/pro-ui'
 
-<Statistic
-  title="Revenue"
-  value={125430}
-  prefix={<DollarSign size={16} />}
-  trend="up"
-  trendValue="+12%"
-  formatter={(v) => `$${Number(v).toLocaleString()}`}
-  size="md"
+<Select
+  label="Role"
+  placeholder="Select a role"
+  options={[
+    { value: 'admin', label: 'Administrator' },
+    { value: 'user', label: 'User' },
+    { value: 'viewer', label: 'Viewer' },
+  ]}
 />
 ```
 
 ---
 
-## Semantic Color Tokens (for custom components)
+## Textarea
 
-Use these in className instead of hardcoded Tailwind colors:
+Multi-line text input with label, placeholder, and resize support.
 
+Import: `import { Textarea } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| placeholder | string | — | — | Placeholder text |
+| rows | number | — | `3` | Initial visible rows |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Input size |
+| isDisabled | boolean | — | — | Disable the textarea |
+| isReadOnly | boolean | — | — | Make the textarea read-only |
+
+### Example
+
+```tsx
+import { Textarea } from '@dangbt/pro-ui'
+
+<Textarea
+  label="Description"
+  placeholder="Write a description..."
+  rows={4}
+/>
 ```
-bg-canvas          — page background
-bg-surface         — card/panel background
-bg-surface-subtle  — secondary surface (table rows, hover)
-bg-surface-raised  — elevated surface (dropdowns, popovers)
-text-fg            — primary text
-text-fg-2          — secondary text
-text-fg-muted      — muted/placeholder text
-text-fg-disabled   — disabled state text
-border-border      — standard border
-border-border-subtle — subtle divider
-bg-primary         — brand primary
-text-primary       — brand primary text
+
+---
+
+## NumberField
+
+Numeric input with increment/decrement buttons, min/max, and formatting support.
+
+Import: `import { NumberField } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| placeholder | string | — | — | Placeholder text |
+| minValue | number | — | — | Minimum allowed value |
+| maxValue | number | — | — | Maximum allowed value |
+| step | number | — | `1` | Increment/decrement step |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Field size |
+| isDisabled | boolean | — | — | Disable the field |
+
+### Example
+
+```tsx
+import { NumberField } from '@dangbt/pro-ui'
+
+<NumberField label="Quantity" minValue={1} maxValue={100} step={1} />
+<NumberField label="Price" minValue={0} step={0.01} />
 ```
+
+---
+
+## SearchField
+
+Search input with built-in search icon and clear button.
+
+Import: `import { SearchField } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| placeholder | string | — | `'Search...'` | Placeholder text |
+| onSubmit | (value: string) => void | — | — | Called on Enter or search submit |
+| onChange | (value: string) => void | — | — | Called on every keystroke |
+| isDisabled | boolean | — | — | Disable the field |
+
+### Example
+
+```tsx
+import { SearchField } from '@dangbt/pro-ui'
+
+<SearchField
+  placeholder="Search users..."
+  onSubmit={(value) => handleSearch(value)}
+/>
+```
+
+---
+
+## Checkbox
+
+Accessible checkbox with animated checkmark. CheckboxGroup renders a labeled group of checkboxes from an options array.
+
+Import: `import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| isSelected | boolean | — | — | Controlled checked state |
+| defaultSelected | boolean | — | — | Uncontrolled default state |
+| onChange | (isSelected: boolean) => void | — | — | Called when state changes |
+| isDisabled | boolean | — | — | Disable the checkbox |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Checkbox size |
+| children | ReactNode | — | — | Label content |
+
+### Notes
+
+CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`.
+
+### Example
+
+```tsx
+import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'
+
+// Single checkbox
+<Checkbox defaultSelected>Accept terms and conditions</Checkbox>
+
+// Group
+<CheckboxGroup
+  label="Permissions"
+  options={[
+    { value: 'read', label: 'Read' },
+    { value: 'write', label: 'Write' },
+    { value: 'admin', label: 'Admin', disabled: true },
+  ]}
+  defaultValue={['read']}
+/>
+```
+
+---
+
+## RadioGroup
+
+Accessible radio button group rendered from an options array.
+
+Import: `import { RadioGroup } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Group label |
+| options | { value: string; label: string; description?: string; disabled?: boolean }[] | ✅ | — | Radio options |
+| orientation | 'horizontal' | 'vertical' | — | `'vertical'` | Layout direction |
+| value | string | — | — | Controlled selected value |
+| onChange | (value: string) => void | — | — | Called when selection changes |
+| isDisabled | boolean | — | — | Disable all radios |
+
+### Example
+
+```tsx
+import { RadioGroup } from '@dangbt/pro-ui'
+
+<RadioGroup
+  label="Billing Cycle"
+  options={[
+    { value: 'monthly', label: 'Monthly', description: '$9/month' },
+    { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },
+  ]}
+  defaultValue="monthly"
+/>
+```
+
+---
+
+## Switch
+
+Toggle switch for boolean settings. Visually distinct from a checkbox.
+
+Import: `import { Switch } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| isSelected | boolean | — | — | Controlled on/off state |
+| defaultSelected | boolean | — | — | Uncontrolled default state |
+| onChange | (isSelected: boolean) => void | — | — | Called when toggled |
+| isDisabled | boolean | — | — | Disable the switch |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Switch size |
+| children | ReactNode | — | — | Label content |
+
+### Example
+
+```tsx
+import { Switch } from '@dangbt/pro-ui'
+
+<Switch defaultSelected>Email notifications</Switch>
+<Switch isSelected={enabled} onChange={setEnabled}>
+  Dark mode
+</Switch>
+```
+
+---
+
+## Slider
+
+Range slider with optional label and value output display.
+
+Import: `import { Slider } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Slider label |
+| minValue | number | — | `0` | Minimum value |
+| maxValue | number | — | `100` | Maximum value |
+| step | number | — | `1` | Step increment |
+| defaultValue | number | — | — | Uncontrolled default value |
+| value | number | — | — | Controlled value |
+| onChange | (value: number) => void | — | — | Called on change |
+| showOutput | boolean | — | `true` | Show current value text |
+
+### Example
+
+```tsx
+import { Slider } from '@dangbt/pro-ui'
+
+<Slider label="Volume" defaultValue={70} />
+<Slider label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={200} />
+```
+
+---
+
+## DatePicker
+
+Date picker with calendar popover. Also includes DateRangePicker for date ranges, DateField for inline editing, and standalone Calendar.
+
+Import: `import { DatePicker, DateRangePicker, DateField, Calendar, RangeCalendar } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| value | DateValue | — | — | Controlled date value (use @internationalized/date types) |
+| defaultValue | DateValue | — | — | Uncontrolled default date |
+| onChange | (value: DateValue) => void | — | — | Called when date changes |
+| minValue | DateValue | — | — | Minimum selectable date |
+| maxValue | DateValue | — | — | Maximum selectable date |
+| isDisabled | boolean | — | — | Disable the picker |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Field size |
+
+### Notes
+
+Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`
+
+### Example
+
+```tsx
+import { DatePicker, DateRangePicker } from '@dangbt/pro-ui'
+import { today, getLocalTimeZone } from '@internationalized/date'
+
+// Single date
+<DatePicker label="Start date" />
+
+// Date range
+<DateRangePicker
+  label="Booking period"
+  minValue={today(getLocalTimeZone())}
+/>
+```
+
+---
+
+## TimeField
+
+Time input with segmented hour/minute/second editing.
+
+Import: `import { TimeField } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| value | TimeValue | — | — | Controlled time value |
+| defaultValue | TimeValue | — | — | Uncontrolled default time |
+| onChange | (value: TimeValue) => void | — | — | Called when time changes |
+| hourCycle | 12 | 24 | — | — | 12-hour or 24-hour display |
+| isDisabled | boolean | — | — | Disable the field |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Field size |
+
+### Example
+
+```tsx
+import { TimeField } from '@dangbt/pro-ui'
+
+<TimeField label="Meeting time" />
+<TimeField label="Closing time" hourCycle={24} />
+```
+
+---
+
+## TagGroup
+
+Displays a list of tags with optional color variants and removal support.
+
+Import: `import { TagGroup } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Group label |
+| items | TagItem[] | ✅ | — | Tag items ({ id, label, color? }) |
+| onRemove | (keys: Selection) => void | — | — | If provided, shows remove button on each tag |
+| selectionMode | 'none' | 'single' | 'multiple' | — | — | Tag selection behavior |
+| onSelectionChange | (keys: Selection) => void | — | — | Called when selection changes |
+
+### Example
+
+```tsx
+import { TagGroup } from '@dangbt/pro-ui'
+import { useState } from 'react'
+
+function TagsDemo() {
+  const [tags, setTags] = useState([
+    { id: '1', label: 'React', color: 'primary' as const },
+    { id: '2', label: 'TypeScript', color: 'info' as const },
+    { id: '3', label: 'Tailwind', color: 'success' as const },
+  ])
+
+  return (
+    <TagGroup
+      label="Skills"
+      items={tags}
+      onRemove={(keys) => setTags(tags.filter(t => !keys.has(t.id)))}
+    />
+  )
+}
+```
+
+---
+
+## ToggleButton
+
+Button that toggles on/off with selected state styling. ToggleButtonGroup manages single or multiple selection.
+
+Import: `import { ToggleButton, ToggleButtonGroup } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| isSelected | boolean | — | — | Controlled selected state |
+| defaultSelected | boolean | — | — | Uncontrolled default |
+| onChange | (isSelected: boolean) => void | — | — | Called when state changes |
+| isDisabled | boolean | — | — | Disable the button |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Button size |
+| children | ReactNode | ✅ | — | Button content |
+
+### Notes
+
+ToggleButtonGroup props: `selectionMode: "single" | "multiple"`, `selectedKeys`, `onSelectionChange`.
+
+### Example
+
+```tsx
+import { ToggleButton, ToggleButtonGroup } from '@dangbt/pro-ui'
+import { Grid, List } from 'lucide-react'
+
+// Single toggle
+<ToggleButton defaultSelected>Bold</ToggleButton>
+
+// Group for view mode
+<ToggleButtonGroup selectionMode="single" defaultSelectedKeys={['grid']}>
+  <ToggleButton id="grid"><Grid size={16} /> Grid</ToggleButton>
+  <ToggleButton id="list"><List size={16} /> List</ToggleButton>
+</ToggleButtonGroup>
+```
+
+---
+
+## AsyncSelect
+
+Select with server-side search and infinite scroll. Fetches options on demand via a fetch function.
+
+Import: `import { AsyncSelect } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| fetchOptions | (params: { search: string; page: number; pageSize: number }) => Promise<{ options: T[]; hasMore: boolean }> | ✅ | — | Async function to load options |
+| value | string | null | — | — | Controlled selected value |
+| onChange | (value: string | null, option: T | null) => void | — | — | Called when selection changes |
+| label | string | — | — | Field label |
+| placeholder | string | — | `'Select...'` | Placeholder text |
+| pageSize | number | — | `20` | Options per page |
+| debounceMs | number | — | `300` | Search debounce delay |
+| isDisabled | boolean | — | — | Disable the select |
+
+### Example
+
+```tsx
+import { AsyncSelect } from '@dangbt/pro-ui'
+
+<AsyncSelect
+  label="Assign user"
+  placeholder="Search users..."
+  fetchOptions={async ({ search, page, pageSize }) => {
+    const res = await fetch(`/api/users?q=${search}&page=${page}&limit=${pageSize}`)
+    const data = await res.json()
+    return { options: data.items, hasMore: data.hasMore }
+  }}
+  onChange={(value, option) => setAssignee(value)}
+/>
+```
+
+---
+
+## ComboBox
+
+Editable select with typeahead filtering. User can type to filter options from a static list.
+
+Import: `import { ComboBox } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| placeholder | string | — | `'Type to search...'` | Input placeholder |
+| options | { value: string; label: string }[] | ✅ | — | Available options |
+| selectedKey | string | — | — | Controlled selected value |
+| onSelectionChange | (key: string) => void | — | — | Called when an option is selected |
+| isDisabled | boolean | — | — | Disable the field |
+
+### Example
+
+```tsx
+import { ComboBox } from '@dangbt/pro-ui'
+
+<ComboBox
+  label="Country"
+  placeholder="Search countries..."
+  options={[
+    { value: 'vn', label: 'Vietnam' },
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+  ]}
+/>
+```
+
+---
+
+## Autocomplete
+
+Search field with a filtered suggestion list below. Items filter as the user types.
+
+Import: `import { Autocomplete } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| placeholder | string | — | `'Search...'` | Input placeholder |
+| items | { id: string; label: string; description?: string }[] | ✅ | — | Items to filter and show |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Field size |
+
+### Example
+
+```tsx
+import { Autocomplete } from '@dangbt/pro-ui'
+
+<Autocomplete
+  label="Select framework"
+  items={[
+    { id: 'react', label: 'React', description: 'UI library by Meta' },
+    { id: 'vue', label: 'Vue', description: 'Progressive framework' },
+    { id: 'svelte', label: 'Svelte', description: 'Compiler framework' },
+  ]}
+/>
+```
+
+---
+
+## FileTrigger
+
+Wraps a button/element to trigger a file picker dialog. Use alongside DropZone or a custom upload button.
+
+Import: `import { FileTrigger } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| acceptedFileTypes | string[] | — | — | Allowed MIME types (e.g. ["image/*", "application/pdf"]) |
+| allowsMultiple | boolean | — | — | Allow selecting multiple files |
+| onSelect | (files: FileList | null) => void | — | — | Called with selected files |
+| children | ReactNode | ✅ | — | Trigger element (typically a Button) |
+
+### Example
+
+```tsx
+import { FileTrigger, Button } from '@dangbt/pro-ui'
+
+<FileTrigger
+  acceptedFileTypes={['image/*']}
+  allowsMultiple={false}
+  onSelect={(files) => files && handleUpload(files[0])}
+>
+  <Button variant="outline">Upload Image</Button>
+</FileTrigger>
+```
+
+---
+
+## DropZone
+
+Drag-and-drop file upload zone with visual drop target feedback and click-to-browse fallback.
+
+Import: `import { DropZone } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | `'Drop files here'` | Primary label text |
+| description | string | — | — | Supporting description text |
+| accept | string[] | — | — | Accepted MIME types (e.g. ["image/*"]) |
+| allowsMultiple | boolean | — | — | Allow multiple files |
+| onFiles | (files: FileList) => void | — | — | Called with dropped or selected files |
+
+### Example
+
+```tsx
+import { DropZone } from '@dangbt/pro-ui'
+
+<DropZone
+  label="Drop images here"
+  description="PNG, JPG up to 5MB"
+  accept={['image/*']}
+  onFiles={(files) => handleUpload(files)}
+/>
+```
+
+---
+
+## ColorPicker
+
+Full-featured color picker with color wheel, area, field, and swatch picker. Compose as needed.
+
+Import: `import { ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField, ColorArea, ColorWheel, ColorSlider } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| value | Color | — | — | Controlled color value (use Color type from @dangbt/pro-ui) |
+| defaultValue | string | Color | — | — | Uncontrolled default color (e.g. "#ff0000") |
+| onChange | (color: Color) => void | — | — | Called when color changes |
+| children | ReactNode | ✅ | — | Trigger element (e.g. ColorSwatch) |
+
+### Notes
+
+ColorPicker is a dialog trigger — wrap ColorArea/ColorWheel inside its popover. ColorSwatchPicker renders a grid of preset colors.
+
+### Example
+
+```tsx
+import { ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+<ColorPicker defaultValue="#0ea5e9">
+  <ColorSwatch size="md" />
+</ColorPicker>
+
+// Swatch picker with presets:
+<ColorSwatchPicker
+  defaultValue="#ef4444"
+  onChange={(color) => console.log(color.toString('hex'))}
+>
+  {['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6'].map(c => (
+    <ColorSwatch key={c} color={c} />
+  ))}
+</ColorSwatchPicker>
+```
+
+---
+
+# Layout
+
+## Layout
+
+App shell with collapsible sidebar navigation, header slot, and content area. Handles responsive mobile drawer automatically.
+
+Import: `import { Layout } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| nav | NavItem[] | ✅ | — | Navigation items for the sidebar |
+| header | ReactNode | — | — | Header content (right side) |
+| logo | ReactNode | — | — | Logo in the sidebar |
+| children | ReactNode | ✅ | — | Page content |
+
+### Example
+
+```tsx
+import { Layout } from '@dangbt/pro-ui'
+import { LayoutDashboard, Users, Settings } from 'lucide-react'
+
+const nav = [
+  { label: 'Dashboard', href: '/', icon: <LayoutDashboard size={16} /> },
+  { label: 'Users', href: '/users', icon: <Users size={16} /> },
+  { label: 'Settings', href: '/settings', icon: <Settings size={16} /> },
+]
+
+export function App() {
+  return (
+    <Layout
+      nav={nav}
+      logo={<span className="font-bold text-primary">MyApp</span>}
+      header={<Button variant="ghost" size="sm">Logout</Button>}
+    >
+      {/* page content here */}
+    </Layout>
+  )
+}
+```
+
+---
+
+# Overlays & Modals
+
+## Modal
+
+Accessible modal dialog with focus trap, backdrop, and animation. Uses React Aria DialogTrigger.
+
+Import: `import { Modal, ModalTrigger } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| title | string | — | — | Modal header title |
+| size | 'sm' | 'md' | 'lg' | 'xl' | 'full' | — | `'md'` | Modal width |
+| footer | ReactNode | — | — | Modal footer content |
+| children | ReactNode | ✅ | — | Modal body content |
+
+### Example
+
+```tsx
+import { Modal, ModalTrigger, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+export function DeleteConfirm() {
+  return (
+    <DialogTrigger>
+      <Button variant="danger">Delete</Button>
+      <Modal
+        title="Confirm Delete"
+        footer={
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" slot="close">Cancel</Button>
+            <Button variant="solid" onPress={() => handleDelete()}>Delete</Button>
+          </div>
+        }
+      >
+        Are you sure you want to delete this item? This action cannot be undone.
+      </Modal>
+    </DialogTrigger>
+  )
+}
+```
+
+---
+
+## Drawer
+
+Slide-in panel from left, right, or bottom. Ideal for filter panels, mobile nav, detail views.
+
+Import: `import { Drawer } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| placement | 'left' | 'right' | 'bottom' | — | `'right'` | Which edge to slide from |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Drawer width/height |
+| title | string | — | — | Drawer header title |
+| withOverlay | boolean | — | `true` | Show backdrop overlay |
+| children | ReactNode | ✅ | — | Drawer body content |
+
+### Example
+
+```tsx
+import { Drawer, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+export function FilterDrawer() {
+  return (
+    <DialogTrigger>
+      <Button variant="outline">Filters</Button>
+      <Drawer title="Filter Options" placement="right">
+        {/* filter form content */}
+      </Drawer>
+    </DialogTrigger>
+  )
+}
+```
+
+---
+
+## Popover
+
+Floating popover panel anchored to a trigger element. Good for contextual menus and info panels.
+
+Import: `import { Popover } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| children | ReactNode | ✅ | — | Popover content |
+| placement | Placement | — | `'bottom'` | Placement relative to trigger |
+| showArrow | boolean | — | `true` | Show arrow pointing to trigger |
+
+### Example
+
+```tsx
+import { Popover, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+export function InfoPopover() {
+  return (
+    <DialogTrigger>
+      <Button variant="ghost" size="sm">ⓘ Info</Button>
+      <Popover>
+        <p className="text-sm">This is additional context information.</p>
+      </Popover>
+    </DialogTrigger>
+  )
+}
+```
+
+---
+
+## Menu
+
+Dropdown action menu with keyboard navigation, sections, and icons.
+
+Import: `import { Menu, MenuItem, MenuSection } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | MenuItemDef[] | ✅ | — | Menu item definitions |
+| placement | Placement | — | — | Menu placement relative to trigger |
+
+### Example
+
+```tsx
+import { Menu, Button } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+import { MoreHorizontal } from 'lucide-react'
+
+<DialogTrigger>
+  <Button variant="ghost" size="sm"><MoreHorizontal size={16} /></Button>
+  <Menu
+    items={[
+      { key: 'edit', label: 'Edit', onAction: () => handleEdit() },
+      { key: 'duplicate', label: 'Duplicate', onAction: () => handleDuplicate() },
+      { key: 'delete', label: 'Delete', danger: true, onAction: () => handleDelete() },
+    ]}
+  />
+</DialogTrigger>
+```
+
+---
+
+## Tooltip
+
+Accessible tooltip on hover/focus with customizable placement.
+
+Import: `import { Tooltip } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| content | string | ReactNode | ✅ | — | Tooltip text or content |
+| placement | Placement | — | `'top'` | Tooltip placement |
+| children | ReactNode | ✅ | — | The element that triggers the tooltip |
+
+### Example
+
+```tsx
+import { Tooltip, Button } from '@dangbt/pro-ui'
+import { Info } from 'lucide-react'
+
+<Tooltip content="This field is required for compliance">
+  <Button variant="ghost" size="sm"><Info size={14} /></Button>
+</Tooltip>
+```
+
+---
+
+# Feedback & Status
+
+## Toast
+
+Global toast notifications. Mount ToastProvider once at app root, call toast() anywhere.
+
+Import: `import { ToastProvider, toast } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| position | 'top-right' | 'top-center' | 'bottom-right' | 'bottom-center' | — | `'top-right'` | Toast position on screen |
+
+### Example
+
+```tsx
+// 1. Mount provider once (e.g. in App.tsx)
+import { ToastProvider, toast } from '@dangbt/pro-ui'
+
+export function App() {
+  return (
+    <>
+      <ToastProvider />
+      {/* rest of app */}
+    </>
+  )
+}
+
+// 2. Call from anywhere
+toast.success('User created successfully!')
+toast.error('Something went wrong.')
+toast.warning('Please review your input.')
+toast.info('New version available.')
+
+// With options:
+toast.success('Saved!', { duration: 5000, persistent: false })
+```
+
+---
+
+## Alert
+
+Inline alert message with icon and color variants for info, success, warning, and error states.
+
+Import: `import { Alert } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| variant | 'info' | 'success' | 'warning' | 'danger' | — | `'info'` | Alert severity |
+| title | string | — | — | Alert headline |
+| children | ReactNode | ✅ | — | Alert body text |
+| onDismiss | () => void | — | — | If provided, shows a dismiss button |
+
+### Example
+
+```tsx
+import { Alert } from '@dangbt/pro-ui'
+
+<Alert variant="warning" title="Heads up">
+  Your trial expires in 3 days. Upgrade to keep access.
+</Alert>
+<Alert variant="danger" onDismiss={() => setError(null)}>
+  Failed to save changes. Please try again.
+</Alert>
+```
+
+---
+
+## Spinner
+
+Loading spinner with size and color variants.
+
+Import: `import { Spinner } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Spinner size |
+
+### Example
+
+```tsx
+import { Spinner } from '@dangbt/pro-ui'
+
+{isLoading && <Spinner size="sm" />}
+```
+
+---
+
+## Skeleton
+
+Content placeholder skeleton for loading states.
+
+Import: `import { Skeleton } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| className | string | — | — | Custom classes for size/shape (e.g. w-full h-4 rounded) |
+| count | number | — | `1` | Number of skeleton lines to render |
+
+### Example
+
+```tsx
+import { Skeleton } from '@dangbt/pro-ui'
+
+{isLoading ? (
+  <div className="space-y-2">
+    <Skeleton className="h-4 w-3/4 rounded" />
+    <Skeleton className="h-4 w-full rounded" />
+    <Skeleton className="h-4 w-1/2 rounded" />
+  </div>
+) : <ActualContent />}
+```
+
+---
+
+## ProgressBar
+
+Horizontal progress bar with value, label, and indeterminate mode for unknown durations.
+
+Import: `import { ProgressBar } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| value | number | — | — | Current value (0–100 by default) |
+| minValue | number | — | `0` | Minimum value |
+| maxValue | number | — | `100` | Maximum value |
+| label | string | — | — | Progress label |
+| showValue | boolean | — | `false` | Show percentage text |
+| variant | 'primary' | 'success' | 'warning' | 'danger' | — | `'primary'` | Color variant |
+| size | 'sm' | 'md' | — | `'md'` | Track height |
+| isIndeterminate | boolean | — | — | Animate as indeterminate (unknown duration) |
+
+### Example
+
+```tsx
+import { ProgressBar } from '@dangbt/pro-ui'
+
+<ProgressBar label="Upload progress" value={65} showValue />
+<ProgressBar variant="success" value={100} />
+<ProgressBar isIndeterminate label="Processing..." />
+```
+
+---
+
+## Meter
+
+Gauge bar for measured quantities like storage usage. Auto-colors from success→warning→danger based on percentage.
+
+Import: `import { Meter } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| value | number | ✅ | — | Current value |
+| minValue | number | — | `0` | Minimum value |
+| maxValue | number | — | `100` | Maximum value |
+| label | string | — | — | Meter label |
+| showValue | boolean | — | `true` | Show value text |
+| variant | 'auto' | 'primary' | 'success' | 'warning' | 'danger' | — | `'auto'` | Color variant. "auto" changes color based on percentage. |
+| size | 'sm' | 'md' | — | `'md'` | Track height |
+
+### Example
+
+```tsx
+import { Meter } from '@dangbt/pro-ui'
+
+<Meter label="Storage used" value={73} maxValue={100} />
+<Meter label="CPU" value={90} variant="danger" />
+```
+
+---
+
+# Display & Typography
+
+## Statistic
+
+KPI card showing a metric value with optional trend indicator (up/down/neutral), prefix, suffix, and formatter.
+
+Import: `import { Statistic } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| title | string | ✅ | — | Metric label |
+| value | number | string | ✅ | — | The metric value |
+| prefix | ReactNode | — | — | Content before value (e.g. icon or currency symbol) |
+| suffix | ReactNode | — | — | Content after value (e.g. unit) |
+| trend | 'up' | 'down' | 'neutral' | — | — | Trend direction indicator |
+| trendValue | string | — | — | Trend percentage or delta text (e.g. "+12%") |
+| formatter | (value: number | string) => ReactNode | — | — | Custom value formatter |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Display size |
+
+### Example
+
+```tsx
+import { Statistic } from '@dangbt/pro-ui'
+import { DollarSign } from 'lucide-react'
+
+export function DashboardStats() {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <Statistic
+        title="Total Revenue"
+        value={125430}
+        prefix={<DollarSign size={16} />}
+        trend="up"
+        trendValue="+12.5%"
+        formatter={(v) => Number(v).toLocaleString()}
+      />
+      <Statistic title="Active Users" value={2847} trend="up" trendValue="+8%" />
+      <Statistic title="Churn Rate" value="3.2%" trend="down" trendValue="-0.5%" />
+    </div>
+  )
+}
+```
+
+---
+
+## Steps
+
+Multi-step progress indicator. Supports horizontal/vertical orientation, error state, clickable steps, and custom icons.
+
+Import: `import { Steps } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | StepItem[] | ✅ | — | Array of step definitions ({ title, description?, status?, icon? }) |
+| current | number | ✅ | — | Zero-based index of the current step |
+| direction | 'horizontal' | 'vertical' | — | `'horizontal'` | Layout direction |
+| onChange | (index: number) => void | — | — | Called when a step is clicked (makes steps clickable) |
+
+### Example
+
+```tsx
+import { Steps } from '@dangbt/pro-ui'
+import { useState } from 'react'
+
+export function OnboardingWizard() {
+  const [step, setStep] = useState(0)
+
+  return (
+    <Steps
+      current={step}
+      onChange={setStep}
+      items={[
+        { title: 'Account', description: 'Create your account' },
+        { title: 'Profile', description: 'Set up your profile' },
+        { title: 'Done', description: 'All set!' },
+      ]}
+    />
+  )
+}
+```
+
+---
+
+## Empty
+
+Empty state placeholder with optional custom image, title, description, and action button.
+
+Import: `import { Empty } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| title | string | — | `'No data'` | Empty state headline |
+| description | string | — | — | Supporting text |
+| image | ReactNode | — | — | Custom illustration or icon |
+| action | ReactNode | — | — | CTA button or link |
+
+### Example
+
+```tsx
+import { Empty, Button } from '@dangbt/pro-ui'
+
+export function EmptyUsers() {
+  return (
+    <Empty
+      title="No users yet"
+      description="Add your first user to get started."
+      action={<Button variant="solid" onPress={() => {}}>Add User</Button>}
+    />
+  )
+}
+```
+
+---
+
+## Badge
+
+Small status label with color variants for indicating states.
+
+Import: `import { Badge } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| variant | 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | — | `'default'` | Color variant |
+| children | ReactNode | ✅ | — | Badge content |
+
+### Example
+
+```tsx
+import { Badge } from '@dangbt/pro-ui'
+
+<Badge variant="success">Active</Badge>
+<Badge variant="danger">Inactive</Badge>
+<Badge variant="warning">Pending</Badge>
+<Badge variant="info">Draft</Badge>
+```
+
+---
+
+## Card
+
+Container card with optional header, footer, padding, and shadow.
+
+Import: `import { Card } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| header | ReactNode | — | — | Card header content |
+| footer | ReactNode | — | — | Card footer content |
+| noPadding | boolean | — | — | Remove default padding |
+| children | ReactNode | ✅ | — | Card body content |
+
+### Example
+
+```tsx
+import { Card } from '@dangbt/pro-ui'
+
+<Card header={<h3 className="font-semibold">Account Settings</h3>}>
+  <p>Manage your account preferences here.</p>
+</Card>
+```
+
+---
+
+## Tabs
+
+Accessible tab navigation with keyboard support.
+
+Import: `import { Tabs, TabList, Tab, TabPanel } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| defaultSelectedKey | string | — | — | Default selected tab key |
+| onSelectionChange | (key: Key) => void | — | — | Called on tab change |
+
+### Example
+
+```tsx
+import { Tabs, TabList, Tab, TabPanel } from '@dangbt/pro-ui'
+
+<Tabs defaultSelectedKey="overview">
+  <TabList>
+    <Tab id="overview">Overview</Tab>
+    <Tab id="activity">Activity</Tab>
+    <Tab id="settings">Settings</Tab>
+  </TabList>
+  <TabPanel id="overview">Overview content</TabPanel>
+  <TabPanel id="activity">Activity content</TabPanel>
+  <TabPanel id="settings">Settings content</TabPanel>
+</Tabs>
+```
+
+---
+
+## Avatar
+
+User avatar with image, initials fallback, and size variants. AvatarGroup stacks multiple avatars.
+
+Import: `import { Avatar, AvatarGroup } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| src | string | — | — | Image URL |
+| name | string | — | — | Name for initials fallback and aria-label |
+| size | 'sm' | 'md' | 'lg' | 'xl' | — | `'md'` | Avatar size |
+
+### Example
+
+```tsx
+import { Avatar, AvatarGroup } from '@dangbt/pro-ui'
+
+<Avatar src="/avatar.jpg" name="John Doe" size="md" />
+<Avatar name="Jane Smith" size="lg" /> {/* initials fallback */}
+
+<AvatarGroup max={3}>
+  <Avatar name="Alice" />
+  <Avatar name="Bob" />
+  <Avatar name="Charlie" />
+  <Avatar name="Diana" />
+</AvatarGroup>
+```
+
+---
+
+## Breadcrumbs
+
+Navigation breadcrumb trail with chevron separators and accessible current-page marking.
+
+Import: `import { Breadcrumbs } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | BreadcrumbItem[] | ✅ | — | Breadcrumb items ({ id, label, href? }) |
+
+### Example
+
+```tsx
+import { Breadcrumbs } from '@dangbt/pro-ui'
+
+<Breadcrumbs
+  items={[
+    { id: 'home', label: 'Home', href: '/' },
+    { id: 'users', label: 'Users', href: '/users' },
+    { id: 'current', label: 'John Doe' },
+  ]}
+/>
+```
+
+---
+
+## Disclosure
+
+Collapsible panel with animated expand/collapse. Accordion groups multiple Disclosures with only one open at a time.
+
+Import: `import { Disclosure, Accordion } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| title | string | ✅ | — | Panel header title (trigger text) |
+| children | ReactNode | ✅ | — | Panel body content |
+| defaultExpanded | boolean | — | — | Open by default |
+| isExpanded | boolean | — | — | Controlled expanded state |
+
+### Notes
+
+Accordion wraps multiple Disclosure components and ensures only one is open. It passes no extra props beyond children.
+
+### Example
+
+```tsx
+import { Disclosure, Accordion } from '@dangbt/pro-ui'
+
+// Standalone
+<Disclosure title="What is pro-ui?" defaultExpanded>
+  A React component library built on React Aria and Tailwind CSS.
+</Disclosure>
+
+// FAQ accordion
+<Accordion>
+  <Disclosure title="How do I install?">
+    Run npm install @dangbt/pro-ui.
+  </Disclosure>
+  <Disclosure title="Does it support dark mode?">
+    Yes, via ThemeProvider with system/light/dark modes.
+  </Disclosure>
+</Accordion>
+```
+
+---
+
+## Link
+
+Accessible anchor link with underline styling and color variants.
+
+Import: `import { Link } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| href | string | — | — | Link URL |
+| variant | 'default' | 'muted' | 'danger' | — | `'default'` | Link color |
+| target | string | — | — | HTML target (_blank for new tab) |
+| children | ReactNode | ✅ | — | Link text or content |
+
+### Example
+
+```tsx
+import { Link } from '@dangbt/pro-ui'
+
+<Link href="/dashboard">Go to Dashboard</Link>
+<Link href="https://example.com" target="_blank" variant="muted">External link</Link>
+<Link variant="danger" onPress={handleDelete}>Delete account</Link>
+```
+
+---
+
+## Divider
+
+Horizontal or vertical separator line, optionally with a centered label.
+
+Import: `import { Divider } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| orientation | 'horizontal' | 'vertical' | — | `'horizontal'` | Divider direction |
+| label | string | — | — | Centered label text (horizontal only) |
+
+### Example
+
+```tsx
+import { Divider } from '@dangbt/pro-ui'
+
+<Divider />
+<Divider label="OR" />
+<div className="flex gap-4 h-8">
+  <span>Left</span>
+  <Divider orientation="vertical" />
+  <span>Right</span>
+</div>
+```
+
+---
+
+## ListBox
+
+Selectable list with optional sections, icons, descriptions, and single/multiple selection.
+
+Import: `import { ListBox } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | (ListBoxOption | ListBoxSection)[] | ✅ | — | Flat list or sectioned list of options |
+| selectionMode | 'none' | 'single' | 'multiple' | — | — | Selection behavior |
+| selectedKeys | Selection | — | — | Controlled selected keys |
+| onSelectionChange | (keys: Selection) => void | — | — | Called when selection changes |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Item text size |
+
+### Example
+
+```tsx
+import { ListBox } from '@dangbt/pro-ui'
+import { User, Settings, LogOut } from 'lucide-react'
+
+<ListBox
+  selectionMode="single"
+  items={[
+    { id: 'profile', label: 'Profile', icon: <User size={14} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={14} /> },
+    { id: 'logout', label: 'Log out', icon: <LogOut size={14} />, description: 'Sign out of your account' },
+  ]}
+  onSelectionChange={(keys) => handleSelect(keys)}
+/>
+```
+
+---
+
+## GridList
+
+Interactive grid list with optional checkbox selection, icons, and descriptions. Good for multi-select UIs.
+
+Import: `import { GridList } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | GridListOption[] | ✅ | — | Items ({ id, label, description?, icon?, disabled? }) |
+| selectionMode | 'none' | 'single' | 'multiple' | — | — | Selection behavior |
+| selectedKeys | Selection | — | — | Controlled selected keys |
+| onSelectionChange | (keys: Selection) => void | — | — | Called when selection changes |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Item text size |
+
+### Example
+
+```tsx
+import { GridList } from '@dangbt/pro-ui'
+
+<GridList
+  selectionMode="multiple"
+  items={[
+    { id: 'email', label: 'Email notifications', description: 'Get notified via email' },
+    { id: 'sms', label: 'SMS notifications', description: 'Get notified via SMS' },
+    { id: 'push', label: 'Push notifications', description: 'Browser push alerts' },
+  ]}
+/>
+```
+
+---
+
+## Tree
+
+Hierarchical tree view with expandable nodes, optional icons, and selection support.
+
+Import: `import { Tree } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | TreeNode[] | ✅ | — | Tree nodes ({ id, label, icon?, children?: TreeNode[] }) |
+| selectionMode | 'none' | 'single' | 'multiple' | — | — | Selection behavior |
+| selectedKeys | Selection | — | — | Controlled selected keys |
+| onSelectionChange | (keys: Selection) => void | — | — | Called when selection changes |
+| defaultExpandedKeys | Iterable<Key> | — | — | Keys of nodes expanded by default |
+
+### Example
+
+```tsx
+import { Tree } from '@dangbt/pro-ui'
+import { Folder, File } from 'lucide-react'
+
+<Tree
+  selectionMode="single"
+  items={[
+    {
+      id: 'src',
+      label: 'src',
+      icon: <Folder size={14} />,
+      children: [
+        { id: 'components', label: 'components', icon: <Folder size={14} /> },
+        { id: 'app', label: 'app.tsx', icon: <File size={14} /> },
+      ],
+    },
+    { id: 'package', label: 'package.json', icon: <File size={14} /> },
+  ]}
+/>
+```
+
+---
+
+## Toolbar
+
+Container for a row of action buttons or controls, with keyboard navigation between items.
+
+Import: `import { Toolbar, ToolbarSeparator } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| orientation | 'horizontal' | 'vertical' | — | `'horizontal'` | Toolbar direction |
+| children | ReactNode | ✅ | — | Toolbar items (Buttons, ToggleButtons, etc.) |
+
+### Notes
+
+Use ToolbarSeparator to add a visual vertical divider between groups of buttons.
+
+### Example
+
+```tsx
+import { Toolbar, ToolbarSeparator, Button, ToggleButton } from '@dangbt/pro-ui'
+import { Bold, Italic, Underline, AlignLeft, AlignCenter } from 'lucide-react'
+
+<Toolbar>
+  <ToggleButton size="sm"><Bold size={14} /></ToggleButton>
+  <ToggleButton size="sm"><Italic size={14} /></ToggleButton>
+  <ToggleButton size="sm"><Underline size={14} /></ToggleButton>
+  <ToolbarSeparator />
+  <ToggleButton size="sm"><AlignLeft size={14} /></ToggleButton>
+  <ToggleButton size="sm"><AlignCenter size={14} /></ToggleButton>
+</Toolbar>
+```
+
+---
+
+# Theming
+
+## ThemeProvider
+
+Context provider for light/dark/system theme. Persists to localStorage, listens to system preference. Toggle class .dark on <html> element.
+
+Import: `import { ThemeProvider, useTheme } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| defaultTheme | 'light' | 'dark' | 'system' | — | `'system'` | Initial theme if nothing in localStorage |
+| storageKey | string | — | `'pro-ui-theme'` | localStorage key for persistence |
+| children | ReactNode | ✅ | — | App content |
+
+### Example
+
+```tsx
+// 1. Wrap app (e.g. main.tsx)
+import { ThemeProvider } from '@dangbt/pro-ui'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <ThemeProvider defaultTheme="system">
+    <App />
+  </ThemeProvider>
+)
+
+// 2. Use in any component
+import { useTheme } from '@dangbt/pro-ui'
+
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  return (
+    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+      {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+    </button>
+  )
+}
+```
+
+---

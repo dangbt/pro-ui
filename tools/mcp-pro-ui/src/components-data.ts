@@ -466,7 +466,7 @@ export function EmptyUsers() {
     description: 'Accessible button with variants (solid, outline, ghost, danger), sizes, loading state, and icon support. Built on React Aria.',
     useCases: ['primary action', 'secondary action', 'danger action', 'icon button', 'loading button'],
     props: [
-      { name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'danger'", required: false, default: "'outline'", description: 'Visual style' },
+      { name: 'variant', type: "'primary' | 'secondary' | 'ghost' | 'danger'", required: false, default: "'secondary'", description: 'Visual style' },
       { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Button size' },
       { name: 'loading', type: 'boolean', required: false, description: 'Show spinner and disable interaction' },
       { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the button' },
@@ -477,18 +477,18 @@ export function EmptyUsers() {
 import { Plus, Trash2 } from 'lucide-react'
 
 // Variants
-<Button variant="solid" onPress={handleSave}>Save</Button>
-<Button variant="outline" onPress={handleCancel}>Cancel</Button>
+<Button variant="primary" onPress={handleSave}>Save</Button>
+<Button variant="secondary" onPress={handleCancel}>Cancel</Button>
 <Button variant="ghost" onPress={handleEdit}>Edit</Button>
 <Button variant="danger" onPress={handleDelete}>Delete</Button>
 
 // With icon
-<Button variant="solid" onPress={handleAdd}>
+<Button variant="primary" onPress={handleAdd}>
   <Plus size={16} /> Add Item
 </Button>
 
 // Loading state
-<Button variant="solid" loading={isSubmitting} type="submit">
+<Button variant="primary" loading={isSubmitting} type="submit">
   Submit
 </Button>`,
   },
@@ -729,6 +729,693 @@ import { Info } from 'lucide-react'
     <Skeleton className="h-4 w-1/2 rounded" />
   </div>
 ) : <ActualContent />}`,
+  },
+
+  // ─── FORM: ADDITIONAL INPUTS ──────────────────────────────────────────────
+
+  {
+    name: 'Textarea',
+    importName: 'Textarea',
+    category: 'form',
+    description: 'Multi-line text input with label, placeholder, and resize support.',
+    useCases: ['multi-line input', 'description field', 'comments', 'long text input'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, description: 'Placeholder text' },
+      { name: 'rows', type: 'number', required: false, default: '3', description: 'Initial visible rows' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Input size' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the textarea' },
+      { name: 'isReadOnly', type: 'boolean', required: false, description: 'Make the textarea read-only' },
+    ],
+    example: `import { Textarea } from '@dangbt/pro-ui'
+
+<Textarea
+  label="Description"
+  placeholder="Write a description..."
+  rows={4}
+/>`,
+  },
+
+  {
+    name: 'NumberField',
+    importName: 'NumberField',
+    category: 'form',
+    description: 'Numeric input with increment/decrement buttons, min/max, and formatting support.',
+    useCases: ['number input', 'quantity picker', 'price input', 'age field'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, description: 'Placeholder text' },
+      { name: 'minValue', type: 'number', required: false, description: 'Minimum allowed value' },
+      { name: 'maxValue', type: 'number', required: false, description: 'Maximum allowed value' },
+      { name: 'step', type: 'number', required: false, default: '1', description: 'Increment/decrement step' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Field size' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the field' },
+    ],
+    example: `import { NumberField } from '@dangbt/pro-ui'
+
+<NumberField label="Quantity" minValue={1} maxValue={100} step={1} />
+<NumberField label="Price" minValue={0} step={0.01} />`,
+  },
+
+  {
+    name: 'SearchField',
+    importName: 'SearchField',
+    category: 'form',
+    description: 'Search input with built-in search icon and clear button.',
+    useCases: ['search input', 'filter field', 'quick search bar'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, default: "'Search...'", description: 'Placeholder text' },
+      { name: 'onSubmit', type: '(value: string) => void', required: false, description: 'Called on Enter or search submit' },
+      { name: 'onChange', type: '(value: string) => void', required: false, description: 'Called on every keystroke' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the field' },
+    ],
+    example: `import { SearchField } from '@dangbt/pro-ui'
+
+<SearchField
+  placeholder="Search users..."
+  onSubmit={(value) => handleSearch(value)}
+/>`,
+  },
+
+  {
+    name: 'Checkbox',
+    importName: 'Checkbox, CheckboxGroup',
+    category: 'form',
+    description: 'Accessible checkbox with animated checkmark. CheckboxGroup renders a labeled group of checkboxes from an options array.',
+    useCases: ['checkbox', 'multi-select options', 'terms acceptance', 'checkbox group'],
+    props: [
+      { name: 'isSelected', type: 'boolean', required: false, description: 'Controlled checked state' },
+      { name: 'defaultSelected', type: 'boolean', required: false, description: 'Uncontrolled default state' },
+      { name: 'onChange', type: '(isSelected: boolean) => void', required: false, description: 'Called when state changes' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the checkbox' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Checkbox size' },
+      { name: 'children', type: 'ReactNode', required: false, description: 'Label content' },
+    ],
+    notes: 'CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`.',
+    example: `import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'
+
+// Single checkbox
+<Checkbox defaultSelected>Accept terms and conditions</Checkbox>
+
+// Group
+<CheckboxGroup
+  label="Permissions"
+  options={[
+    { value: 'read', label: 'Read' },
+    { value: 'write', label: 'Write' },
+    { value: 'admin', label: 'Admin', disabled: true },
+  ]}
+  defaultValue={['read']}
+/>`,
+  },
+
+  {
+    name: 'RadioGroup',
+    importName: 'RadioGroup',
+    category: 'form',
+    description: 'Accessible radio button group rendered from an options array.',
+    useCases: ['radio buttons', 'single choice', 'option picker', 'enum selection'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Group label' },
+      { name: 'options', type: '{ value: string; label: string; description?: string; disabled?: boolean }[]', required: true, description: 'Radio options' },
+      { name: 'orientation', type: "'horizontal' | 'vertical'", required: false, default: "'vertical'", description: 'Layout direction' },
+      { name: 'value', type: 'string', required: false, description: 'Controlled selected value' },
+      { name: 'onChange', type: '(value: string) => void', required: false, description: 'Called when selection changes' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable all radios' },
+    ],
+    example: `import { RadioGroup } from '@dangbt/pro-ui'
+
+<RadioGroup
+  label="Billing Cycle"
+  options={[
+    { value: 'monthly', label: 'Monthly', description: '$9/month' },
+    { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },
+  ]}
+  defaultValue="monthly"
+/>`,
+  },
+
+  {
+    name: 'Switch',
+    importName: 'Switch',
+    category: 'form',
+    description: 'Toggle switch for boolean settings. Visually distinct from a checkbox.',
+    useCases: ['toggle switch', 'on/off setting', 'feature toggle', 'boolean preference'],
+    props: [
+      { name: 'isSelected', type: 'boolean', required: false, description: 'Controlled on/off state' },
+      { name: 'defaultSelected', type: 'boolean', required: false, description: 'Uncontrolled default state' },
+      { name: 'onChange', type: '(isSelected: boolean) => void', required: false, description: 'Called when toggled' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the switch' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Switch size' },
+      { name: 'children', type: 'ReactNode', required: false, description: 'Label content' },
+    ],
+    example: `import { Switch } from '@dangbt/pro-ui'
+
+<Switch defaultSelected>Email notifications</Switch>
+<Switch isSelected={enabled} onChange={setEnabled}>
+  Dark mode
+</Switch>`,
+  },
+
+  {
+    name: 'Slider',
+    importName: 'Slider',
+    category: 'form',
+    description: 'Range slider with optional label and value output display.',
+    useCases: ['range slider', 'volume control', 'price range', 'opacity slider'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Slider label' },
+      { name: 'minValue', type: 'number', required: false, default: '0', description: 'Minimum value' },
+      { name: 'maxValue', type: 'number', required: false, default: '100', description: 'Maximum value' },
+      { name: 'step', type: 'number', required: false, default: '1', description: 'Step increment' },
+      { name: 'defaultValue', type: 'number', required: false, description: 'Uncontrolled default value' },
+      { name: 'value', type: 'number', required: false, description: 'Controlled value' },
+      { name: 'onChange', type: '(value: number) => void', required: false, description: 'Called on change' },
+      { name: 'showOutput', type: 'boolean', required: false, default: 'true', description: 'Show current value text' },
+    ],
+    example: `import { Slider } from '@dangbt/pro-ui'
+
+<Slider label="Volume" defaultValue={70} />
+<Slider label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={200} />`,
+  },
+
+  {
+    name: 'DatePicker',
+    importName: 'DatePicker, DateRangePicker, DateField, Calendar, RangeCalendar',
+    category: 'form',
+    description: 'Date picker with calendar popover. Also includes DateRangePicker for date ranges, DateField for inline editing, and standalone Calendar.',
+    useCases: ['date picker', 'date range picker', 'calendar', 'date input', 'booking dates'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'value', type: 'DateValue', required: false, description: 'Controlled date value (use @internationalized/date types)' },
+      { name: 'defaultValue', type: 'DateValue', required: false, description: 'Uncontrolled default date' },
+      { name: 'onChange', type: '(value: DateValue) => void', required: false, description: 'Called when date changes' },
+      { name: 'minValue', type: 'DateValue', required: false, description: 'Minimum selectable date' },
+      { name: 'maxValue', type: 'DateValue', required: false, description: 'Maximum selectable date' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the picker' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Field size' },
+    ],
+    notes: 'Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`',
+    example: `import { DatePicker, DateRangePicker } from '@dangbt/pro-ui'
+import { today, getLocalTimeZone } from '@internationalized/date'
+
+// Single date
+<DatePicker label="Start date" />
+
+// Date range
+<DateRangePicker
+  label="Booking period"
+  minValue={today(getLocalTimeZone())}
+/>`,
+  },
+
+  {
+    name: 'TimeField',
+    importName: 'TimeField',
+    category: 'form',
+    description: 'Time input with segmented hour/minute/second editing.',
+    useCases: ['time input', 'time picker', 'schedule time', 'clock field'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'value', type: 'TimeValue', required: false, description: 'Controlled time value' },
+      { name: 'defaultValue', type: 'TimeValue', required: false, description: 'Uncontrolled default time' },
+      { name: 'onChange', type: '(value: TimeValue) => void', required: false, description: 'Called when time changes' },
+      { name: 'hourCycle', type: '12 | 24', required: false, description: '12-hour or 24-hour display' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the field' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Field size' },
+    ],
+    example: `import { TimeField } from '@dangbt/pro-ui'
+
+<TimeField label="Meeting time" />
+<TimeField label="Closing time" hourCycle={24} />`,
+  },
+
+  {
+    name: 'TagGroup',
+    importName: 'TagGroup',
+    category: 'form',
+    description: 'Displays a list of tags with optional color variants and removal support.',
+    useCases: ['tag list', 'chip group', 'label tags', 'removable tags', 'multi-select chips'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Group label' },
+      { name: 'items', type: 'TagItem[]', required: true, description: 'Tag items ({ id, label, color? })' },
+      { name: 'onRemove', type: '(keys: Selection) => void', required: false, description: 'If provided, shows remove button on each tag' },
+      { name: 'selectionMode', type: "'none' | 'single' | 'multiple'", required: false, description: 'Tag selection behavior' },
+      { name: 'onSelectionChange', type: '(keys: Selection) => void', required: false, description: 'Called when selection changes' },
+    ],
+    example: `import { TagGroup } from '@dangbt/pro-ui'
+import { useState } from 'react'
+
+function TagsDemo() {
+  const [tags, setTags] = useState([
+    { id: '1', label: 'React', color: 'primary' as const },
+    { id: '2', label: 'TypeScript', color: 'info' as const },
+    { id: '3', label: 'Tailwind', color: 'success' as const },
+  ])
+
+  return (
+    <TagGroup
+      label="Skills"
+      items={tags}
+      onRemove={(keys) => setTags(tags.filter(t => !keys.has(t.id)))}
+    />
+  )
+}`,
+  },
+
+  {
+    name: 'ToggleButton',
+    importName: 'ToggleButton, ToggleButtonGroup',
+    category: 'form',
+    description: 'Button that toggles on/off with selected state styling. ToggleButtonGroup manages single or multiple selection.',
+    useCases: ['toggle button', 'on/off button', 'toolbar toggle', 'view mode switcher', 'filter toggle'],
+    props: [
+      { name: 'isSelected', type: 'boolean', required: false, description: 'Controlled selected state' },
+      { name: 'defaultSelected', type: 'boolean', required: false, description: 'Uncontrolled default' },
+      { name: 'onChange', type: '(isSelected: boolean) => void', required: false, description: 'Called when state changes' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the button' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Button size' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Button content' },
+    ],
+    notes: 'ToggleButtonGroup props: `selectionMode: "single" | "multiple"`, `selectedKeys`, `onSelectionChange`.',
+    example: `import { ToggleButton, ToggleButtonGroup } from '@dangbt/pro-ui'
+import { Grid, List } from 'lucide-react'
+
+// Single toggle
+<ToggleButton defaultSelected>Bold</ToggleButton>
+
+// Group for view mode
+<ToggleButtonGroup selectionMode="single" defaultSelectedKeys={['grid']}>
+  <ToggleButton id="grid"><Grid size={16} /> Grid</ToggleButton>
+  <ToggleButton id="list"><List size={16} /> List</ToggleButton>
+</ToggleButtonGroup>`,
+  },
+
+  {
+    name: 'AsyncSelect',
+    importName: 'AsyncSelect',
+    category: 'form',
+    description: 'Select with server-side search and infinite scroll. Fetches options on demand via a fetch function.',
+    useCases: ['async dropdown', 'server-side search', 'large dataset select', 'user picker', 'infinite scroll select'],
+    props: [
+      { name: 'fetchOptions', type: '(params: { search: string; page: number; pageSize: number }) => Promise<{ options: T[]; hasMore: boolean }>', required: true, description: 'Async function to load options' },
+      { name: 'value', type: 'string | null', required: false, description: 'Controlled selected value' },
+      { name: 'onChange', type: '(value: string | null, option: T | null) => void', required: false, description: 'Called when selection changes' },
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, default: "'Select...'", description: 'Placeholder text' },
+      { name: 'pageSize', type: 'number', required: false, default: '20', description: 'Options per page' },
+      { name: 'debounceMs', type: 'number', required: false, default: '300', description: 'Search debounce delay' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the select' },
+    ],
+    example: `import { AsyncSelect } from '@dangbt/pro-ui'
+
+<AsyncSelect
+  label="Assign user"
+  placeholder="Search users..."
+  fetchOptions={async ({ search, page, pageSize }) => {
+    const res = await fetch(\`/api/users?q=\${search}&page=\${page}&limit=\${pageSize}\`)
+    const data = await res.json()
+    return { options: data.items, hasMore: data.hasMore }
+  }}
+  onChange={(value, option) => setAssignee(value)}
+/>`,
+  },
+
+  {
+    name: 'ComboBox',
+    importName: 'ComboBox',
+    category: 'form',
+    description: 'Editable select with typeahead filtering. User can type to filter options from a static list.',
+    useCases: ['combobox', 'typeahead', 'filterable dropdown', 'editable select'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, default: "'Type to search...'", description: 'Input placeholder' },
+      { name: 'options', type: '{ value: string; label: string }[]', required: true, description: 'Available options' },
+      { name: 'selectedKey', type: 'string', required: false, description: 'Controlled selected value' },
+      { name: 'onSelectionChange', type: '(key: string) => void', required: false, description: 'Called when an option is selected' },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the field' },
+    ],
+    example: `import { ComboBox } from '@dangbt/pro-ui'
+
+<ComboBox
+  label="Country"
+  placeholder="Search countries..."
+  options={[
+    { value: 'vn', label: 'Vietnam' },
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+  ]}
+/>`,
+  },
+
+  {
+    name: 'Autocomplete',
+    importName: 'Autocomplete',
+    category: 'form',
+    description: 'Search field with a filtered suggestion list below. Items filter as the user types.',
+    useCases: ['autocomplete', 'live search suggestions', 'type-ahead suggestions', 'command palette'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'placeholder', type: 'string', required: false, default: "'Search...'", description: 'Input placeholder' },
+      { name: 'items', type: '{ id: string; label: string; description?: string }[]', required: true, description: 'Items to filter and show' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Field size' },
+    ],
+    example: `import { Autocomplete } from '@dangbt/pro-ui'
+
+<Autocomplete
+  label="Select framework"
+  items={[
+    { id: 'react', label: 'React', description: 'UI library by Meta' },
+    { id: 'vue', label: 'Vue', description: 'Progressive framework' },
+    { id: 'svelte', label: 'Svelte', description: 'Compiler framework' },
+  ]}
+/>`,
+  },
+
+  {
+    name: 'FileTrigger',
+    importName: 'FileTrigger',
+    category: 'form',
+    description: 'Wraps a button/element to trigger a file picker dialog. Use alongside DropZone or a custom upload button.',
+    useCases: ['file upload button', 'image upload trigger', 'document upload'],
+    props: [
+      { name: 'acceptedFileTypes', type: 'string[]', required: false, description: 'Allowed MIME types (e.g. ["image/*", "application/pdf"])' },
+      { name: 'allowsMultiple', type: 'boolean', required: false, description: 'Allow selecting multiple files' },
+      { name: 'onSelect', type: '(files: FileList | null) => void', required: false, description: 'Called with selected files' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Trigger element (typically a Button)' },
+    ],
+    example: `import { FileTrigger, Button } from '@dangbt/pro-ui'
+
+<FileTrigger
+  acceptedFileTypes={['image/*']}
+  allowsMultiple={false}
+  onSelect={(files) => files && handleUpload(files[0])}
+>
+  <Button variant="outline">Upload Image</Button>
+</FileTrigger>`,
+  },
+
+  {
+    name: 'DropZone',
+    importName: 'DropZone',
+    category: 'form',
+    description: 'Drag-and-drop file upload zone with visual drop target feedback and click-to-browse fallback.',
+    useCases: ['drag and drop upload', 'file drop zone', 'image upload area', 'document upload'],
+    props: [
+      { name: 'label', type: 'string', required: false, default: "'Drop files here'", description: 'Primary label text' },
+      { name: 'description', type: 'string', required: false, description: 'Supporting description text' },
+      { name: 'accept', type: 'string[]', required: false, description: 'Accepted MIME types (e.g. ["image/*"])' },
+      { name: 'allowsMultiple', type: 'boolean', required: false, description: 'Allow multiple files' },
+      { name: 'onFiles', type: '(files: FileList) => void', required: false, description: 'Called with dropped or selected files' },
+    ],
+    example: `import { DropZone } from '@dangbt/pro-ui'
+
+<DropZone
+  label="Drop images here"
+  description="PNG, JPG up to 5MB"
+  accept={['image/*']}
+  onFiles={(files) => handleUpload(files)}
+/>`,
+  },
+
+  {
+    name: 'ColorPicker',
+    importName: 'ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField, ColorArea, ColorWheel, ColorSlider',
+    category: 'form',
+    description: 'Full-featured color picker with color wheel, area, field, and swatch picker. Compose as needed.',
+    useCases: ['color picker', 'color selector', 'theme color', 'paint tool'],
+    props: [
+      { name: 'value', type: 'Color', required: false, description: 'Controlled color value (use Color type from @dangbt/pro-ui)' },
+      { name: 'defaultValue', type: 'string | Color', required: false, description: 'Uncontrolled default color (e.g. "#ff0000")' },
+      { name: 'onChange', type: '(color: Color) => void', required: false, description: 'Called when color changes' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Trigger element (e.g. ColorSwatch)' },
+    ],
+    notes: 'ColorPicker is a dialog trigger — wrap ColorArea/ColorWheel inside its popover. ColorSwatchPicker renders a grid of preset colors.',
+    example: `import { ColorPicker, ColorSwatch, ColorSwatchPicker, ColorField } from '@dangbt/pro-ui'
+import { DialogTrigger } from 'react-aria-components'
+
+<ColorPicker defaultValue="#0ea5e9">
+  <ColorSwatch size="md" />
+</ColorPicker>
+
+// Swatch picker with presets:
+<ColorSwatchPicker
+  defaultValue="#ef4444"
+  onChange={(color) => console.log(color.toString('hex'))}
+>
+  {['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6'].map(c => (
+    <ColorSwatch key={c} color={c} />
+  ))}
+</ColorSwatchPicker>`,
+  },
+
+  // ─── FEEDBACK: ADDITIONAL ─────────────────────────────────────────────────
+
+  {
+    name: 'ProgressBar',
+    importName: 'ProgressBar',
+    category: 'feedback',
+    description: 'Horizontal progress bar with value, label, and indeterminate mode for unknown durations.',
+    useCases: ['progress bar', 'upload progress', 'task completion', 'loading bar', 'indeterminate loading'],
+    props: [
+      { name: 'value', type: 'number', required: false, description: 'Current value (0–100 by default)' },
+      { name: 'minValue', type: 'number', required: false, default: '0', description: 'Minimum value' },
+      { name: 'maxValue', type: 'number', required: false, default: '100', description: 'Maximum value' },
+      { name: 'label', type: 'string', required: false, description: 'Progress label' },
+      { name: 'showValue', type: 'boolean', required: false, default: 'false', description: 'Show percentage text' },
+      { name: 'variant', type: "'primary' | 'success' | 'warning' | 'danger'", required: false, default: "'primary'", description: 'Color variant' },
+      { name: 'size', type: "'sm' | 'md'", required: false, default: "'md'", description: 'Track height' },
+      { name: 'isIndeterminate', type: 'boolean', required: false, description: 'Animate as indeterminate (unknown duration)' },
+    ],
+    example: `import { ProgressBar } from '@dangbt/pro-ui'
+
+<ProgressBar label="Upload progress" value={65} showValue />
+<ProgressBar variant="success" value={100} />
+<ProgressBar isIndeterminate label="Processing..." />`,
+  },
+
+  {
+    name: 'Meter',
+    importName: 'Meter',
+    category: 'feedback',
+    description: 'Gauge bar for measured quantities like storage usage. Auto-colors from success→warning→danger based on percentage.',
+    useCases: ['storage meter', 'usage indicator', 'capacity gauge', 'disk usage', 'resource meter'],
+    props: [
+      { name: 'value', type: 'number', required: true, description: 'Current value' },
+      { name: 'minValue', type: 'number', required: false, default: '0', description: 'Minimum value' },
+      { name: 'maxValue', type: 'number', required: false, default: '100', description: 'Maximum value' },
+      { name: 'label', type: 'string', required: false, description: 'Meter label' },
+      { name: 'showValue', type: 'boolean', required: false, default: 'true', description: 'Show value text' },
+      { name: 'variant', type: "'auto' | 'primary' | 'success' | 'warning' | 'danger'", required: false, default: "'auto'", description: 'Color variant. "auto" changes color based on percentage.' },
+      { name: 'size', type: "'sm' | 'md'", required: false, default: "'md'", description: 'Track height' },
+    ],
+    example: `import { Meter } from '@dangbt/pro-ui'
+
+<Meter label="Storage used" value={73} maxValue={100} />
+<Meter label="CPU" value={90} variant="danger" />`,
+  },
+
+  // ─── DISPLAY / NAVIGATION: ADDITIONAL ────────────────────────────────────
+
+  {
+    name: 'Breadcrumbs',
+    importName: 'Breadcrumbs',
+    category: 'display',
+    description: 'Navigation breadcrumb trail with chevron separators and accessible current-page marking.',
+    useCases: ['breadcrumb navigation', 'page path', 'hierarchical navigation'],
+    props: [
+      { name: 'items', type: 'BreadcrumbItem[]', required: true, description: 'Breadcrumb items ({ id, label, href? })' },
+    ],
+    example: `import { Breadcrumbs } from '@dangbt/pro-ui'
+
+<Breadcrumbs
+  items={[
+    { id: 'home', label: 'Home', href: '/' },
+    { id: 'users', label: 'Users', href: '/users' },
+    { id: 'current', label: 'John Doe' },
+  ]}
+/>`,
+  },
+
+  {
+    name: 'Disclosure',
+    importName: 'Disclosure, Accordion',
+    category: 'display',
+    description: 'Collapsible panel with animated expand/collapse. Accordion groups multiple Disclosures with only one open at a time.',
+    useCases: ['collapsible section', 'FAQ accordion', 'expandable panel', 'disclosure widget'],
+    props: [
+      { name: 'title', type: 'string', required: true, description: 'Panel header title (trigger text)' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Panel body content' },
+      { name: 'defaultExpanded', type: 'boolean', required: false, description: 'Open by default' },
+      { name: 'isExpanded', type: 'boolean', required: false, description: 'Controlled expanded state' },
+    ],
+    notes: 'Accordion wraps multiple Disclosure components and ensures only one is open. It passes no extra props beyond children.',
+    example: `import { Disclosure, Accordion } from '@dangbt/pro-ui'
+
+// Standalone
+<Disclosure title="What is pro-ui?" defaultExpanded>
+  A React component library built on React Aria and Tailwind CSS.
+</Disclosure>
+
+// FAQ accordion
+<Accordion>
+  <Disclosure title="How do I install?">
+    Run npm install @dangbt/pro-ui.
+  </Disclosure>
+  <Disclosure title="Does it support dark mode?">
+    Yes, via ThemeProvider with system/light/dark modes.
+  </Disclosure>
+</Accordion>`,
+  },
+
+  {
+    name: 'Link',
+    importName: 'Link',
+    category: 'display',
+    description: 'Accessible anchor link with underline styling and color variants.',
+    useCases: ['inline link', 'navigation link', 'external link', 'text link'],
+    props: [
+      { name: 'href', type: 'string', required: false, description: 'Link URL' },
+      { name: 'variant', type: "'default' | 'muted' | 'danger'", required: false, default: "'default'", description: 'Link color' },
+      { name: 'target', type: 'string', required: false, description: 'HTML target (_blank for new tab)' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Link text or content' },
+    ],
+    example: `import { Link } from '@dangbt/pro-ui'
+
+<Link href="/dashboard">Go to Dashboard</Link>
+<Link href="https://example.com" target="_blank" variant="muted">External link</Link>
+<Link variant="danger" onPress={handleDelete}>Delete account</Link>`,
+  },
+
+  {
+    name: 'Divider',
+    importName: 'Divider',
+    category: 'display',
+    description: 'Horizontal or vertical separator line, optionally with a centered label.',
+    useCases: ['section divider', 'horizontal rule', 'vertical separator', 'OR divider'],
+    props: [
+      { name: 'orientation', type: "'horizontal' | 'vertical'", required: false, default: "'horizontal'", description: 'Divider direction' },
+      { name: 'label', type: 'string', required: false, description: 'Centered label text (horizontal only)' },
+    ],
+    example: `import { Divider } from '@dangbt/pro-ui'
+
+<Divider />
+<Divider label="OR" />
+<div className="flex gap-4 h-8">
+  <span>Left</span>
+  <Divider orientation="vertical" />
+  <span>Right</span>
+</div>`,
+  },
+
+  {
+    name: 'ListBox',
+    importName: 'ListBox',
+    category: 'display',
+    description: 'Selectable list with optional sections, icons, descriptions, and single/multiple selection.',
+    useCases: ['selectable list', 'option list', 'command list', 'grouped list'],
+    props: [
+      { name: 'items', type: '(ListBoxOption | ListBoxSection)[]', required: true, description: 'Flat list or sectioned list of options' },
+      { name: 'selectionMode', type: "'none' | 'single' | 'multiple'", required: false, description: 'Selection behavior' },
+      { name: 'selectedKeys', type: 'Selection', required: false, description: 'Controlled selected keys' },
+      { name: 'onSelectionChange', type: '(keys: Selection) => void', required: false, description: 'Called when selection changes' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Item text size' },
+    ],
+    example: `import { ListBox } from '@dangbt/pro-ui'
+import { User, Settings, LogOut } from 'lucide-react'
+
+<ListBox
+  selectionMode="single"
+  items={[
+    { id: 'profile', label: 'Profile', icon: <User size={14} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={14} /> },
+    { id: 'logout', label: 'Log out', icon: <LogOut size={14} />, description: 'Sign out of your account' },
+  ]}
+  onSelectionChange={(keys) => handleSelect(keys)}
+/>`,
+  },
+
+  {
+    name: 'GridList',
+    importName: 'GridList',
+    category: 'display',
+    description: 'Interactive grid list with optional checkbox selection, icons, and descriptions. Good for multi-select UIs.',
+    useCases: ['multi-select list', 'checkbox list', 'selectable rows', 'permission list'],
+    props: [
+      { name: 'items', type: 'GridListOption[]', required: true, description: 'Items ({ id, label, description?, icon?, disabled? })' },
+      { name: 'selectionMode', type: "'none' | 'single' | 'multiple'", required: false, description: 'Selection behavior' },
+      { name: 'selectedKeys', type: 'Selection', required: false, description: 'Controlled selected keys' },
+      { name: 'onSelectionChange', type: '(keys: Selection) => void', required: false, description: 'Called when selection changes' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Item text size' },
+    ],
+    example: `import { GridList } from '@dangbt/pro-ui'
+
+<GridList
+  selectionMode="multiple"
+  items={[
+    { id: 'email', label: 'Email notifications', description: 'Get notified via email' },
+    { id: 'sms', label: 'SMS notifications', description: 'Get notified via SMS' },
+    { id: 'push', label: 'Push notifications', description: 'Browser push alerts' },
+  ]}
+/>`,
+  },
+
+  {
+    name: 'Tree',
+    importName: 'Tree',
+    category: 'display',
+    description: 'Hierarchical tree view with expandable nodes, optional icons, and selection support.',
+    useCases: ['file tree', 'folder structure', 'hierarchical menu', 'nested navigation', 'category tree'],
+    props: [
+      { name: 'items', type: 'TreeNode[]', required: true, description: 'Tree nodes ({ id, label, icon?, children?: TreeNode[] })' },
+      { name: 'selectionMode', type: "'none' | 'single' | 'multiple'", required: false, description: 'Selection behavior' },
+      { name: 'selectedKeys', type: 'Selection', required: false, description: 'Controlled selected keys' },
+      { name: 'onSelectionChange', type: '(keys: Selection) => void', required: false, description: 'Called when selection changes' },
+      { name: 'defaultExpandedKeys', type: 'Iterable<Key>', required: false, description: 'Keys of nodes expanded by default' },
+    ],
+    example: `import { Tree } from '@dangbt/pro-ui'
+import { Folder, File } from 'lucide-react'
+
+<Tree
+  selectionMode="single"
+  items={[
+    {
+      id: 'src',
+      label: 'src',
+      icon: <Folder size={14} />,
+      children: [
+        { id: 'components', label: 'components', icon: <Folder size={14} /> },
+        { id: 'app', label: 'app.tsx', icon: <File size={14} /> },
+      ],
+    },
+    { id: 'package', label: 'package.json', icon: <File size={14} /> },
+  ]}
+/>`,
+  },
+
+  {
+    name: 'Toolbar',
+    importName: 'Toolbar, ToolbarSeparator',
+    category: 'display',
+    description: 'Container for a row of action buttons or controls, with keyboard navigation between items.',
+    useCases: ['action toolbar', 'editor toolbar', 'button row', 'formatting bar'],
+    props: [
+      { name: 'orientation', type: "'horizontal' | 'vertical'", required: false, default: "'horizontal'", description: 'Toolbar direction' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Toolbar items (Buttons, ToggleButtons, etc.)' },
+    ],
+    notes: 'Use ToolbarSeparator to add a visual vertical divider between groups of buttons.',
+    example: `import { Toolbar, ToolbarSeparator, Button, ToggleButton } from '@dangbt/pro-ui'
+import { Bold, Italic, Underline, AlignLeft, AlignCenter } from 'lucide-react'
+
+<Toolbar>
+  <ToggleButton size="sm"><Bold size={14} /></ToggleButton>
+  <ToggleButton size="sm"><Italic size={14} /></ToggleButton>
+  <ToggleButton size="sm"><Underline size={14} /></ToggleButton>
+  <ToolbarSeparator />
+  <ToggleButton size="sm"><AlignLeft size={14} /></ToggleButton>
+  <ToggleButton size="sm"><AlignCenter size={14} /></ToggleButton>
+</Toolbar>`,
   },
 ]
 

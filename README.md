@@ -1,14 +1,19 @@
 <div align="center">
 
-# @dangbt/pro-ui
+<img src="src/assets/logo-full.svg" alt="pro-ui" height="48" />
+
+<br/>
+<br/>
 
 **AI-native React UI library — 30+ accessible components built for Claude Code & Cursor**
 
-[![npm version](https://img.shields.io/npm/v/@dangbt/pro-ui?style=flat-square&color=6366f1)](https://www.npmjs.com/package/@dangbt/pro-ui)
-[![npm downloads](https://img.shields.io/npm/dm/@dangbt/pro-ui?style=flat-square&color=10b981)](https://www.npmjs.com/package/@dangbt/pro-ui)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square)](https://tailwindcss.com)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/dangbt?style=flat-square&color=ea4aaa&label=sponsor)](https://github.com/sponsors/dangbt)
+[![npm version](https://img.shields.io/npm/v/@dangbt/pro-ui?style=flat-square&color=6366f1&logo=npm&logoColor=white)](https://www.npmjs.com/package/@dangbt/pro-ui)
+[![npm downloads](https://img.shields.io/npm/dm/@dangbt/pro-ui?style=flat-square&color=10b981&logo=npm&logoColor=white)](https://www.npmjs.com/package/@dangbt/pro-ui)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![React Aria](https://img.shields.io/badge/React_Aria-accessible-e9501e?style=flat-square)](https://react-spectrum.adobe.com/react-aria/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/license-MIT-6366f1?style=flat-square)](LICENSE)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/dangbt?style=flat-square&color=ea4aaa&logo=github-sponsors&logoColor=white&label=sponsor)](https://github.com/sponsors/dangbt)
 
 [**Docs →**](https://pro-ui-docs.pages.dev) · [**Live Showcase →**](https://pro-ui.pages.dev) · [npm](https://www.npmjs.com/package/@dangbt/pro-ui) · [MCP Server](https://www.npmjs.com/package/mcp-pro-ui) · [Pro Template →](https://pro-admin-demo.pages.dev) · [**Sponsor ☕**](https://github.com/sponsors/dangbt)
 

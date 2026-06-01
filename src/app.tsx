@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Menu as MenuIcon, Sun, Moon, SlidersHorizontal } from 'lucide-react'
+import logoIconUrl from './assets/logo-icon.svg'
 import { Badge, Switch } from './components'
 import { ThemeProvider, useTheme } from './components/theme-provider'
 import { cn } from './lib/cn'
@@ -247,9 +248,7 @@ function AppInner() {
 
         {/* Logo */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-[var(--base-radius)] bg-primary flex items-center justify-center">
-            <span className="text-white text-xs font-bold">P</span>
-          </div>
+          <img src={logoIconUrl} alt="pro-ui" className="w-7 h-7" />
           <span className="font-semibold text-fg text-sm tracking-tight">pro-ui</span>
           <Badge color="info" className="hidden sm:inline-flex">v{__APP_VERSION__}</Badge>
         </div>
@@ -258,14 +257,34 @@ function AppInner() {
 
         {/* GitHub + npm links + Pro CTA */}
         <div className="hidden sm:flex items-center gap-1 mr-2">
+          {/* Buy Template CTA */}
           <a
-            href="https://prouiadmin.lemonsqueezy.com/checkout/buy/d10a5885-0c86-4fba-9eee-33b4de31413f"
+            href="https://prouiadmin.lemonsqueezy.com/checkout/buy/e85bcff6-ebaf-43f2-8848-8d98f9c30967"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors mr-1"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors mr-1 shrink-0"
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            Pro Template $79
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Template — $39
+          </a>
+          {/* Docs link */}
+          <a
+            href="https://pro-ui-docs.pages.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-fg-muted hover:text-fg-2 hover:bg-surface-subtle transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Docs
+          </a>
+          <a
+            href="https://pro-admin-demo.pages.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-border text-fg-2 hover:bg-surface-subtle transition-colors mr-1"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            View Demo
           </a>
           <a
             href="https://github.com/dangbt/pro-ui"
@@ -405,6 +424,29 @@ function AppInner() {
             </div>
 
             {SECTIONS[active]}
+
+            {/* Footer */}
+            <footer className="mt-16 pt-6 border-t border-border">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+                  {[
+                    { label: 'Docs',        href: 'https://pro-ui-docs.pages.dev' },
+                    { label: 'Admin Demo',  href: 'https://pro-admin-demo.pages.dev' },
+                    { label: 'GitHub',      href: 'https://github.com/dangbt/pro-ui' },
+                    { label: 'npm',         href: 'https://www.npmjs.com/package/@dangbt/pro-ui' },
+                    { label: 'Sponsor ☕',  href: 'https://github.com/sponsors/dangbt' },
+                  ].map(l => (
+                    <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-fg-disabled hover:text-fg-muted transition-colors">
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+                <p className="text-xs text-fg-disabled shrink-0">
+                  Built by <a href="https://github.com/dangbt" target="_blank" rel="noopener noreferrer" className="hover:underline">dangbt</a> · MIT
+                </p>
+              </div>
+            </footer>
           </main>
         </ShowcaseSizeCtx.Provider>
       </div>

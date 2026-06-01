@@ -211,7 +211,7 @@ function TopNavLineDemo() {
         <Layout.TopNav.Actions>
           <Button size="sm" variant="primary">
             <IconZap className="w-3.5 h-3.5" />
-            Upgrade
+            Upgrade — $39/mo
           </Button>
         </Layout.TopNav.Actions>
       </Layout.TopNav>

@@ -1,6 +1,6 @@
 {
   "name": "mcp-pro-ui",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "MCP server for @dangbt/pro-ui — lets AI agents (Claude Code, Cursor, Copilot) browse components, get API references, and generate React code",
   "keywords": [
     "mcp",

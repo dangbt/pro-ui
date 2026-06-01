@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, Zap } from 'lucide-react'
 import {
   Button, Badge, Alert, Card, Avatar, AvatarGroup,
   ProgressBar, Meter, Spinner, Skeleton, Divider, Link,
@@ -63,7 +64,7 @@ export function AlertSection() {
         </Demo>
         <Demo label="Alert — warning" center={false}>
           <Alert variant="warning" closable>
-            Your free plan expires in 7 days. Upgrade to keep access.
+            Your free plan expires in 7 days. Upgrade to Pro for $39/mo to keep access.
           </Alert>
         </Demo>
         <Demo label="Alert — danger" center={false}>
@@ -99,6 +100,45 @@ export function CardSection() {
         <Demo label="Card — with footer" center={false}>
           <Card title="Confirm" footer={<div className="flex justify-end gap-2"><Button size={size} variant="secondary">Cancel</Button><Button size={size} variant="primary">Apply</Button></div>} className="w-full">
             <p className="text-sm text-fg-muted">Apply these settings to all projects?</p>
+          </Card>
+        </Demo>
+      </div>
+
+      {/* Pricing card */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Demo label="Card — pricing" center={false}>
+          <Card padding={false} shadow className="w-full overflow-hidden">
+            <div className="bg-primary px-5 pt-5 pb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-white" />
+                <span className="text-sm font-semibold text-white">Pro Plan</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-bold text-white">$39</span>
+                <span className="text-sm text-white/70">/mo</span>
+              </div>
+              <p className="text-xs text-white/60 mt-1">Billed monthly · cancel anytime</p>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                'Unlimited projects',
+                'Priority support',
+                'Advanced analytics',
+                'Custom domain',
+                'Team collaboration',
+              ].map(f => (
+                <div key={f} className="flex items-center gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-primary" strokeWidth={3} />
+                  </div>
+                  <span className="text-sm text-fg-2">{f}</span>
+                </div>
+              ))}
+              <Button variant="primary" size={size} className="w-full mt-2">
+                <Zap className="w-3.5 h-3.5" />
+                Upgrade now
+              </Button>
+            </div>
           </Card>
         </Demo>
       </div>
