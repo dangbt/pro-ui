@@ -15,5 +15,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src/components", "src/lib"]
+  "include": ["src/components", "src/lib"],
+  "exclude": ["src/**/*.stories.tsx"]
 }
