@@ -43,19 +43,64 @@ const cellTextCls: Record<Size, string> = {
 function IndeterminateCheckbox({
   indeterminate,
   className,
+  checked,
+  disabled,
+  onChange,
   ...rest
 }: React.InputHTMLAttributes<HTMLInputElement> & { indeterminate?: boolean }) {
-  const ref = useRef<HTMLInputElement>(null)
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = indeterminate ?? false
-  }, [indeterminate])
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className={cn('w-4 h-4 rounded border-border cursor-pointer accent-primary', className)}
-      {...rest}
-    />
+    <label
+      className={cn(
+        'inline-flex items-center justify-center cursor-pointer',
+        disabled && 'cursor-not-allowed opacity-50',
+        className,
+      )}
+    >
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+        {...rest}
+      />
+      <div
+        className={cn(
+          'w-4 h-4 border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
+          'border-border bg-surface',
+          (checked || indeterminate) && 'bg-primary border-primary',
+          'peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-1',
+          'hover:border-primary-400',
+          'active:scale-95',
+        )}
+      >
+        <svg viewBox="0 0 16 16" className="w-full h-full" aria-hidden>
+          {indeterminate ? (
+            <path
+              d="M 3 8 L 13 8"
+              stroke="white"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              fill="none"
+            />
+          ) : (
+            <path
+              d="M 2.5 8 L 6 12 L 13.5 4"
+              fill="none"
+              stroke="white"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                strokeDasharray: '22px',
+                strokeDashoffset: checked ? '44px' : '66px',
+                transition: 'stroke-dashoffset 200ms ease',
+              }}
+            />
+          )}
+        </svg>
+      </div>
+    </label>
   )
 }
 
@@ -556,7 +601,8 @@ export function ProTable<T extends object>({
 
       {/* Bulk action bar — sticky within table wrapper only (not the filter) */}
       {rowSelection && selectedKeys.length > 0 && (
-        <div className="sticky bottom-4 z-10 flex justify-center pointer-events-none">
+        <>
+        <div className="sticky bottom-4 z-10 flex justify-center pointer-events-none -mt-30">
           <div className="pointer-events-auto flex flex-wrap items-center gap-3 px-5 py-3 rounded-2xl bg-fg text-canvas shadow-[0_8px_32px_rgba(0,0,0,0.25)] max-w-[calc(100vw-2rem)]">
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold">{selectedKeys.length} selected</span>
@@ -592,6 +638,8 @@ export function ProTable<T extends object>({
             )}
           </div>
         </div>
+        <div className="h-14" />
+        </>
       )}
       </div>
     </div>
