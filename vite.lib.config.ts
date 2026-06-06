@@ -9,8 +9,6 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/components/index.ts'),
       name: 'ProUI',
-      formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
       external: [
@@ -28,13 +26,27 @@ export default defineConfig({
         'zod',
         '@internationalized/date',
       ],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'ReactJSXRuntime',
+      output: [
+        {
+          format: 'es',
+          entryFileNames: 'index.mjs',
+          banner: '"use client";\n',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'ReactJSXRuntime',
+          },
         },
-      },
+        {
+          format: 'cjs',
+          entryFileNames: 'index.js',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'ReactJSXRuntime',
+          },
+        },
+      ],
     },
     outDir: 'dist',
     emptyOutDir: false,

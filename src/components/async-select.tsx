@@ -310,7 +310,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
           <ChevronDown className={cn('w-4 h-4 text-fg-disabled shrink-0 transition-transform duration-150', isOpen && 'rotate-180')} />
         </div>
       </button>
-      {createPortal(isOpen ? dropdown : null, document.body)}
+      {typeof document !== 'undefined' && createPortal(isOpen ? dropdown : null, document.body)}
     </div>
   )
 }
