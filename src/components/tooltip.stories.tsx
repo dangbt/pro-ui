@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Tooltip } from './tooltip'
 import { Button } from './button'
-import { Info, HelpCircle, Settings } from 'lucide-react'
+import { Info } from 'lucide-react'
 
 const meta: Meta = {
   title: 'Overlay/Tooltip',
