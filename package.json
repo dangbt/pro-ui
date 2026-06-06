@@ -42,7 +42,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist/server && node prerender.mjs",
     "build:lib": "vite build -c vite.lib.config.ts && tsc -p tsconfig.lib.json",
     "prepublishOnly": "pnpm build:lib",
     "preview": "vite preview",

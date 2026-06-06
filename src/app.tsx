@@ -95,6 +95,7 @@ const SZ_MAP: Record<Size, string> = { sm: 'var(--sz-sm)', md: 'var(--sz-md)', l
 const ALL_IDS = new Set(NAV.flatMap(g => g.items).map(i => i.id))
 
 function getHashSection() {
+  if (typeof window === 'undefined') return 'overview'
   const id = window.location.hash.slice(1)
   return ALL_IDS.has(id) ? id : 'overview'
 }
@@ -105,7 +106,7 @@ function ThemeToggle() {
 
   // Resolve system preference so the Switch reflects actual appearance
   const [sysDark, setSysDark] = useState(
-    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches,
   )
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
