@@ -1128,6 +1128,7 @@ import { Grid, List } from 'lucide-react'
       { name: 'accept', type: 'string[]', required: false, description: 'Accepted MIME types (e.g. ["image/*"])' },
       { name: 'allowsMultiple', type: 'boolean', required: false, description: 'Allow multiple files' },
       { name: 'onFiles', type: '(files: FileList) => void', required: false, description: 'Called with dropped or selected files' },
+      { name: 'isDisabled', type: 'boolean', required: false, default: 'false', description: 'Disables drag, click, and keyboard interaction' },
     ],
     example: `import { DropZone } from '@dangbt/pro-ui'
 
@@ -1136,7 +1137,10 @@ import { Grid, List } from 'lucide-react'
   description="PNG, JPG up to 5MB"
   accept={['image/*']}
   onFiles={(files) => handleUpload(files)}
-/>`,
+/>
+
+// Disabled state:
+<DropZone label="Upload disabled" isDisabled />`,
   },
 
   {

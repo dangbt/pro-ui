@@ -40,6 +40,9 @@ npm install @dangbt/pro-ui
 - Select, AsyncSelect, ComboBox: Dropdown and combobox components.
 - Checkbox, RadioGroup, Switch, ToggleButton: Selection components.
 - DatePicker, TimeField: Date and time inputs.
+- Autocomplete: Search field with a filtered suggestion list. Items filter as the user types.
+- Link: Accessible anchor with underline styling and color variants.
+- Divider: Horizontal or vertical separator, optionally with a centered label.
 - TagGroup, Slider, ColorPicker, FileTrigger, DropZone: Specialized inputs.
 - Spinner, Skeleton, ProgressBar, Meter: Loading and progress components.
 - Breadcrumbs, Toolbar, Disclosure, GridList, ListBox, Tree: Navigation and layout components.
