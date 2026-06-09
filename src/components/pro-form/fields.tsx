@@ -57,7 +57,6 @@ export function ProFormInput({ name, label, required, description, placeholder, 
             type={type}
             size={effectiveSize}
             isInvalid={!!fieldState.error}
-            errorMessage={fieldState.error?.message}
             className="w-full"
             inputClassName={inputClassName}
           />
