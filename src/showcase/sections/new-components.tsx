@@ -20,7 +20,7 @@ export function PaginationSection() {
           <Pagination current={page} total={100} pageSize={10} onChange={(p) => setPage(p)} />
         </Demo>
         <Demo label="With total & size changer">
-          <Pagination current={page} total={200} pageSize={10} onChange={(p, ps) => setPage(p)} showTotal showSizeChanger />
+          <Pagination current={page} total={200} pageSize={10} onChange={(p) => setPage(p)} showTotal showSizeChanger />
         </Demo>
       </div>
     </div>
@@ -46,6 +46,9 @@ export function TypographySection() {
           <Text code>Code</Text>
           <Text mark>Marked</Text>
           <Text delete>Deleted</Text>
+        </Demo>
+        <Demo label="Paragraph" center={false}>
+          <Paragraph>A design system for enterprise-level products. Create an efficient and enjoyable work experience.</Paragraph>
         </Demo>
       </div>
     </div>
@@ -239,7 +242,7 @@ export function InputOTPSection() {
   )
 }
 
-function BuggyComponent() {
+function BuggyComponent(): React.ReactNode {
   throw new Error('Oops! This component crashed.')
 }
 

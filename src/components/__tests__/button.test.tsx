@@ -9,8 +9,8 @@ describe('Button', () => {
   })
 
   it('forwards ref', () => {
-    const ref = { current: null } as React.RefObject<HTMLButtonElement | null>
-    render(<Button ref={ref}>Ref test</Button>)
+    const ref = { current: null } as React.RefObject<HTMLButtonElement>
+    render(<Button ref={ref as any}>Ref test</Button>)
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })
 
