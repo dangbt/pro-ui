@@ -6,7 +6,7 @@ import {
   Text,
   type TextFieldProps,
 } from 'react-aria-components'
-import type { ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputText, inputPx, labelText, type Size } from '../lib/size'
 
@@ -21,13 +21,17 @@ interface InputProps extends Omit<TextFieldProps, 'className'> {
   errorMessage?: ReactNode
 }
 
-export function Input({ label, description, placeholder, type, size = 'md', className, inputClassName, errorMessage, ...props }: InputProps) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { label, description, placeholder, type, size = 'md', className, inputClassName, errorMessage, ...props },
+  ref,
+) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && (
         <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>
       )}
       <RAInput
+        ref={ref}
         type={type}
         placeholder={placeholder}
         className={cn(
@@ -51,4 +55,6 @@ export function Input({ label, description, placeholder, type, size = 'md', clas
       }
     </TextField>
   )
-}
+})
+
+Input.displayName = 'Input'

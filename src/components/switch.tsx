@@ -1,4 +1,5 @@
 import { Switch as RASwitch, type SwitchProps as RASwitchProps } from 'react-aria-components'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
 type SwitchSize = 'sm' | 'md' | 'lg'
@@ -27,10 +28,14 @@ const switchLabelText: Record<SwitchSize, string> = {
   lg: 'text-base',
 }
 
-export function Switch({ children, size = 'md', className, ...props }: SwitchProps) {
+export const Switch = forwardRef<HTMLLabelElement, SwitchProps>(function Switch(
+  { children, size = 'md', className, ...props },
+  ref,
+) {
   return (
     <RASwitch
       {...props}
+      ref={ref}
       className={cn(
         'group flex items-center gap-2 cursor-pointer select-none',
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
@@ -56,4 +61,6 @@ export function Switch({ children, size = 'md', className, ...props }: SwitchPro
       {children && <span className={`${switchLabelText[size]} text-fg-2`}>{children}</span>}
     </RASwitch>
   )
-}
+})
+
+Switch.displayName = 'Switch'

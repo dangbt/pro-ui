@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Search, X, ChevronDown } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
+import { useClickOutside } from '../lib/use-click-outside'
 import { Spinner } from './spinner'
 
 export interface AsyncSelectOption {
@@ -54,8 +55,10 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [selectedOption, setSelectedOption] = useState<T | null>(null)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const [activeIndex, setActiveIndex] = useState(-1)
   const prevValueRef = useRef(value)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -89,11 +92,14 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
     const doFetch = async () => {
       if (isFirst) setLoading(true)
       else setLoadingMore(true)
+      setFetchError(null)
       try {
         const result = await fetchRef.current({ search, page, pageSize })
         if (cancelled) return
         setOptions(prev => isFirst ? result.options : [...prev, ...result.options])
         setHasMore(result.hasMore)
+      } catch (err) {
+        if (!cancelled) setFetchError(err instanceof Error ? err.message : 'Failed to load')
       } finally {
         if (!cancelled) {
           if (isFirst) setLoading(false)
@@ -143,20 +149,51 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   }, [isOpen, updatePos])
 
   /* ── Click outside + Escape ────────────────────────────── */
+  const doClose = useCallback(() => {
+    setIsOpen(false)
+    setOptions([])
+    setHasMore(false)
+    onBlur?.()
+  }, [onBlur])
+
+  useClickOutside([triggerRef, dropdownRef], doClose, isOpen)
+
   useEffect(() => {
     if (!isOpen) return
-    const onMouse = (e: MouseEvent) => {
-      if (!triggerRef.current?.contains(e.target as Node) && !dropdownRef.current?.contains(e.target as Node))
-        doClose()
-    }
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') doClose() }
-    document.addEventListener('mousedown', onMouse)
     document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onMouse)
-      document.removeEventListener('keydown', onKey)
-    }
+    return () => document.removeEventListener('keydown', onKey)
   }, [isOpen])
+
+  /* ── Keyboard navigation ───────────────────────────────── */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!isOpen || options.length === 0) return
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setActiveIndex(i => Math.min(i + 1, options.length - 1))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setActiveIndex(i => Math.max(i - 1, 0))
+        break
+      case 'Home':
+        e.preventDefault()
+        setActiveIndex(0)
+        break
+      case 'End':
+        e.preventDefault()
+        setActiveIndex(options.length - 1)
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (activeIndex >= 0 && options[activeIndex]) handleSelect(options[activeIndex])
+        break
+    }
+  }, [isOpen, options, activeIndex])
+
+  // Reset activeIndex when options change
+  useEffect(() => { setActiveIndex(-1) }, [options])
 
   /* ── Focus search on open ──────────────────────────────── */
   useEffect(() => {
@@ -168,13 +205,6 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
     if (isDisabled) return
     setFetchParams({ search: '', page: 1 })
     setIsOpen(true)
-  }
-
-  const doClose = () => {
-    setIsOpen(false)
-    setOptions([])
-    setHasMore(false)
-    onBlur?.()
   }
 
   const handleSelect = (opt: T) => {
@@ -211,6 +241,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
             ref={searchRef}
             value={fetchParams.search}
             onChange={e => setFetchParams({ search: e.target.value, page: 1 })}
+            onKeyDown={handleKeyDown}
             placeholder={searchPlaceholder}
             className={cn('flex-1 bg-transparent outline-none text-fg placeholder:text-fg-disabled', inputText[size])}
           />
@@ -227,21 +258,35 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
       </div>
 
       {/* Options list */}
-      <div ref={listRef} className="max-h-60 overflow-y-auto">
+      <div ref={listRef} className="max-h-60 overflow-y-auto" role="listbox">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Spinner size="sm" />
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center gap-2 py-6">
+            <p className={cn('text-danger', inputText[size])}>Failed to load</p>
+            <button
+              type="button"
+              onClick={() => setFetchParams(p => ({ ...p }))}
+              className="text-xs text-primary hover:text-primary-600 font-medium transition-colors"
+            >
+              Tap to retry
+            </button>
           </div>
         ) : options.length === 0 ? (
           <div className={cn('py-8 text-center text-fg-disabled', inputText[size])}>No results found</div>
         ) : (
           <>
-            {options.map(opt => {
+            {options.map((opt, idx) => {
               const isSelected = opt.value === activeValue
+              const isActive = idx === activeIndex
               return (
                 <button
                   key={opt.value}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => handleSelect(opt)}
                   className={cn(
                     'w-full text-left transition-colors',
@@ -249,7 +294,9 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
                     size === 'sm' ? 'py-1.5' : size === 'lg' ? 'py-2.5' : 'py-2',
                     isSelected
                       ? 'bg-primary-100 text-primary font-medium'
-                      : 'text-fg-2 hover:bg-primary-50 hover:text-primary',
+                      : isActive
+                        ? 'bg-primary-50 text-primary'
+                        : 'text-fg-2 hover:bg-primary-50 hover:text-primary',
                   )}
                 >
                   {opt.label}

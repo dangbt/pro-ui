@@ -4,6 +4,7 @@ import {
   TextArea as RATextArea,
   type TextFieldProps,
 } from 'react-aria-components'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 import { inputText, inputPx, textareaPy, labelText, type Size } from '../lib/size'
 
@@ -15,11 +16,15 @@ interface TextareaProps extends Omit<TextFieldProps, 'className'> {
   className?: string
 }
 
-export function Textarea({ label, placeholder, rows = 3, size = 'md', className, ...props }: TextareaProps) {
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { label, placeholder, rows = 3, size = 'md', className, ...props },
+  ref,
+) {
   return (
     <TextField {...props} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
       <RATextArea
+        ref={ref}
         placeholder={placeholder}
         rows={rows}
         className={cn(
@@ -35,4 +40,6 @@ export function Textarea({ label, placeholder, rows = 3, size = 'md', className,
       />
     </TextField>
   )
-}
+})
+
+Textarea.displayName = 'Textarea'

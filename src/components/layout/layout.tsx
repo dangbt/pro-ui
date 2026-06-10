@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, createContext, useContext, type ReactNode, type CSSProperties } from 'react'
+import { useState, useRef, createContext, useContext, useCallback, type ReactNode, type CSSProperties } from 'react'
 import { ChevronLeft, ChevronDown, Menu as MenuIcon, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
+import { useClickOutside } from '../../lib/use-click-outside'
 
 /* ── Sider context ────────────────────────────────────────────────────────── */
 
@@ -407,14 +408,8 @@ function TopNavItem({ label, icon, active, onClick, items, badge }: TopNavItemPr
   const ref = useRef<HTMLDivElement>(null)
   const hasItems = !!items?.length
 
-  useEffect(() => {
-    if (!open) return
-    const fn = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', fn)
-    return () => document.removeEventListener('mousedown', fn)
-  }, [open])
+  const closeMenu = useCallback(() => setOpen(false), [])
+  useClickOutside([ref], closeMenu, open)
 
   const handleClick = () => {
     if (hasItems) setOpen(o => !o)
@@ -449,14 +444,14 @@ function TopNavItem({ label, icon, active, onClick, items, badge }: TopNavItemPr
                 ? <div key={i} className="my-1 border-t border-border-subtle" />
                 : (
                   <button key={i} type="button"
-                    onClick={() => { (item as any).onClick?.(); setOpen(false) }}
+                    onClick={() => { if (!('divider' in item)) { item.onClick?.(); setOpen(false) } }}
                     className={cn(
                       'flex items-center gap-2 px-3 py-1.5 text-sm rounded-[var(--base-radius)] text-left w-full transition-colors',
-                      (item as any).danger ? 'text-danger hover:bg-danger-50' : 'text-fg-2 hover:bg-surface-subtle',
+                      !('divider' in item) && item.danger ? 'text-danger hover:bg-danger-50' : 'text-fg-2 hover:bg-surface-subtle',
                     )}
                   >
-                    {(item as any).icon && <span className="w-4 h-4">{(item as any).icon}</span>}
-                    {(item as any).label}
+                    {!('divider' in item) && item.icon && <span className="w-4 h-4">{item.icon}</span>}
+                    {!('divider' in item) && item.label}
                   </button>
                 )
             )}
@@ -505,14 +500,14 @@ function TopNavItem({ label, icon, active, onClick, items, badge }: TopNavItemPr
               ? <div key={i} className="my-1 border-t border-border-subtle mx-1" />
               : (
                 <button key={i} type="button"
-                  onClick={() => { (item as any).onClick?.(); setOpen(false) }}
+                  onClick={() => { if (!('divider' in item)) { item.onClick?.(); setOpen(false) } }}
                   className={cn(
                     'flex items-center gap-2 w-full px-3 py-1.5 text-sm text-left transition-colors',
-                    (item as any).danger ? 'text-danger hover:bg-danger-50' : 'text-fg-2 hover:bg-surface-subtle',
+                    !('divider' in item) && item.danger ? 'text-danger hover:bg-danger-50' : 'text-fg-2 hover:bg-surface-subtle',
                   )}
                 >
-                  {(item as any).icon && <span className="w-4 h-4 shrink-0">{(item as any).icon}</span>}
-                  {(item as any).label}
+                  {!('divider' in item) && item.icon && <span className="w-4 h-4 shrink-0">{item.icon}</span>}
+                  {!('divider' in item) && item.label}
                 </button>
               )
           )}

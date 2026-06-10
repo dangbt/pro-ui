@@ -5,6 +5,7 @@ import {
   type CheckboxProps as RACheckboxProps,
   type CheckboxGroupProps as RACheckboxGroupProps,
 } from 'react-aria-components'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
 type CheckboxSize = 'sm' | 'md' | 'lg'
@@ -26,10 +27,14 @@ const cbLabelText: Record<CheckboxSize, string> = {
   lg: 'text-base',
 }
 
-export function Checkbox({ children, size = 'md', className, ...props }: CheckboxProps) {
+export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>(function Checkbox(
+  { children, size = 'md', className, ...props },
+  ref,
+) {
   return (
     <RACheckbox
       {...props}
+      ref={ref}
       className={cn(
         'group flex items-center gap-2 cursor-pointer select-none',
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
@@ -52,7 +57,6 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
           >
             <svg viewBox="0 0 16 16" className="w-full h-full" aria-hidden>
               {isIndeterminate ? (
-                // Filled minus bar for indeterminate state
                 <path
                   d="M 3 8 L 13 8"
                   stroke="white"
@@ -61,8 +65,6 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
                   fill="none"
                 />
               ) : (
-                // Animated checkmark via stroke-dasharray draw-on technique
-                // Path length ≈ 16px; dasharray 22px > path → fully drawn when offset=44
                 <path
                   d="M 2.5 8 L 6 12 L 13.5 4"
                   fill="none"
@@ -86,7 +88,9 @@ export function Checkbox({ children, size = 'md', className, ...props }: Checkbo
       )}
     </RACheckbox>
   )
-}
+})
+
+Checkbox.displayName = 'Checkbox'
 
 interface CheckboxGroupProps extends Omit<RACheckboxGroupProps, 'className' | 'children'> {
   label?: string

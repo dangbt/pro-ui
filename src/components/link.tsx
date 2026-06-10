@@ -1,5 +1,5 @@
 import { Link as RALink, type LinkProps as RALinkProps } from 'react-aria-components'
-import type { ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 type LinkVariant = 'default' | 'muted' | 'danger'
@@ -16,10 +16,14 @@ const variantCls: Record<LinkVariant, string> = {
   danger:  'text-danger hover:text-danger-700',
 }
 
-export function Link({ variant = 'default', className, children, ...props }: LinkProps) {
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
+  { variant = 'default', className, children, ...props },
+  ref,
+) {
   return (
     <RALink
       {...props}
+      ref={ref}
       className={cn(
         'underline underline-offset-2 transition-colors cursor-pointer',
         'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 rounded-sm',
@@ -30,4 +34,6 @@ export function Link({ variant = 'default', className, children, ...props }: Lin
       {children}
     </RALink>
   )
-}
+})
+
+Link.displayName = 'Link'

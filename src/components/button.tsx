@@ -1,5 +1,5 @@
 import { Button as RAButton, type ButtonProps as RAButtonProps } from 'react-aria-components'
-import type { ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -31,19 +31,23 @@ const sizeCls: Record<Size, string> = {
   lg: 'h-[var(--sz)] px-5 text-base gap-2',
 }
 
-export function Button({
-  variant = 'secondary',
-  size = 'md',
-  className,
-  icon,
-  children,
-  loading = false,
-  isDisabled,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = 'secondary',
+    size = 'md',
+    className,
+    icon,
+    children,
+    loading = false,
+    isDisabled,
+    ...props
+  },
+  ref,
+) {
   return (
     <RAButton
       {...props}
+      ref={ref}
       isDisabled={loading || isDisabled}
       className={cn(
         'inline-flex items-center justify-center font-medium transition-[colors,transform] cursor-pointer',
@@ -62,4 +66,6 @@ export function Button({
       {children}
     </RAButton>
   )
-}
+})
+
+Button.displayName = 'Button'

@@ -9,6 +9,7 @@ import {
   type SelectProps as RASelectProps,
 } from 'react-aria-components'
 import { ChevronDown } from 'lucide-react'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
@@ -25,9 +26,12 @@ interface SelectProps extends Omit<RASelectProps<SelectOption>, 'children' | 'cl
   className?: string
 }
 
-export function Select({ label, placeholder, options, size = 'md', className, ...props }: SelectProps) {
+export const Select = forwardRef<HTMLDivElement, SelectProps>(function Select(
+  { label, placeholder, options, size = 'md', className, ...props },
+  ref,
+) {
   return (
-    <RASelect {...props} className={cn('flex flex-col gap-1', className)}>
+    <RASelect {...props} className={cn('flex flex-col gap-1', className)} ref={ref}>
       {label && (
         <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>
       )}
@@ -69,4 +73,6 @@ export function Select({ label, placeholder, options, size = 'md', className, ..
       </Popover>
     </RASelect>
   )
-}
+})
+
+Select.displayName = 'Select'

@@ -16,5 +16,5 @@
     "rootDir": "src"
   },
   "include": ["src/components", "src/lib"],
-  "exclude": ["src/**/*.stories.tsx"]
+  "exclude": ["src/**/*.stories.tsx", "src/**/*.test.tsx", "src/**/__tests__/**"]
 }

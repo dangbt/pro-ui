@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-table'
 import { Pin, PinOff, ChevronRight, ChevronDown } from 'lucide-react'
 import { cn } from '../../lib/cn'
+import { useClickOutside } from '../../lib/use-click-outside'
 import { SearchForm } from './search-form'
 import { Toolbar, buildColumnToggles } from './toolbar'
 import { buildColumns } from './build-columns'
@@ -55,6 +56,8 @@ function IndeterminateCheckbox({
         disabled && 'cursor-not-allowed opacity-50',
         className,
       )}
+      role="checkbox"
+      aria-checked={indeterminate ? 'mixed' : !!checked}
     >
       <input
         type="checkbox"
@@ -111,16 +114,7 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
   const menuRef = useRef<HTMLDivElement>(null)
   const pinned = column.getIsPinned()
 
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node) && !triggerRef.current?.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+  useClickOutside([menuRef, triggerRef], () => setOpen(false), open)
 
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -145,7 +139,7 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
       >
         {pinned ? <Pin className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
       </button>
-      {open && createPortal(
+      {open && typeof document !== 'undefined' && createPortal(
         <div
           ref={menuRef}
           className="fixed min-w-[120px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
@@ -237,6 +231,7 @@ export function ProTable<T extends object>({
   const [serverData, setServerData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
   const [loadingServer, setLoadingServer] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [searchParams, setSearchParams] = useState<Record<string, unknown>>({})
 
   // Shared state
@@ -270,12 +265,15 @@ export function ProTable<T extends object>({
     async (params: QueryParams) => {
       if (!request) return
       setLoadingServer(true)
+      setFetchError(null)
       try {
         const result = await request(params)
         if (result.success) {
           setServerData(result.data)
           setTotal(result.total)
         }
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : 'Failed to load data')
       } finally {
         setLoadingServer(false)
       }
@@ -308,7 +306,16 @@ export function ProTable<T extends object>({
   const tableData = isClientMode ? filteredClientData : serverData
   const serverTotal = isClientMode ? filteredClientData.length : total
 
-  useEffect(() => { setRowSelectionState({}) }, [tableData])
+  // Reset selection when data actually changes (by comparing row keys, not reference)
+  const dataIdentity = useMemo(() => {
+    return tableData.map((row, i) => {
+      if (typeof rowKey === 'function') return rowKey(row)
+      const val = (row as Record<string, unknown>)[rowKey as string]
+      return val != null ? String(val) : String(i)
+    }).join(',')
+  }, [tableData, rowKey])
+
+  useEffect(() => { setRowSelectionState({}) }, [dataIdentity])
 
   const selectionColumn: ColumnDef<T> = {
     id: 'select',
@@ -352,10 +359,12 @@ export function ProTable<T extends object>({
     },
   }
 
+  const builtColumns = useMemo(() => buildColumns(columnDefs), [columnDefs])
+
   const columns = [
     ...(expandedRowRender ? [expandColumn] : []),
     ...(rowSelection ? [selectionColumn] : []),
-    ...buildColumns(columnDefs),
+    ...builtColumns,
   ]
 
   const table = useReactTable({
@@ -456,6 +465,7 @@ export function ProTable<T extends object>({
                         )}
                         style={getPinnedStyle(header.column as Column<unknown, unknown>)}
                         onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                        aria-sort={canSort ? (header.column.getIsSorted() === 'asc' ? 'ascending' : header.column.getIsSorted() === 'desc' ? 'descending' : 'none') : undefined}
                       >
                         <span className="inline-flex items-center gap-1">
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -483,6 +493,22 @@ export function ProTable<T extends object>({
                     <div className="flex items-center justify-center gap-2">
                       <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
                       Loading...
+                    </div>
+                  </td>
+                </tr>
+              ) : fetchError ? (
+                <tr>
+                  <td colSpan={columns.length} className="py-16 text-center text-sm">
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-danger font-medium">Failed to load</p>
+                      <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
+                      <button
+                        type="button"
+                        onClick={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
+                        className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
+                      >
+                        Retry
+                      </button>
                     </div>
                   </td>
                 </tr>

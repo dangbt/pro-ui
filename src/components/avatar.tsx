@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { User } from 'lucide-react'
 import { cn } from '../lib/cn'
 
@@ -49,13 +50,16 @@ function colorForName(name: string): string {
 }
 
 export function Avatar({ src, name, size = 'md', shape = 'circle', className }: AvatarProps) {
+  const [imgError, setImgError] = useState(false)
   const radiusCls = shape === 'circle' ? 'rounded-full' : 'rounded-[var(--base-radius)]'
 
-  if (src) {
+  if (src && !imgError) {
     return (
       <img
         src={src}
         alt={name ?? 'avatar'}
+        role="img"
+        onError={() => setImgError(true)}
         className={cn('object-cover shrink-0', sizeMap[size], radiusCls, className)}
       />
     )
@@ -108,6 +112,7 @@ export function AvatarGroup({ avatars, max = 4, size = 'md', className }: Avatar
       ))}
       {rest > 0 && (
         <div
+          aria-label={`${rest} more users`}
           className={cn(
             'flex items-center justify-center text-xs font-semibold',
             'bg-surface-subtle text-fg-muted ring-2 ring-canvas rounded-full',

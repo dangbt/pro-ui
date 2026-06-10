@@ -51,7 +51,7 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
       <Button variant="ghost" size="sm" onPress={handleOpen} aria-label="Toggle columns">
         <Columns3 className="w-4 h-4" />
       </Button>
-      {open && createPortal(
+      {open && typeof document !== 'undefined' && createPortal(
         <div
           ref={menuRef}
           className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"

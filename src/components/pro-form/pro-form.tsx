@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
 import {
   useForm,
   FormProvider,
@@ -65,6 +65,17 @@ export function ProForm<T extends FieldValues>({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const methods = useForm<T>({ resolver: zodResolver(schema as any), defaultValues })
   const { handleSubmit, reset, formState: { isSubmitting } } = methods
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const onSubmit = async (values: T) => {
+    setSubmitError(null)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (onFinish as any)(values)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Submit failed')
+    }
+  }
 
   return (
     <SizeCtx.Provider value={size}>
@@ -72,18 +83,20 @@ export function ProForm<T extends FieldValues>({
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <FormProvider {...(methods as any)}>
         <form
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onSubmit={handleSubmit(onFinish as any)}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
           className={cn('flex flex-col gap-4', className)}
         >
           {children}
+          {submitError && (
+            <p className="text-xs text-danger">{submitError}</p>
+          )}
           <div className={cn('flex items-center gap-2 pt-1', layout === 'horizontal' && 'sm:ml-[calc(7rem+0.75rem)]')}>
             <Button type="submit" variant="primary" size={size} loading={isSubmitting} className={submitClassName}>
               {submitText}
             </Button>
             {showReset && (
-              <Button type="button" variant="secondary" size={size} onPress={() => { reset(); onReset?.() }}>
+              <Button type="button" variant="secondary" size={size} onPress={() => { reset(); onReset?.(); setSubmitError(null) }}>
                 {resetText}
               </Button>
             )}
