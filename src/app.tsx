@@ -34,6 +34,12 @@ import {
   ProgressSection, SkeletonSection, DisclosureSection, LinkSection,
   DropZoneSection, ColorPickerSection,
 } from './showcase/sections/display'
+import {
+  PaginationSection, TypographySection, DescriptionsSection,
+  ResultSection, TimelineSection, DropdownSection, SegmentedSection,
+  BasicTableSection, UploadSection, TransferSection, InputOTPSection,
+  ErrorBoundarySection,
+} from './showcase/sections/new-components'
 import { ProTableSection, ProFormSection } from './showcase/sections/data'
 import { LayoutSection }  from './showcase/sections/layout'
 import { ThemeBuilderPage } from './showcase/theme-builder'
@@ -80,6 +86,18 @@ const SECTIONS: Record<string, React.ReactNode> = {
   skeleton:        <SkeletonSection />,
   disclosure:      <DisclosureSection />,
   link:            <LinkSection />,
+  pagination:       <PaginationSection />,
+  typography:       <TypographySection />,
+  descriptions:     <DescriptionsSection />,
+  result:           <ResultSection />,
+  timeline:         <TimelineSection />,
+  dropdown:         <DropdownSection />,
+  segmented:        <SegmentedSection />,
+  'basic-table':    <BasicTableSection />,
+  upload:           <UploadSection />,
+  transfer:         <TransferSection />,
+  'input-otp':      <InputOTPSection />,
+  'error-boundary': <ErrorBoundarySection />,
   protable:        <ProTableSection />,
   proform:         <ProFormSection />,
   layout:          <LayoutSection />,

@@ -34,6 +34,9 @@ export const NAV: NavGroup[] = [
       { id: 'file',          label: 'File Upload'         },
       { id: 'autocomplete',  label: 'Autocomplete'        },
       { id: 'dropzone',      label: 'Drop Zone'           },
+      { id: 'upload',        label: 'Upload'              },
+      { id: 'transfer',      label: 'Transfer'            },
+      { id: 'input-otp',     label: 'Input OTP'           },
     ],
   },
   {
@@ -52,6 +55,8 @@ export const NAV: NavGroup[] = [
       { id: 'tabs',        label: 'Tabs'        },
       { id: 'breadcrumbs', label: 'Breadcrumbs' },
       { id: 'toolbar',     label: 'Toolbar'     },
+      { id: 'dropdown',    label: 'Dropdown'    },
+      { id: 'segmented',   label: 'Segmented'   },
     ],
   },
   {
@@ -77,6 +82,13 @@ export const NAV: NavGroup[] = [
       { id: 'disclosure',   label: 'Disclosure'         },
       { id: 'link',         label: 'Link'               },
       { id: 'color-picker', label: 'Color Picker'       },
+      { id: 'typography',      label: 'Typography'      },
+      { id: 'descriptions',    label: 'Descriptions'    },
+      { id: 'result',          label: 'Result'          },
+      { id: 'timeline',        label: 'Timeline'        },
+      { id: 'pagination',      label: 'Pagination'      },
+      { id: 'basic-table',     label: 'Table'           },
+      { id: 'error-boundary',  label: 'ErrorBoundary'   },
     ],
   },
   {
