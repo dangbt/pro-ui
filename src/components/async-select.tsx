@@ -226,6 +226,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   const dropdown = (
     <div
       ref={dropdownRef}
+      data-react-aria-top-layer
       style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 9999 }}
       className="bg-surface border border-border shadow-lg rounded-[var(--base-radius)] overflow-hidden"
     >

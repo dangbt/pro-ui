@@ -54,6 +54,7 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
       {open && typeof document !== 'undefined' && createPortal(
         <div
           ref={menuRef}
+          data-react-aria-top-layer
           className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
           style={{ top: pos.top, right: pos.right, zIndex: 9999 }}
         >

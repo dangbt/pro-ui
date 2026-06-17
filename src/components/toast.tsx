@@ -182,6 +182,7 @@ export function ToastProvider({ position = 'bottom-right' }: ToastProviderProps)
   return createPortal(
     <div
       aria-label="Notifications"
+      data-react-aria-top-layer
       className={cn(
         'fixed z-[9999] flex flex-col gap-2 pointer-events-none',
         positionCls[position],

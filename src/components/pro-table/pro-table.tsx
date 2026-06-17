@@ -142,6 +142,7 @@ function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
       {open && typeof document !== 'undefined' && createPortal(
         <div
           ref={menuRef}
+          data-react-aria-top-layer
           className="fixed min-w-[120px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
           style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
         >
