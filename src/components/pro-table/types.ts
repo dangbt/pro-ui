@@ -86,6 +86,15 @@ export interface ProTableProps<T extends object> {
     onChange?: (selectedKeys: string[], selectedRows: T[]) => void
   }
   bulkActions?: BulkActionDef<T>[]
+  /**
+   * Persist column visibility (show/hide toggles) to `localStorage`.
+   * - `true` (default): persist under an auto-derived key based on the table's
+   *   title and column keys.
+   * - `false`: don't persist; visibility resets on every mount.
+   * - `string`: persist under this explicit key (use it to share/scope state
+   *   across remounts or to avoid collisions between similar tables).
+   */
+  persistColumnVisibility?: boolean | string
   /** render additional content below a row when expanded; row becomes clickable to toggle */
   expandedRowRender?: (record: T) => ReactNode
   /** add CSS classes to a row based on the record */

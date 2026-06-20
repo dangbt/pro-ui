@@ -216,8 +216,16 @@ export function ProTable<T extends object>({
   rowClassName,
   onRow,
   size = 'sm',
+  persistColumnVisibility = true,
 }: ProTableProps<T>) {
   const isClientMode = !request && dataSource !== undefined
+
+  const persistVisibility = persistColumnVisibility !== false
+  const visibilityStorageKey = useMemo(() => {
+    if (typeof persistColumnVisibility === 'string') return persistColumnVisibility
+    const cols = columnDefs.map(c => (c.key ?? c.dataIndex ?? c.title) as string).join(',')
+    return `pro-table:colvis:${headerTitle ?? ''}:${cols}`
+  }, [persistColumnVisibility, columnDefs, headerTitle])
 
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
   const toggleExpand = (key: string) => {
@@ -242,10 +250,30 @@ export function ProTable<T extends object>({
     pageSize: paginationConfig?.defaultPageSize ?? 10,
   })
   const [rowSelectionState, setRowSelectionState] = useState<RowSelectionState>({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
-    Object.fromEntries(columnDefs.filter(c => c.hideInTable).map(c => [(c.key ?? c.dataIndex ?? c.title) as string, false]))
-  )
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
+    const defaults = Object.fromEntries(
+      columnDefs.filter(c => c.hideInTable).map(c => [(c.key ?? c.dataIndex ?? c.title) as string, false]),
+    )
+    if (!persistVisibility || typeof window === 'undefined') return defaults
+    try {
+      const stored = window.localStorage.getItem(visibilityStorageKey)
+      if (stored) return { ...defaults, ...(JSON.parse(stored) as VisibilityState) }
+    } catch {
+      /* ignore malformed / unavailable storage */
+    }
+    return defaults
+  })
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
+
+  // Persist column visibility to localStorage when enabled
+  useEffect(() => {
+    if (!persistVisibility || typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(visibilityStorageKey, JSON.stringify(columnVisibility))
+    } catch {
+      /* storage may be full or unavailable (private mode) — fail silently */
+    }
+  }, [persistVisibility, visibilityStorageKey, columnVisibility])
 
   // Client-side: filter dataSource by searchParams
   const filteredClientData = useMemo(() => {

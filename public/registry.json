@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.3.21",
+  "version": "1.4.3",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "homepage": "https://pro-ui.pages.dev",
   "docs": "https://pro-ui.pages.dev/docs",
@@ -123,6 +123,13 @@
           "required": false,
           "default": "'md'",
           "description": "Table density size"
+        },
+        {
+          "name": "persistColumnVisibility",
+          "type": "boolean | string",
+          "required": false,
+          "default": "true",
+          "description": "Persist show/hide column state to localStorage. true = auto-derived key; string = explicit key; false = disabled"
         }
       ],
       "example": "import { ProTable } from '@dangbt/pro-ui'\nimport type { ProColumnType } from '@dangbt/pro-ui'\n\ninterface User {\n  id: string\n  name: string\n  email: string\n  status: 'active' | 'inactive'\n  createdAt: string\n}\n\nconst columns: ProColumnType<User>[] = [\n  { title: 'Name', dataIndex: 'name', sortable: true },\n  { title: 'Email', dataIndex: 'email' },\n  {\n    title: 'Status',\n    dataIndex: 'status',\n    valueType: 'select',\n    valueEnum: {\n      active: { text: 'Active', color: 'success' },\n      inactive: { text: 'Inactive', color: 'default' },\n    },\n  },\n  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },\n]\n\nexport function UsersPage() {\n  return (\n    <ProTable<User>\n      headerTitle=\"Users\"\n      columns={columns}\n      rowKey=\"id\"\n      request={async ({ current, pageSize, ...filters }) => {\n        const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)\n        const data = await res.json()\n        return { data: data.items, total: data.total, success: true }\n      }}\n      toolBarRender={() => [\n        <Button key=\"add\" variant=\"solid\" onPress={() => {}}>Add User</Button>\n      ]}\n      rowSelection={{ onChange: (keys, rows) => console.log(keys, rows) }}\n      bulkActions={[\n        { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },\n      ]}\n    />\n  )\n}"
@@ -1880,9 +1887,16 @@
           "type": "(files: FileList) => void",
           "required": false,
           "description": "Called with dropped or selected files"
+        },
+        {
+          "name": "isDisabled",
+          "type": "boolean",
+          "required": false,
+          "default": "false",
+          "description": "Disables drag, click, and keyboard interaction"
         }
       ],
-      "example": "import { DropZone } from '@dangbt/pro-ui'\n\n<DropZone\n  label=\"Drop images here\"\n  description=\"PNG, JPG up to 5MB\"\n  accept={['image/*']}\n  onFiles={(files) => handleUpload(files)}\n/>"
+      "example": "import { DropZone } from '@dangbt/pro-ui'\n\n<DropZone\n  label=\"Drop images here\"\n  description=\"PNG, JPG up to 5MB\"\n  accept={['image/*']}\n  onFiles={(files) => handleUpload(files)}\n/>\n\n// Disabled state:\n<DropZone label=\"Upload disabled\" isDisabled />"
     },
     {
       "name": "ColorPicker",

@@ -73,6 +73,7 @@ export function UsersPage() {
 | `rowClassName` | `(record: T, index: number) => string` | — | — | Add CSS classes to rows conditionally |
 | `onRow` | `(record: T, index: number) => handlers` | — | — | Row event handlers (onClick, onDoubleClick, onContextMenu) |
 | `size` | `'sm' \| 'md' \| 'lg'` | — | `'md'` | Table density |
+| `persistColumnVisibility` | `boolean \| string` | — | `true` | Persist show/hide column state to `localStorage`. `true` uses an auto-derived key; pass a `string` for an explicit key; `false` disables persistence |
 
 ## Server-side mode
 

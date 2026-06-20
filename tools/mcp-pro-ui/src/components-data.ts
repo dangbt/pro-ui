@@ -49,6 +49,7 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'rowClassName', type: '(record: T, index: number) => string', required: false, description: 'Add CSS classes to rows conditionally' },
       { name: 'onRow', type: '(record: T, index: number) => { onClick?; onDoubleClick?; onContextMenu? }', required: false, description: 'Row event handlers' },
       { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Table density size' },
+      { name: 'persistColumnVisibility', type: 'boolean | string', required: false, default: 'true', description: 'Persist show/hide column state to localStorage. true = auto-derived key; string = explicit key; false = disabled' },
     ],
     example: `import { ProTable } from '@dangbt/pro-ui'
 import type { ProColumnType } from '@dangbt/pro-ui'

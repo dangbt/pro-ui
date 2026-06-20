@@ -44,6 +44,7 @@ Import: `import { ProTable } from '@dangbt/pro-ui'`
 | rowClassName | (record: T, index: number) => string | — | — | Add CSS classes to rows conditionally |
 | onRow | (record: T, index: number) => { onClick?; onDoubleClick?; onContextMenu? } | — | — | Row event handlers |
 | size | 'sm' | 'md' | 'lg' | — | `'md'` | Table density size |
+| persistColumnVisibility | boolean | string | — | `true` | Persist show/hide column state to localStorage. true = auto-derived key; string = explicit key; false = disabled |
 
 ### Example
 
@@ -804,6 +805,7 @@ Import: `import { DropZone } from '@dangbt/pro-ui'`
 | accept | string[] | — | — | Accepted MIME types (e.g. ["image/*"]) |
 | allowsMultiple | boolean | — | — | Allow multiple files |
 | onFiles | (files: FileList) => void | — | — | Called with dropped or selected files |
+| isDisabled | boolean | — | `false` | Disables drag, click, and keyboard interaction |
 
 ### Example
 
@@ -816,6 +818,9 @@ import { DropZone } from '@dangbt/pro-ui'
   accept={['image/*']}
   onFiles={(files) => handleUpload(files)}
 />
+
+// Disabled state:
+<DropZone label="Upload disabled" isDisabled />
 ```
 
 ---
