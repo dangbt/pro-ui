@@ -290,25 +290,34 @@ export function ProTable<T extends object>({
 
   const loading = loadingProp ?? loadingServer
 
-  const fetchData = useCallback(
-    async (params: QueryParams) => {
-      if (!request) return
-      setLoadingServer(true)
-      setFetchError(null)
-      try {
-        const result = await request(params)
-        if (result.success) {
-          setServerData(result.data)
-          setTotal(result.total)
-        }
-      } catch (err) {
-        setFetchError(err instanceof Error ? err.message : 'Failed to load data')
-      } finally {
-        setLoadingServer(false)
+  // Keep the latest `request` in a ref so `fetchData` stays stable across
+  // renders. Otherwise an inline `request` prop (new identity every render)
+  // retriggers the fetch effect on each render — and if the consumer writes
+  // filters to the URL search params inside `request`, that URL change
+  // re-renders the parent → new `request` → effect fires again → infinite
+  // reload loop.
+  const requestRef = useRef(request)
+  useEffect(() => {
+    requestRef.current = request
+  })
+
+  const fetchData = useCallback(async (params: QueryParams) => {
+    const req = requestRef.current
+    if (!req) return
+    setLoadingServer(true)
+    setFetchError(null)
+    try {
+      const result = await req(params)
+      if (result.success) {
+        setServerData(result.data)
+        setTotal(result.total)
       }
-    },
-    [request],
-  )
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : 'Failed to load data')
+    } finally {
+      setLoadingServer(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (isClientMode) return
