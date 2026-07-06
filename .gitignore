@@ -39,3 +39,4 @@ Thumbs.db
 .cache/
 .parcel-cache/
 .npmrc
+storybook-static/
