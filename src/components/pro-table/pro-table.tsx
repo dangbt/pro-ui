@@ -228,7 +228,9 @@ export function ProTable<T extends object>({
   // Refs for sticky header scroll sync
   const headerScrollRef = useRef<HTMLDivElement>(null)
   const bodyScrollRef = useRef<HTMLDivElement>(null)
+  const toolbarRef = useRef<HTMLDivElement>(null)
   const [colWidths, setColWidths] = useState<number[]>([])
+  const [toolbarHeight, setToolbarHeight] = useState(0)
   const syncingScroll = useRef(false)
 
   const persistVisibility = persistColumnVisibility !== false
@@ -451,6 +453,17 @@ export function ProTable<T extends object>({
 
   // ─── Sticky header: sync column widths from body → header ───
   useEffect(() => {
+    if (!stickyEnabled || !toolbarRef.current) return
+    const height = toolbarRef.current.getBoundingClientRect().height
+    setToolbarHeight(height)
+    const ro = new ResizeObserver(() => {
+      setToolbarHeight(toolbarRef.current?.getBoundingClientRect().height ?? 0)
+    })
+    ro.observe(toolbarRef.current)
+    return () => ro.disconnect()
+  }, [stickyEnabled])
+
+  useEffect(() => {
     if (!stickyEnabled || !bodyScrollRef.current) return
     const bodyTable = bodyScrollRef.current.querySelector('table')
     if (!bodyTable) return
@@ -534,20 +547,41 @@ export function ProTable<T extends object>({
       <div>
       <div className={cn(
         'bg-surface border border-border rounded-[var(--base-radius)]',
-        stickyEnabled ? 'overflow-clip' : 'overflow-hidden',
+        !stickyEnabled && 'overflow-hidden',
       )}>
-        <Toolbar
-          title={headerTitle}
-          actions={toolBarRender?.()}
-          columnToggles={columnToggles}
-          onRefresh={isClientMode ? undefined : () =>
-            fetchData({
-              current: pagination.pageIndex + 1,
-              pageSize: pagination.pageSize,
-              ...searchParams,
-            })
-          }
-        />
+        {stickyEnabled ? (
+          <div
+            ref={toolbarRef}
+            className="bg-surface border-b border-border rounded-t-[var(--base-radius)] sticky z-[4]"
+            style={{ top: stickyOffsetTop }}
+          >
+            <Toolbar
+              title={headerTitle}
+              actions={toolBarRender?.()}
+              columnToggles={columnToggles}
+              onRefresh={isClientMode ? undefined : () =>
+                fetchData({
+                  current: pagination.pageIndex + 1,
+                  pageSize: pagination.pageSize,
+                  ...searchParams,
+                })
+              }
+            />
+          </div>
+        ) : (
+          <Toolbar
+            title={headerTitle}
+            actions={toolBarRender?.()}
+            columnToggles={columnToggles}
+            onRefresh={isClientMode ? undefined : () =>
+              fetchData({
+                current: pagination.pageIndex + 1,
+                pageSize: pagination.pageSize,
+                ...searchParams,
+              })
+            }
+          />
+        )}
 
         {/* Table */}
         {stickyEnabled ? (
@@ -555,8 +589,8 @@ export function ProTable<T extends object>({
             {/* Sticky header — outside overflow-x container */}
             <div
               ref={headerScrollRef}
-              className="overflow-x-hidden overflow-y-hidden"
-              style={{ position: 'sticky', top: stickyOffsetTop, zIndex: 2 }}
+              className="overflow-x-hidden overflow-y-hidden border-b border-border bg-surface-subtle"
+              style={{ position: 'sticky', top: stickyOffsetTop + toolbarHeight, zIndex: 3 }}
             >
               <table className="w-full text-sm" aria-hidden="true">
                 {colWidths.length > 0 && (
