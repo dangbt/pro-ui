@@ -217,8 +217,19 @@ export function ProTable<T extends object>({
   onRow,
   size = 'sm',
   persistColumnVisibility = true,
+  sticky = false,
 }: ProTableProps<T>) {
   const isClientMode = !request && dataSource !== undefined
+
+  // Sticky header config
+  const stickyEnabled = !!sticky
+  const stickyOffsetTop = typeof sticky === 'object' ? (sticky.offsetTop ?? 0) : 0
+
+  // Refs for sticky header scroll sync
+  const headerScrollRef = useRef<HTMLDivElement>(null)
+  const bodyScrollRef = useRef<HTMLDivElement>(null)
+  const [colWidths, setColWidths] = useState<number[]>([])
+  const syncingScroll = useRef(false)
 
   const persistVisibility = persistColumnVisibility !== false
   const visibilityStorageKey = useMemo(() => {
@@ -438,6 +449,62 @@ export function ProTable<T extends object>({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelectionState])
 
+  // ─── Sticky header: sync column widths from body → header ───
+  useEffect(() => {
+    if (!stickyEnabled || !bodyScrollRef.current) return
+    const bodyTable = bodyScrollRef.current.querySelector('table')
+    if (!bodyTable) return
+
+    const syncWidths = () => {
+      const cells = bodyTable.querySelectorAll('tbody tr:first-child td')
+      if (cells.length === 0) {
+        // fallback: read from colgroup or thead of body table
+        const headerCells = bodyTable.querySelectorAll('thead th')
+        if (headerCells.length > 0) {
+          const widths = Array.from(headerCells).map(cell => cell.getBoundingClientRect().width)
+          setColWidths(widths)
+        }
+        return
+      }
+      const widths = Array.from(cells).map(cell => cell.getBoundingClientRect().width)
+      setColWidths(widths)
+    }
+
+    syncWidths()
+    const ro = new ResizeObserver(syncWidths)
+    ro.observe(bodyTable)
+    return () => ro.disconnect()
+  }, [stickyEnabled, tableData, columnVisibility, columnPinning])
+
+  // ─── Sticky header: sync horizontal scroll ───
+  useEffect(() => {
+    if (!stickyEnabled) return
+    const headerEl = headerScrollRef.current
+    const bodyEl = bodyScrollRef.current
+    if (!headerEl || !bodyEl) return
+
+    const onBodyScroll = () => {
+      if (syncingScroll.current) return
+      syncingScroll.current = true
+      headerEl.scrollLeft = bodyEl.scrollLeft
+      syncingScroll.current = false
+    }
+
+    const onHeaderScroll = () => {
+      if (syncingScroll.current) return
+      syncingScroll.current = true
+      bodyEl.scrollLeft = headerEl.scrollLeft
+      syncingScroll.current = false
+    }
+
+    bodyEl.addEventListener('scroll', onBodyScroll, { passive: true })
+    headerEl.addEventListener('scroll', onHeaderScroll, { passive: true })
+    return () => {
+      bodyEl.removeEventListener('scroll', onBodyScroll)
+      headerEl.removeEventListener('scroll', onHeaderScroll)
+    }
+  }, [stickyEnabled])
+
   const pageSizeOptions = paginationConfig?.pageSizeOptions ?? PAGE_SIZE_OPTIONS
   const pageCount = table.getPageCount()
   const canPrev = table.getCanPreviousPage()
@@ -465,7 +532,10 @@ export function ProTable<T extends object>({
 
       {/* Table wrapper — bulk action sticky scoped to this block only */}
       <div>
-      <div className="bg-surface border border-border rounded-[var(--base-radius)] overflow-hidden">
+      <div className={cn(
+        'bg-surface border border-border rounded-[var(--base-radius)]',
+        stickyEnabled ? 'overflow-clip' : 'overflow-hidden',
+      )}>
         <Toolbar
           title={headerTitle}
           actions={toolBarRender?.()}
@@ -480,145 +550,317 @@ export function ProTable<T extends object>({
         />
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-surface-subtle border-b border-border sticky top-0 z-[1]">
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => {
-                    const align = (header.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                    const canSort = header.column.getCanSort()
-                    const canPin = header.column.getCanPin()
-                    const pinned = header.column.getIsPinned()
-                    return (
-                      <th
-                        key={header.id}
-                        className={cn(
-                          'px-4 py-2.5 text-xs font-semibold text-fg-muted uppercase tracking-wide whitespace-nowrap group',
-                          header.id === 'select' && 'px-3 text-center',
-                          align === 'center' && 'text-center',
-                          align === 'right' && 'text-right',
-                          canSort && 'cursor-pointer select-none hover:text-fg-2',
-                          getPinnedCls(pinned, 'bg-surface-subtle'),
-                        )}
-                        style={getPinnedStyle(header.column as Column<unknown, unknown>)}
-                        onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                        aria-sort={canSort ? (header.column.getIsSorted() === 'asc' ? 'ascending' : header.column.getIsSorted() === 'desc' ? 'descending' : 'none') : undefined}
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {canSort && (
-                            <span className="text-fg-disabled">
-                              {header.column.getIsSorted() === 'asc' ? '↑'
-                                : header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
-                            </span>
-                          )}
-                          {canPin && (
-                            <PinMenu column={header.column as Column<unknown, unknown>} />
-                          )}
-                        </span>
-                      </th>
-                    )
-                  })}
-                </tr>
-              ))}
-            </thead>
-
-            <tbody className="divide-y divide-border-subtle">
-              {loading ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                      Loading...
-                    </div>
-                  </td>
-                </tr>
-              ) : fetchError ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-sm">
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-danger font-medium">Failed to load</p>
-                      <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
-                      <button
-                        type="button"
-                        onClick={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
-                        className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ) : table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
-                    No data
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row, i) => {
-                  const key = getRowKey(row.original, i)
-                  const expanded = expandedKeys.has(key)
-                  const rowHandlers = onRow?.(row.original, i)
-                  const rowCls = cn(
-                    'hover:bg-surface-subtle transition-colors',
-                    (expandedRowRender || rowHandlers?.onClick) && 'cursor-pointer',
-                    rowClassName?.(row.original, i),
-                  )
-                  const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
-                    // Don't expand when clicking interactive elements (buttons, links, inputs…)
-                    const interactive = (e.target as HTMLElement).closest(
-                      'button, a, input, select, textarea, [role="button"], [role="menuitem"], [role="option"], [data-no-expand]',
-                    )
-                    if (expandedRowRender && !interactive) toggleExpand(key)
-                    rowHandlers?.onClick?.(e)
-                  }
-                  return (
-                    <Fragment key={key}>
-                      <tr
-                        onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
-                        onDoubleClick={rowHandlers?.onDoubleClick}
-                        onContextMenu={rowHandlers?.onContextMenu}
-                        className={rowCls}
-                      >
-                        {row.getVisibleCells().map(cell => {
-                          const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                          const pinned = cell.column.getIsPinned()
-                          return (
-                            <td
-                              key={cell.id}
-                              className={cn(
-                                'px-4 text-fg-2',
-                                rowPyCls[size],
-                                cellTextCls[size],
-                                cell.column.id === 'select' && 'px-3 text-center',
-                                cell.column.id === 'expand' && 'px-2 text-center',
-                                align === 'center' && 'text-center',
-                                align === 'right' && 'text-right',
-                                getPinnedCls(pinned, 'bg-surface'),
+        {stickyEnabled ? (
+          <>
+            {/* Sticky header — outside overflow-x container */}
+            <div
+              ref={headerScrollRef}
+              className="overflow-x-hidden overflow-y-hidden"
+              style={{ position: 'sticky', top: stickyOffsetTop, zIndex: 2 }}
+            >
+              <table className="w-full text-sm" aria-hidden="true">
+                {colWidths.length > 0 && (
+                  <colgroup>
+                    {colWidths.map((w, i) => (
+                      <col key={i} style={{ width: w, minWidth: w }} />
+                    ))}
+                  </colgroup>
+                )}
+                <thead className="bg-surface-subtle border-b border-border">
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map(header => {
+                        const align = (header.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                        const canSort = header.column.getCanSort()
+                        const canPin = header.column.getCanPin()
+                        const pinned = header.column.getIsPinned()
+                        return (
+                          <th
+                            key={header.id}
+                            className={cn(
+                              'px-4 py-2.5 text-xs font-semibold text-fg-muted uppercase tracking-wide whitespace-nowrap group',
+                              header.id === 'select' && 'px-3 text-center',
+                              align === 'center' && 'text-center',
+                              align === 'right' && 'text-right',
+                              canSort && 'cursor-pointer select-none hover:text-fg-2',
+                              getPinnedCls(pinned, 'bg-surface-subtle'),
+                            )}
+                            style={getPinnedStyle(header.column as Column<unknown, unknown>)}
+                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            aria-sort={canSort ? (header.column.getIsSorted() === 'asc' ? 'ascending' : header.column.getIsSorted() === 'desc' ? 'descending' : 'none') : undefined}
+                          >
+                            <span className="inline-flex items-center gap-1">
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {canSort && (
+                                <span className="text-fg-disabled">
+                                  {header.column.getIsSorted() === 'asc' ? '↑'
+                                    : header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
+                                </span>
                               )}
-                              style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
-                            >
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          )
-                        })}
-                      </tr>
-                      {expandedRowRender && expanded && (
-                        <tr className="bg-surface-subtle">
-                          <td colSpan={columns.length} className="px-0 py-0">
-                            {expandedRowRender(row.original)}
-                          </td>
+                              {canPin && (
+                                <PinMenu column={header.column as Column<unknown, unknown>} />
+                              )}
+                            </span>
+                          </th>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </thead>
+              </table>
+            </div>
+
+            {/* Scrollable body */}
+            <div ref={bodyScrollRef} className="overflow-x-auto">
+              <table className="w-full text-sm">
+                {/* Hidden thead for accessibility — screen readers need it in the same table */}
+                <thead className="sr-only">
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map(header => (
+                        <th key={header.id}>
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                          Loading...
+                        </div>
+                      </td>
+                    </tr>
+                  ) : fetchError ? (
+                    <tr>
+                      <td colSpan={columns.length} className="py-16 text-center text-sm">
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="text-danger font-medium">Failed to load</p>
+                          <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
+                          <button
+                            type="button"
+                            onClick={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
+                            className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : table.getRowModel().rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                        No data
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row, i) => {
+                      const key = getRowKey(row.original, i)
+                      const expanded = expandedKeys.has(key)
+                      const rowHandlers = onRow?.(row.original, i)
+                      const rowCls = cn(
+                        'hover:bg-surface-subtle transition-colors',
+                        (expandedRowRender || rowHandlers?.onClick) && 'cursor-pointer',
+                        rowClassName?.(row.original, i),
+                      )
+                      const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
+                        const interactive = (e.target as HTMLElement).closest(
+                          'button, a, input, select, textarea, [role="button"], [role="menuitem"], [role="option"], [data-no-expand]',
+                        )
+                        if (expandedRowRender && !interactive) toggleExpand(key)
+                        rowHandlers?.onClick?.(e)
+                      }
+                      return (
+                        <Fragment key={key}>
+                          <tr
+                            onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
+                            onDoubleClick={rowHandlers?.onDoubleClick}
+                            onContextMenu={rowHandlers?.onContextMenu}
+                            className={rowCls}
+                          >
+                            {row.getVisibleCells().map(cell => {
+                              const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                              const pinned = cell.column.getIsPinned()
+                              return (
+                                <td
+                                  key={cell.id}
+                                  className={cn(
+                                    'px-4 text-fg-2',
+                                    rowPyCls[size],
+                                    cellTextCls[size],
+                                    cell.column.id === 'select' && 'px-3 text-center',
+                                    cell.column.id === 'expand' && 'px-2 text-center',
+                                    align === 'center' && 'text-center',
+                                    align === 'right' && 'text-right',
+                                    getPinnedCls(pinned, 'bg-surface'),
+                                  )}
+                                  style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
+                                >
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </td>
+                              )
+                            })}
+                          </tr>
+                          {expandedRowRender && expanded && (
+                            <tr className="bg-surface-subtle">
+                              <td colSpan={columns.length} className="px-0 py-0">
+                                {expandedRowRender(row.original)}
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          /* Non-sticky: original single-table layout */
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-surface-subtle border-b border-border sticky top-0 z-[1]">
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map(header => {
+                      const align = (header.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                      const canSort = header.column.getCanSort()
+                      const canPin = header.column.getCanPin()
+                      const pinned = header.column.getIsPinned()
+                      return (
+                        <th
+                          key={header.id}
+                          className={cn(
+                            'px-4 py-2.5 text-xs font-semibold text-fg-muted uppercase tracking-wide whitespace-nowrap group',
+                            header.id === 'select' && 'px-3 text-center',
+                            align === 'center' && 'text-center',
+                            align === 'right' && 'text-right',
+                            canSort && 'cursor-pointer select-none hover:text-fg-2',
+                            getPinnedCls(pinned, 'bg-surface-subtle'),
+                          )}
+                          style={getPinnedStyle(header.column as Column<unknown, unknown>)}
+                          onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                          aria-sort={canSort ? (header.column.getIsSorted() === 'asc' ? 'ascending' : header.column.getIsSorted() === 'desc' ? 'descending' : 'none') : undefined}
+                        >
+                          <span className="inline-flex items-center gap-1">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {canSort && (
+                              <span className="text-fg-disabled">
+                                {header.column.getIsSorted() === 'asc' ? '↑'
+                                  : header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
+                              </span>
+                            )}
+                            {canPin && (
+                              <PinMenu column={header.column as Column<unknown, unknown>} />
+                            )}
+                          </span>
+                        </th>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </thead>
+
+              <tbody className="divide-y divide-border-subtle">
+                {loading ? (
+                  <tr>
+                    <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                        Loading...
+                      </div>
+                    </td>
+                  </tr>
+                ) : fetchError ? (
+                  <tr>
+                    <td colSpan={columns.length} className="py-16 text-center text-sm">
+                      <div className="flex flex-col items-center gap-2">
+                        <p className="text-danger font-medium">Failed to load</p>
+                        <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
+                        <button
+                          type="button"
+                          onClick={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
+                          className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                      No data
+                    </td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row, i) => {
+                    const key = getRowKey(row.original, i)
+                    const expanded = expandedKeys.has(key)
+                    const rowHandlers = onRow?.(row.original, i)
+                    const rowCls = cn(
+                      'hover:bg-surface-subtle transition-colors',
+                      (expandedRowRender || rowHandlers?.onClick) && 'cursor-pointer',
+                      rowClassName?.(row.original, i),
+                    )
+                    const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
+                      const interactive = (e.target as HTMLElement).closest(
+                        'button, a, input, select, textarea, [role="button"], [role="menuitem"], [role="option"], [data-no-expand]',
+                      )
+                      if (expandedRowRender && !interactive) toggleExpand(key)
+                      rowHandlers?.onClick?.(e)
+                    }
+                    return (
+                      <Fragment key={key}>
+                        <tr
+                          onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
+                          onDoubleClick={rowHandlers?.onDoubleClick}
+                          onContextMenu={rowHandlers?.onContextMenu}
+                          className={rowCls}
+                        >
+                          {row.getVisibleCells().map(cell => {
+                            const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                            const pinned = cell.column.getIsPinned()
+                            return (
+                              <td
+                                key={cell.id}
+                                className={cn(
+                                  'px-4 text-fg-2',
+                                  rowPyCls[size],
+                                  cellTextCls[size],
+                                  cell.column.id === 'select' && 'px-3 text-center',
+                                  cell.column.id === 'expand' && 'px-2 text-center',
+                                  align === 'center' && 'text-center',
+                                  align === 'right' && 'text-right',
+                                  getPinnedCls(pinned, 'bg-surface'),
+                                )}
+                                style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
+                              >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            )
+                          })}
                         </tr>
-                      )}
-                    </Fragment>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                        {expandedRowRender && expanded && (
+                          <tr className="bg-surface-subtle">
+                            <td colSpan={columns.length} className="px-0 py-0">
+                              {expandedRowRender(row.original)}
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Pagination */}
         <div className="flex flex-wrap items-center justify-center sm:justify-between px-4 py-2.5 border-t border-border gap-2">

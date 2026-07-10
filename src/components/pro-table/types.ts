@@ -106,4 +106,13 @@ export interface ProTableProps<T extends object> {
     onContextMenu?: React.MouseEventHandler<HTMLTableRowElement>
   }
   size?: Size
+  /**
+   * Make the table header sticky relative to the nearest scroll container.
+   * - `true`: sticky with default offset (top: 0)
+   * - `{ offsetTop: number }`: sticky with custom top offset (e.g. for fixed navbars)
+   *
+   * Uses the Antd approach: thead is rendered in a separate table outside
+   * the horizontal-scroll wrapper, with column widths and scroll position synced via JS.
+   */
+  sticky?: boolean | { offsetTop?: number }
 }
