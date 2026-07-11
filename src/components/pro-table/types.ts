@@ -108,11 +108,12 @@ export interface ProTableProps<T extends object> {
   size?: Size
   /**
    * Make the table header sticky relative to the nearest scroll container.
-   * - `true`: sticky with default offset (top: 0)
-   * - `{ offsetTop: number }`: sticky with custom top offset (e.g. for fixed navbars)
-   *
-   * Uses the Antd approach: thead is rendered in a separate table outside
-   * the horizontal-scroll wrapper, with column widths and scroll position synced via JS.
+   * - `true`: sticky relative to the page scroll (top: 0). Không có scroll ngang
+   *   (dùng `overflow-x: clip` để header bám theo trang).
+   * - `{ offsetTop: number }`: sticky với offset trên (ví dụ cho fixed navbar).
+   * - `{ maxHeight }`: bảng cuộn TRONG khung có chiều cao giới hạn → header vẫn
+   *   dính (trong khung) VÀ **có lại scroll ngang** cho bảng nhiều cột. Nhận số
+   *   (px) hoặc chuỗi CSS (vd `'70vh'`, `'calc(100vh - 15rem)'`).
    */
-  sticky?: boolean | { offsetTop?: number }
+  sticky?: boolean | { offsetTop?: number; maxHeight?: number | string }
 }

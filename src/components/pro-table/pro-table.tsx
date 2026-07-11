@@ -224,6 +224,14 @@ export function ProTable<T extends object>({
   // Sticky header config
   const stickyEnabled = !!sticky
   const stickyOffsetTop = typeof sticky === 'object' ? (sticky.offsetTop ?? 0) : 0
+  // Khi có maxHeight: bảng cuộn trong khung (overflow:auto + max-height) → header
+  // vẫn dính trong khung VÀ có lại scroll ngang (khắc phục hạn chế overflow-x-clip).
+  const stickyMaxHeight =
+    typeof sticky === 'object' && sticky.maxHeight != null
+      ? typeof sticky.maxHeight === 'number'
+        ? `${sticky.maxHeight}px`
+        : sticky.maxHeight
+      : undefined
 
   const persistVisibility = persistColumnVisibility !== false
   const visibilityStorageKey = useMemo(() => {
@@ -473,7 +481,7 @@ export function ProTable<T extends object>({
       <div>
       <div className={cn(
         'bg-surface border border-border rounded-[var(--base-radius)]',
-        stickyEnabled ? 'overflow-x-clip' : 'overflow-hidden',
+        stickyEnabled && !stickyMaxHeight ? 'overflow-x-clip' : 'overflow-hidden',
       )}>
         <Toolbar
           title={headerTitle}
@@ -489,7 +497,16 @@ export function ProTable<T extends object>({
         />
 
         {/* Table */}
-        <div className={stickyEnabled ? 'overflow-x-clip' : 'overflow-x-auto'}>
+        <div
+          className={
+            stickyMaxHeight
+              ? 'overflow-auto'
+              : stickyEnabled
+                ? 'overflow-x-clip'
+                : 'overflow-x-auto'
+          }
+          style={stickyMaxHeight ? { maxHeight: stickyMaxHeight } : undefined}
+        >
           <table className="w-full text-sm">
             <thead className={cn(
               'bg-surface-subtle border-b border-border',
