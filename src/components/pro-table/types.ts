@@ -112,8 +112,10 @@ export interface ProTableProps<T extends object> {
    *   (dùng `overflow-x: clip` để header bám theo trang).
    * - `{ offsetTop: number }`: sticky với offset trên (ví dụ cho fixed navbar).
    * - `{ maxHeight }`: bảng cuộn TRONG khung có chiều cao giới hạn → header vẫn
-   *   dính (trong khung) VÀ **có lại scroll ngang** cho bảng nhiều cột. Nhận số
-   *   (px) hoặc chuỗi CSS (vd `'70vh'`, `'calc(100vh - 15rem)'`).
+   *   dính (trong khung) VÀ **có lại scroll ngang** cho bảng nhiều cột. Nhận:
+   *   - số (px) hoặc chuỗi CSS (vd `'70vh'`, `'calc(100vh - 15rem)'`);
+   *   - `'fit'`: tự tính chiều cao để bảng **fit màn hình** (fill từ vị trí bảng
+   *     tới đáy viewport), tự cập nhật khi resize/layout đổi.
    */
   sticky?: boolean | { offsetTop?: number; maxHeight?: number | string }
 }

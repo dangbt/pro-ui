@@ -1,4 +1,4 @@
-import { Fragment, useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { Fragment, useState, useCallback, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
@@ -232,6 +232,31 @@ export function ProTable<T extends object>({
         ? `${sticky.maxHeight}px`
         : sticky.maxHeight
       : undefined
+
+  // `maxHeight: 'fit'` → tự tính chiều cao để bảng fill từ vị trí của nó tới
+  // đáy viewport; cập nhật khi resize / layout đổi.
+  const fitEnabled = stickyMaxHeight === 'fit'
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [fitMaxHeight, setFitMaxHeight] = useState<string>()
+  useLayoutEffect(() => {
+    if (!fitEnabled) return
+    const compute = () => {
+      const el = scrollRef.current
+      if (!el) return
+      const top = el.getBoundingClientRect().top
+      const next = `${Math.max(160, Math.round(window.innerHeight - top - 16))}px`
+      setFitMaxHeight((prev) => (prev === next ? prev : next))
+    }
+    compute()
+    window.addEventListener('resize', compute)
+    const ro = new ResizeObserver(compute)
+    ro.observe(document.body)
+    return () => {
+      window.removeEventListener('resize', compute)
+      ro.disconnect()
+    }
+  }, [fitEnabled])
+  const effectiveMaxHeight = fitEnabled ? fitMaxHeight : stickyMaxHeight
 
   const persistVisibility = persistColumnVisibility !== false
   const visibilityStorageKey = useMemo(() => {
@@ -498,6 +523,7 @@ export function ProTable<T extends object>({
 
         {/* Table */}
         <div
+          ref={scrollRef}
           className={
             stickyMaxHeight
               ? 'overflow-auto'
@@ -505,7 +531,7 @@ export function ProTable<T extends object>({
                 ? 'overflow-x-clip'
                 : 'overflow-x-auto'
           }
-          style={stickyMaxHeight ? { maxHeight: stickyMaxHeight } : undefined}
+          style={effectiveMaxHeight ? { maxHeight: effectiveMaxHeight } : undefined}
         >
           <table className="w-full text-sm">
             <thead className={cn(
