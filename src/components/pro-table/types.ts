@@ -116,6 +116,10 @@ export interface ProTableProps<T extends object> {
    *   - số (px) hoặc chuỗi CSS (vd `'70vh'`, `'calc(100vh - 15rem)'`);
    *   - `'fit'`: tự tính chiều cao để bảng **fit màn hình** (fill từ vị trí bảng
    *     tới đáy viewport), tự cập nhật khi resize/layout đổi.
+   * - `{ windowScroll: true, offsetTop?: number }`: header dính theo **window scroll**
+   *   VÀ vẫn cho phép **scroll ngang**. Không set height cố định cho table — table
+   *   auto fit nội dung. Dùng IntersectionObserver để detect sticky state, header
+   *   clone được `position: fixed` và sync `scrollLeft` với wrapper.
    */
-  sticky?: boolean | { offsetTop?: number; maxHeight?: number | string }
+  sticky?: boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }
 }
