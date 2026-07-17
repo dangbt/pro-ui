@@ -31,7 +31,18 @@ export function useSticky({ sticky }: UseStickyOptions) {
       const el = scrollRef.current
       if (!el) return
       const top = el.getBoundingClientRect().top
-      const next = `${Math.max(160, Math.round(window.innerHeight - top - 16))}px`
+      // Account for sibling elements below (pagination, bulk bar, etc.)
+      const parent = el.parentElement
+      let siblingHeight = 0
+      if (parent) {
+        let sibling = el.nextElementSibling
+        while (sibling) {
+          siblingHeight += (sibling as HTMLElement).offsetHeight ?? 0
+          sibling = sibling.nextElementSibling
+        }
+      }
+      const offset = siblingHeight + 8
+      const next = `${Math.max(160, Math.round(window.innerHeight - top - offset))}px`
       setFitMaxHeight((prev) => (prev === next ? prev : next))
     }
     compute()
