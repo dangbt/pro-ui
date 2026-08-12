@@ -35,7 +35,7 @@ import { Button, ProTable, ProForm, Modal, toast } from '@dangbt/pro-ui'
 
 ## Key Components
 
-- **ProTable** — Data table: `request` (server-side) or `dataSource` (client-side)
+- **ProTable** — Data table: `request` (server-side) or `dataSource` (client-side); filters outside the table go through `params`
 - **ProForm** — Form with Zod validation + ProFormInput/Select/DatePicker/etc.
 - **Layout** — App shell with sidebar nav
 - **Modal / Drawer** — Overlays (use with `DialogTrigger`)

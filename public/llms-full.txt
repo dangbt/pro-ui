@@ -30,7 +30,8 @@ Import: `import { ProTable } from '@dangbt/pro-ui'`
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | columns | ProColumnType<T>[] | ✅ | — | Column definitions |
-| request | (params: QueryParams) => Promise<RequestResult<T>> | — | — | Server-side data fetcher. Mutually exclusive with dataSource. |
+| request | (params: QueryParams) => Promise<RequestResult<T>> | — | — | Server-side data fetcher. Mutually exclusive with dataSource. Held in a ref — replacing the function does not refetch, pass external filters via params. |
+| params | Record<string, unknown> | — | — | External filters owned by the page (search box, tabs, URL query). Merged into the request argument and refetches on change, resetting to page 1. Compared by value, so an inline object literal is safe. |
 | dataSource | T[] | — | — | Client-side static data. Mutually exclusive with request. |
 | rowKey | keyof T | ((record: T) => string) | ✅ | — | Unique key for each row |
 | headerTitle | string | — | — | Table header title |

@@ -30,6 +30,7 @@ export function ProTable<T extends object>({
   columns: columnDefs,
   request,
   dataSource,
+  params,
   rowKey,
   headerTitle,
   toolBarRender,
@@ -82,6 +83,7 @@ export function ProTable<T extends object>({
   } = useProTableData({
     request,
     dataSource,
+    params,
     rowKey,
     defaultPageSize: paginationConfig?.defaultPageSize ?? 10,
   })

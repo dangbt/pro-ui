@@ -5,8 +5,19 @@ import type { QueryParams, RequestResult } from './types'
 interface UseProTableDataOptions<T extends object> {
   request?: (params: QueryParams) => Promise<RequestResult<T>>
   dataSource?: T[]
+  params?: Record<string, unknown>
   rowKey: keyof T | ((record: T) => string)
   defaultPageSize: number
+}
+
+/**
+ * Serialise `params` by value so an inline object literal — a new reference on every
+ * render — doesn't look like a change. Top-level keys are sorted so key order in the
+ * literal doesn't matter either.
+ */
+function serialiseParams(params?: Record<string, unknown>): string {
+  if (!params) return ''
+  return JSON.stringify(Object.keys(params).sort().map(key => [key, params[key]]))
 }
 
 export interface UseProTableDataReturn<T extends object> {
@@ -29,6 +40,7 @@ export interface UseProTableDataReturn<T extends object> {
 export function useProTableData<T extends object>({
   request,
   dataSource,
+  params,
   rowKey,
   defaultPageSize,
 }: UseProTableDataOptions<T>): UseProTableDataReturn<T> {
@@ -67,13 +79,22 @@ export function useProTableData<T extends object>({
     requestRef.current = request
   })
 
-  const fetchData = useCallback(async (params: QueryParams) => {
+  // Same for `params`: the effect below depends on their serialised value, not on the
+  // object identity, so the ref supplies the current values without widening the deps.
+  const paramsRef = useRef(params)
+  useEffect(() => {
+    paramsRef.current = params
+  })
+  const paramsKey = useMemo(() => serialiseParams(params), [params])
+  const prevParamsKeyRef = useRef(paramsKey)
+
+  const fetchData = useCallback(async (queryParams: QueryParams) => {
     const req = requestRef.current
     if (!req) return
     setLoadingServer(true)
     setFetchError(null)
     try {
-      const result = await req(params)
+      const result = await req(queryParams)
       if (result.success) {
         setServerData(result.data)
         setTotal(result.total)
@@ -87,14 +108,35 @@ export function useProTableData<T extends object>({
 
   useEffect(() => {
     if (isClientMode) return
+
+    // New filters mean a different result set, so start from page 1 — page 5 of the
+    // previous filter is rarely a valid page of the new one. Returning early lets the
+    // pagination update re-run this effect instead of firing a throwaway request.
+    if (prevParamsKeyRef.current !== paramsKey) {
+      prevParamsKeyRef.current = paramsKey
+      if (pagination.pageIndex !== 0) {
+        setPagination(prev => ({ ...prev, pageIndex: 0 }))
+        return
+      }
+    }
+
     const sort = sorting[0]
     fetchData({
       current: pagination.pageIndex + 1,
       pageSize: pagination.pageSize,
       ...(sort && { sort: sort.id, order: sort.desc ? 'desc' : 'asc' }),
+      ...paramsRef.current,
       ...searchParams,
     })
-  }, [pagination.pageIndex, pagination.pageSize, sorting, searchParams, fetchData, isClientMode])
+  }, [
+    pagination.pageIndex,
+    pagination.pageSize,
+    sorting,
+    searchParams,
+    paramsKey,
+    fetchData,
+    isClientMode,
+  ])
 
   const handleSearch = useCallback((params: Record<string, unknown>) => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))

@@ -63,9 +63,21 @@ export interface ProTableProps<T extends object> {
   columns: ProColumnType<T>[]
   /**
    * Server-side data fetcher. Mutually exclusive with `dataSource`.
-   * Called on every page/sort/search change.
+   * Called on every page/sort/search change, and whenever `params` changes.
+   *
+   * The function itself is held in a ref, so replacing it does **not** refetch — filters
+   * that live outside the table must be passed through `params`, not captured in a closure.
    */
   request?: (params: QueryParams) => Promise<RequestResult<T>>
+  /**
+   * External filters owned by the page (search box, tabs, date range, URL query).
+   * Merged into the argument passed to `request`, and a refetch is triggered whenever
+   * their values change — resetting to the first page, since a new filter means a new
+   * result set. Compared by value, so an inline object literal is safe.
+   *
+   * Ignored in client-side (`dataSource`) mode.
+   */
+  params?: Record<string, unknown>
   /**
    * Client-side static data. Mutually exclusive with `request`.
    * Pagination, sorting, and filtering run in-browser.

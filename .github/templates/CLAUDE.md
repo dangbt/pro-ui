@@ -112,6 +112,20 @@ import { Button } from '@dangbt/pro-ui/components/button'
 />
 ```
 
+### Filters that live outside the table
+`request` is held in a ref, so a closure over page state does **not** refetch when that
+state changes. Pass those filters through `params` — they are merged into the `request`
+argument and trigger a refetch (back to page 1) whenever their values change.
+```tsx
+<ProTable<User>
+  columns={columns}
+  rowKey="id"
+  search={false}
+  params={{ q, status }}          // page state: search box, tabs, URL query
+  request={async ({ current, pageSize, q, status }) => { ... }}
+/>
+```
+
 ### Column definition with valueType
 ```tsx
 const columns: ProColumnType<User>[] = [

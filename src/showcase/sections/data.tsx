@@ -17,6 +17,7 @@ export function ProTableSection() {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [externalRole, setExternalRole] = useState('')
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -74,6 +75,42 @@ export function ProTableSection() {
               <p><strong>Revenue:</strong> ₫{r.revenue.toLocaleString()}</p>
             </div>
           )}
+        />
+      </div>
+
+      {/* External filters */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">External filters — <code className="font-mono normal-case">params</code> prop</p>
+        <div className="text-xs text-fg-disabled space-y-0.5 mb-2">
+          <p>· Filters owned by the page (search box, tabs, URL query) go through <code className="font-mono">params</code> — they are merged into the <code className="font-mono">request</code> argument and refetch on change</p>
+          <p>· A closure over page state would <strong>not</strong> refetch: <code className="font-mono">request</code> is held in a ref</p>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <input
+            value={externalRole}
+            onChange={(e) => setExternalRole(e.target.value)}
+            list="protable-roles"
+            placeholder="Filter by role — admin / editor / viewer"
+            className="h-9 w-72 rounded-md border border-border bg-surface px-3 text-sm text-fg placeholder:text-fg-disabled"
+          />
+          <datalist id="protable-roles">
+            <option value="admin" />
+            <option value="editor" />
+            <option value="viewer" />
+          </datalist>
+          {externalRole && (
+            <Button variant="ghost" size="sm" onPress={() => setExternalRole('')}>Clear</Button>
+          )}
+        </div>
+        <ProTable<User>
+          columns={TABLE_COLS.filter(c => c.key !== 'actions')}
+          request={mockRequest}
+          params={{ role: externalRole || undefined }}
+          rowKey="id"
+          headerTitle="Filtered by the input above"
+          size={size}
+          search={false}
+          pagination={{ defaultPageSize: 5 }}
         />
       </div>
 

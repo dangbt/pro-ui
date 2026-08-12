@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.4.3",
+  "version": "1.6.0",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "homepage": "https://pro-ui.pages.dev",
   "docs": "https://pro-ui.pages.dev/docs",
@@ -42,7 +42,13 @@
           "name": "request",
           "type": "(params: QueryParams) => Promise<RequestResult<T>>",
           "required": false,
-          "description": "Server-side data fetcher. Mutually exclusive with dataSource."
+          "description": "Server-side data fetcher. Mutually exclusive with dataSource. Held in a ref — replacing the function does not refetch, pass external filters via params."
+        },
+        {
+          "name": "params",
+          "type": "Record<string, unknown>",
+          "required": false,
+          "description": "External filters owned by the page (search box, tabs, URL query). Merged into the request argument and refetches on change, resetting to page 1. Compared by value, so an inline object literal is safe."
         },
         {
           "name": "dataSource",
