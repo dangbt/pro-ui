@@ -8,6 +8,8 @@ interface UseProTableDataOptions<T extends object> {
   params?: Record<string, unknown>
   rowKey: keyof T | ((record: T) => string)
   defaultPageSize: number
+  defaultCurrent?: number
+  onPaginationChange?: (page: number, pageSize: number) => void
 }
 
 /**
@@ -43,6 +45,8 @@ export function useProTableData<T extends object>({
   params,
   rowKey,
   defaultPageSize,
+  defaultCurrent,
+  onPaginationChange,
 }: UseProTableDataOptions<T>): UseProTableDataReturn<T> {
   const isClientMode = !request && dataSource !== undefined
 
@@ -55,8 +59,10 @@ export function useProTableData<T extends object>({
 
   // Shared state
   const [sorting, setSorting] = useState<SortingState>([])
+  // `defaultCurrent` seeds the initial state only: re-reading it on every render would let
+  // a stale prop drag the user back to the page they just left.
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
+    pageIndex: Math.max(0, (defaultCurrent ?? 1) - 1),
     pageSize: defaultPageSize,
   })
 
@@ -87,6 +93,22 @@ export function useProTableData<T extends object>({
   })
   const paramsKey = useMemo(() => serialiseParams(params), [params])
   const prevParamsKeyRef = useRef(paramsKey)
+
+  // Report paging outward. Held in a ref so an inline arrow doesn't re-fire the effect,
+  // and skipped on mount so a consumer that feeds the values back in through
+  // `defaultCurrent`/`defaultPageSize` doesn't bounce between the two.
+  const onPaginationChangeRef = useRef(onPaginationChange)
+  useEffect(() => {
+    onPaginationChangeRef.current = onPaginationChange
+  })
+  const paginationIsInitialRef = useRef(true)
+  useEffect(() => {
+    if (paginationIsInitialRef.current) {
+      paginationIsInitialRef.current = false
+      return
+    }
+    onPaginationChangeRef.current?.(pagination.pageIndex + 1, pagination.pageSize)
+  }, [pagination.pageIndex, pagination.pageSize])
 
   const fetchData = useCallback(async (queryParams: QueryParams) => {
     const req = requestRef.current

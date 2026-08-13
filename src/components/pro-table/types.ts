@@ -92,7 +92,20 @@ export interface ProTableProps<T extends object> {
   loading?: boolean
   pagination?: {
     defaultPageSize?: number
+    /**
+     * Page to open on, 1-based. Read once on mount — later changes are ignored, so the
+     * table keeps owning its own paging afterwards and can't be yanked back mid-browse.
+     *
+     * Use it to restore a page persisted elsewhere (typically the URL) on reload.
+     */
+    defaultCurrent?: number
     pageSizeOptions?: number[]
+    /**
+     * Fires after the user changes page or page size — never on mount, so mirroring the
+     * values straight back into `defaultCurrent`/`defaultPageSize` doesn't loop.
+     * `page` is 1-based.
+     */
+    onChange?: (page: number, pageSize: number) => void
   }
   rowSelection?: {
     onChange?: (selectedKeys: string[], selectedRows: T[]) => void

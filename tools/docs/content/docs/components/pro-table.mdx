@@ -66,7 +66,7 @@ export function UsersPage() {
 | `toolBarRender` | `() => ReactNode[]` | — | — | Extra buttons in the toolbar |
 | `search` | `boolean` | — | `true` | Set `false` to hide the search form |
 | `loading` | `boolean` | — | — | Override loading state |
-| `pagination` | `{ defaultPageSize?: number; pageSizeOptions?: number[] }` | — | — | Pagination config |
+| `pagination` | `{ defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void }` | — | — | Pagination config. `defaultCurrent` (1-based) sets the page to open on and is read once on mount; `onChange` fires on user paging only, never on mount — pair them to persist paging to the URL |
 | `rowSelection` | `{ onChange?: (keys: string[], rows: T[]) => void }` | — | — | Enable row selection with checkboxes |
 | `bulkActions` | `BulkActionDef<T>[]` | — | — | Actions shown when rows are selected |
 | `expandedRowRender` | `(record: T) => ReactNode` | — | — | Render content below expanded row |

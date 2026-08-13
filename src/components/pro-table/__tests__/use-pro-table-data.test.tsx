@@ -146,3 +146,92 @@ describe('useProTableData — params', () => {
     expect(hook.current.tableData).toHaveLength(2)
   })
 })
+
+describe('useProTableData — defaultCurrent / onPaginationChange', () => {
+  it('opens on defaultCurrent and fetches that page first', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({ ...options(request), defaultCurrent: 3 }),
+    )
+
+    expect(hook.current.pagination.pageIndex).toBe(2)
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ current: 3 }))
+  })
+
+  it('treats a missing or out-of-range defaultCurrent as page 1', async () => {
+    const request = vi.fn().mockResolvedValue(result())
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({ ...options(request), defaultCurrent: 0 }),
+    )
+
+    expect(hook.current.pagination.pageIndex).toBe(0)
+  })
+
+  it('ignores later defaultCurrent changes so the user is not dragged back', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook, rerender } = renderHook(
+      ({ c }: { c: number }) => useProTableData<Row>({ ...options(request), defaultCurrent: c }),
+      { initialProps: { c: 1 } },
+    )
+
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 4 })))
+    rerender({ c: 1 })
+
+    expect(hook.current.pagination.pageIndex).toBe(4)
+  })
+
+  it('reports page and pageSize changes, but not the initial render', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const onPaginationChange = vi.fn()
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({ ...options(request), onPaginationChange }),
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    expect(onPaginationChange).not.toHaveBeenCalled()
+
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    await waitFor(() => expect(onPaginationChange).toHaveBeenCalledWith(3, 10))
+
+    act(() => hook.current.setPagination({ pageIndex: 0, pageSize: 50 }))
+    await waitFor(() => expect(onPaginationChange).toHaveBeenLastCalledWith(1, 50))
+  })
+
+  it('reports the reset to page 1 caused by a params change', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const onPaginationChange = vi.fn()
+    const { result: hook, rerender } = renderHook(
+      ({ q }: { q: string }) =>
+        useProTableData<Row>({ ...options(request, { q }), onPaginationChange }),
+      { initialProps: { q: 'first' } },
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 4 })))
+    await waitFor(() => expect(onPaginationChange).toHaveBeenLastCalledWith(5, 10))
+
+    rerender({ q: 'second' })
+
+    await waitFor(() => expect(onPaginationChange).toHaveBeenLastCalledWith(1, 10))
+  })
+
+  it('fires in client mode too', async () => {
+    const onPaginationChange = vi.fn()
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({
+        dataSource: [{ id: '1' }, { id: '2' }],
+        rowKey: 'id',
+        defaultPageSize: 1,
+        defaultCurrent: 2,
+        onPaginationChange,
+      }),
+    )
+
+    expect(hook.current.pagination.pageIndex).toBe(1)
+    expect(onPaginationChange).not.toHaveBeenCalled()
+
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 0 })))
+    await waitFor(() => expect(onPaginationChange).toHaveBeenCalledWith(1, 1))
+  })
+})

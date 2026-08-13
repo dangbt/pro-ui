@@ -43,7 +43,7 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'toolBarRender', type: '() => ReactNode[]', required: false, description: 'Render extra buttons in the toolbar' },
       { name: 'search', type: 'boolean', required: false, default: 'true', description: 'Set false to hide search form' },
       { name: 'loading', type: 'boolean', required: false, description: 'Override loading state' },
-      { name: 'pagination', type: '{ defaultPageSize?: number; pageSizeOptions?: number[] }', required: false, description: 'Pagination config' },
+      { name: 'pagination', type: '{ defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void }', required: false, description: 'Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL' },
       { name: 'rowSelection', type: '{ onChange?: (keys: string[], rows: T[]) => void }', required: false, description: 'Enable row selection with checkboxes' },
       { name: 'bulkActions', type: 'BulkActionDef<T>[]', required: false, description: 'Actions shown when rows are selected' },
       { name: 'expandedRowRender', type: '(record: T) => ReactNode', required: false, description: 'Render content below expanded row' },

@@ -86,6 +86,8 @@ export function ProTable<T extends object>({
     params,
     rowKey,
     defaultPageSize: paginationConfig?.defaultPageSize ?? 10,
+    defaultCurrent: paginationConfig?.defaultCurrent,
+    onPaginationChange: paginationConfig?.onChange,
   })
 
   const loading = loadingProp ?? loadingData
