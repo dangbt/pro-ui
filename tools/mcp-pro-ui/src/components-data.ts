@@ -37,6 +37,7 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'columns', type: 'ProColumnType<T>[]', required: true, description: 'Column definitions' },
       { name: 'request', type: '(params: QueryParams) => Promise<RequestResult<T>>', required: false, description: 'Server-side data fetcher. Mutually exclusive with dataSource. Held in a ref — replacing the function does not refetch, pass external filters via params.' },
       { name: 'params', type: 'Record<string, unknown>', required: false, description: 'External filters owned by the page (search box, tabs, URL query). Merged into the request argument and refetches on change, resetting to page 1. Compared by value, so an inline object literal is safe.' },
+      { name: 'refreshToken', type: 'string | number', required: false, description: 'Change it to refetch the current page without resetting to page 1 — for reloading after a mutation, a poll tick, or a cache invalidation. Compared with Object.is, so pass a primitive.' },
       { name: 'dataSource', type: 'T[]', required: false, description: 'Client-side static data. Mutually exclusive with request.' },
       { name: 'rowKey', type: 'keyof T | ((record: T) => string)', required: true, description: 'Unique key for each row' },
       { name: 'headerTitle', type: 'string', required: false, description: 'Table header title' },

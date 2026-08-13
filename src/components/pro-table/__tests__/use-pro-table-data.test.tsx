@@ -147,6 +147,78 @@ describe('useProTableData — params', () => {
   })
 })
 
+describe('useProTableData — refreshToken', () => {
+  it('refetches the page the user is on, without resetting it', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook, rerender } = renderHook(
+      ({ token }: { token: number }) =>
+        useProTableData<Row>({ ...options(request, { q: 'a' }), refreshToken: token }),
+      { initialProps: { token: 0 } },
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 4 })))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+
+    rerender({ token: 1 })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ current: 5, q: 'a' }))
+    expect(hook.current.pagination.pageIndex).toBe(4)
+  })
+
+  it('does not refetch while the token holds still', async () => {
+    const request = vi.fn().mockResolvedValue(result())
+    const { rerender } = renderHook(() =>
+      useProTableData<Row>({ ...options(request), refreshToken: 7 }),
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    rerender()
+    rerender()
+
+    await new Promise(r => setTimeout(r, 20))
+    expect(request).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not report a pagination change, having moved no page', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const onPaginationChange = vi.fn()
+    const { result: hook, rerender } = renderHook(
+      ({ token }: { token: number }) =>
+        useProTableData<Row>({ ...options(request), refreshToken: token, onPaginationChange }),
+      { initialProps: { token: 0 } },
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    await waitFor(() => expect(onPaginationChange).toHaveBeenCalledTimes(1))
+
+    rerender({ token: 1 })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    expect(onPaginationChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('is ignored in client mode', async () => {
+    const { result: hook, rerender } = renderHook(
+      ({ token }: { token: number }) =>
+        useProTableData<Row>({
+          dataSource: [{ id: '1' }, { id: '2' }],
+          refreshToken: token,
+          rowKey: 'id',
+          defaultPageSize: 10,
+        }),
+      { initialProps: { token: 0 } },
+    )
+
+    rerender({ token: 1 })
+
+    expect(hook.current.tableData).toHaveLength(2)
+  })
+})
+
 describe('useProTableData — defaultCurrent / onPaginationChange', () => {
   it('opens on defaultCurrent and fetches that page first', async () => {
     const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })

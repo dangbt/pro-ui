@@ -79,6 +79,17 @@ export interface ProTableProps<T extends object> {
    */
   params?: Record<string, unknown>
   /**
+   * Refetch the page the user is on whenever this value changes — unlike `params`, it does
+   * not send them back to page 1, because the result set is the same one, just newer.
+   *
+   * This is the "reload what I'm looking at" input: bump it after a mutation, on a poll
+   * tick, or from a cache-invalidation signal. Restricted to a primitive on purpose —
+   * compared with `Object.is`, so an object literal would refetch on every render.
+   *
+   * Ignored in client-side (`dataSource`) mode.
+   */
+  refreshToken?: string | number
+  /**
    * Client-side static data. Mutually exclusive with `request`.
    * Pagination, sorting, and filtering run in-browser.
    */

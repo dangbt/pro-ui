@@ -6,6 +6,7 @@ interface UseProTableDataOptions<T extends object> {
   request?: (params: QueryParams) => Promise<RequestResult<T>>
   dataSource?: T[]
   params?: Record<string, unknown>
+  refreshToken?: string | number
   rowKey: keyof T | ((record: T) => string)
   defaultPageSize: number
   defaultCurrent?: number
@@ -43,6 +44,7 @@ export function useProTableData<T extends object>({
   request,
   dataSource,
   params,
+  refreshToken,
   rowKey,
   defaultPageSize,
   defaultCurrent,
@@ -134,6 +136,7 @@ export function useProTableData<T extends object>({
     // New filters mean a different result set, so start from page 1 — page 5 of the
     // previous filter is rarely a valid page of the new one. Returning early lets the
     // pagination update re-run this effect instead of firing a throwaway request.
+    // `refreshToken` deliberately skips this: same result set, so the page still applies.
     if (prevParamsKeyRef.current !== paramsKey) {
       prevParamsKeyRef.current = paramsKey
       if (pagination.pageIndex !== 0) {
@@ -156,6 +159,7 @@ export function useProTableData<T extends object>({
     sorting,
     searchParams,
     paramsKey,
+    refreshToken,
     fetchData,
     isClientMode,
   ])

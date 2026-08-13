@@ -61,6 +61,8 @@ export function UsersPage() {
 | `columns` | `ProColumnType<T>[]` | ✅ | — | Column definitions |
 | `rowKey` | `keyof T \| ((record: T) => string)` | ✅ | — | Unique key for each row |
 | `request` | `(params: QueryParams) => Promise<RequestResult<T>>` | — | — | Server-side data fetcher. Mutually exclusive with `dataSource` |
+| `params` | `Record<string, unknown>` | — | — | External filters owned by the page. Merged into the `request` argument; a change refetches from page 1. Compared by value, so an inline object literal is safe |
+| `refreshToken` | `string \| number` | — | — | Change it to refetch the **current** page without resetting to page 1 — for reloading after a mutation, a poll tick, or a cache invalidation |
 | `dataSource` | `T[]` | — | — | Client-side static data. Mutually exclusive with `request` |
 | `headerTitle` | `string` | — | — | Table header title |
 | `toolBarRender` | `() => ReactNode[]` | — | — | Extra buttons in the toolbar |
@@ -100,6 +102,23 @@ interface RequestResult<T> {
   total: number
   success: boolean
 }
+```
+
+### Filters and reloading
+
+`request` is held in a ref, so replacing the function does **not** refetch. Filters that live
+outside the table go through `params`; a "reload this" signal goes through `refreshToken`:
+
+```tsx
+<ProTable<Label>
+  columns={columns}
+  rowKey="id"
+  request={request}
+  // A change here means a new result set → refetch from page 1.
+  params={{ status, storeId }}
+  // A change here means the same result set, freshly fetched → stay on the current page.
+  refreshToken={reloadCount}
+/>
 ```
 
 ## Client-side mode
