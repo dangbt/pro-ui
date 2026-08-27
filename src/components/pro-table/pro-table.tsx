@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useMemo } from 'react'
+import { Fragment, useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
@@ -24,7 +24,13 @@ import { BulkActions } from './bulk-actions'
 import { useSticky } from './use-sticky'
 import { useProTableData } from './use-pro-table-data'
 import { rowPyCls, cellTextCls, PAGE_SIZE_OPTIONS } from './constants'
-import type { ProTableProps } from './types'
+import type { ProTableProps, ProColumnType } from './types'
+
+// ─── Helpers ───
+
+function colKey<T>(c: ProColumnType<T>): string {
+  return (c.key ?? c.dataIndex ?? c.title) as string
+}
 
 export function ProTable<T extends object>({
   columns: columnDefs,
@@ -94,17 +100,60 @@ export function ProTable<T extends object>({
 
   const loading = loadingProp ?? loadingData
 
+  // ─── Live column ref ───
+  // Updated synchronously in render (not in useEffect) because cell functions
+  // execute during the same render pass — an effect would run too late.
+  const liveColumns = useMemo(
+    () => new Map(columnDefs.map(c => [colKey(c), c])),
+    [columnDefs],
+  )
+  const liveColumnsRef = useRef(liveColumns)
+  liveColumnsRef.current = liveColumns
+
+  // ─── Column structure signature ───
+  // Memo builtColumns only when structural fields change, not when render
+  // closures get a new identity. This prevents TanStack from rebuilding Column
+  // instances (which would remount every cell via flexRender).
+  const columnsSignature = useMemo(
+    () =>
+      JSON.stringify(
+        columnDefs.map(c => ({
+          key: colKey(c),
+          title: c.title,
+          dataIndex: c.dataIndex,
+          valueType: c.valueType,
+          valueEnum: c.valueEnum,
+          sortable: c.sortable,
+          disableHiding: c.disableHiding,
+          pinnable: c.pinnable,
+          width: c.width,
+          align: c.align,
+          hideInTable: c.hideInTable,
+          hasRender: !!c.render,
+        })),
+      ),
+    [columnDefs],
+  )
+
+  const builtColumns = useMemo(
+    () => buildColumns(columnDefs, liveColumnsRef),
+    // Keyed on structure, not identity — render closures are read via liveRef.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columnsSignature],
+  )
+
   // ─── Column visibility persistence ───
   const persistVisibility = persistColumnVisibility !== false
   const visibilityStorageKey = useMemo(() => {
     if (typeof persistColumnVisibility === 'string') return persistColumnVisibility
-    const cols = columnDefs.map(c => (c.key ?? c.dataIndex ?? c.title) as string).join(',')
+    const cols = columnDefs.map(c => colKey(c)).join(',')
     return `pro-table:colvis:${headerTitle ?? ''}:${cols}`
-  }, [persistColumnVisibility, columnDefs, headerTitle])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [persistColumnVisibility, columnsSignature, headerTitle])
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
     const defaults = Object.fromEntries(
-      columnDefs.filter(c => c.hideInTable).map(c => [(c.key ?? c.dataIndex ?? c.title) as string, false]),
+      columnDefs.filter(c => c.hideInTable).map(c => [colKey(c), false]),
     )
     if (!persistVisibility || typeof window === 'undefined') return defaults
     try {
@@ -140,14 +189,42 @@ export function ProTable<T extends object>({
     })
   }
 
-  // ─── Columns ───
-  const getRowKey = (record: T, index: number): string => {
+  // ─── Row key ───
+  const getRowKey = useCallback((record: T, index: number): string => {
     if (typeof rowKey === 'function') return rowKey(record)
     const val = (record as Record<string, unknown>)[rowKey as string]
     return val != null ? String(val) : String(index)
-  }
+  }, [rowKey])
 
-  const selectionColumn: ColumnDef<T> = {
+  // ─── Expand column (stable identity) ───
+  const expandedKeysRef = useRef(expandedKeys)
+  expandedKeysRef.current = expandedKeys
+  const getRowKeyRef = useRef(getRowKey)
+  getRowKeyRef.current = getRowKey
+
+  const expandColumn: ColumnDef<T> = useMemo(() => ({
+    id: 'expand',
+    size: 40,
+    enableSorting: false,
+    enableHiding: false,
+    enablePinning: false,
+    header: () => null,
+    cell: ({ row }) => {
+      const key = getRowKeyRef.current(row.original, row.index)
+      const expanded = expandedKeysRef.current.has(key)
+      return (
+        <span className="flex items-center justify-center text-fg-disabled">
+          {expanded
+            ? <ChevronDown className="w-4 h-4" />
+            : <ChevronRight className="w-4 h-4" />}
+        </span>
+      )
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [])
+
+  // ─── Selection column (stable identity) ───
+  const selectionColumn: ColumnDef<T> = useMemo(() => ({
     id: 'select',
     size: 40,
     enableSorting: false,
@@ -167,35 +244,16 @@ export function ProTable<T extends object>({
         onChange={row.getToggleSelectedHandler()}
       />
     ),
-  }
+  }), [])
 
-  const expandColumn: ColumnDef<T> = {
-    id: 'expand',
-    size: 40,
-    enableSorting: false,
-    enableHiding: false,
-    enablePinning: false,
-    header: () => null,
-    cell: ({ row }) => {
-      const key = getRowKey(row.original, row.index)
-      const expanded = expandedKeys.has(key)
-      return (
-        <span className="flex items-center justify-center text-fg-disabled">
-          {expanded
-            ? <ChevronDown className="w-4 h-4" />
-            : <ChevronRight className="w-4 h-4" />}
-        </span>
-      )
-    },
-  }
-
-  const builtColumns = useMemo(() => buildColumns(columnDefs), [columnDefs])
-
-  const columns = [
-    ...(expandedRowRender ? [expandColumn] : []),
-    ...(rowSelection ? [selectionColumn] : []),
+  // ─── Merged columns array ───
+  const hasExpand = !!expandedRowRender
+  const hasSelection = !!rowSelection
+  const columns = useMemo(() => [
+    ...(hasExpand ? [expandColumn] : []),
+    ...(hasSelection ? [selectionColumn] : []),
     ...builtColumns,
-  ]
+  ], [hasExpand, expandColumn, hasSelection, selectionColumn, builtColumns])
 
   // ─── Table instance ───
   const table = useReactTable({
@@ -384,7 +442,7 @@ export function ProTable<T extends object>({
             <tbody className="divide-y divide-border-subtle">
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-fg-disabled text-sm">
                     <div className="flex items-center justify-center gap-2">
                       <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
                       Loading...
@@ -393,7 +451,7 @@ export function ProTable<T extends object>({
                 </tr>
               ) : fetchError ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-sm">
+                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-sm">
                     <div className="flex flex-col items-center gap-2">
                       <p className="text-danger font-medium">Failed to load</p>
                       <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
@@ -409,7 +467,7 @@ export function ProTable<T extends object>({
                 </tr>
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-16 text-center text-fg-disabled text-sm">
+                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-fg-disabled text-sm">
                     No data
                   </td>
                 </tr>
@@ -463,7 +521,7 @@ export function ProTable<T extends object>({
                       </tr>
                       {expandedRowRender && expanded && (
                         <tr className="bg-surface-subtle">
-                          <td colSpan={columns.length} className="px-0 py-0">
+                          <td colSpan={table.getVisibleLeafColumns().length} className="px-0 py-0">
                             {expandedRowRender(row.original)}
                           </td>
                         </tr>

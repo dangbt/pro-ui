@@ -60,6 +60,19 @@ export interface RequestResult<T> {
 }
 
 export interface ProTableProps<T extends object> {
+  /**
+   * Column definitions for the table. ProTable internally memoizes the built column
+   * structure by *value* (not reference identity), so passing an inline array literal
+   * on every render is cheap and does **not** cause cell remounts.
+   *
+   * **Do not** wrap `columns` in `useMemo` or declare it at module scope if any column's
+   * `render` function closes over component state or props. A frozen array means frozen
+   * closures — cells will read stale values forever. This is the only remaining cause of
+   * the "render doesn't see updated state" symptom.
+   *
+   * A module-scope or `useMemo(…, [])` array is safe only when no `render` reads anything
+   * from the component's scope.
+   */
   columns: ProColumnType<T>[]
   /**
    * Server-side data fetcher. Mutually exclusive with `dataSource`.
