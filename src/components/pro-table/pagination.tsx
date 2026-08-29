@@ -47,8 +47,8 @@ export function Pagination<T>({
       </div>
 
       <div className="flex flex-wrap items-center gap-1">
-        <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => table.firstPage()} disabled={!canPrev} title="First page">«</button>
-        <button className={paginationBtnCls} onClick={() => table.previousPage()} disabled={!canPrev} title="Previous page">‹</button>
+        <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => setPagination(prev => ({ ...prev, pageIndex: 0 }))} disabled={!canPrev} title="First page">«</button>
+        <button className={paginationBtnCls} onClick={() => setPagination(prev => ({ ...prev, pageIndex: Math.max(0, prev.pageIndex - 1) }))} disabled={!canPrev} title="Previous page">‹</button>
         {Array.from({ length: Math.min(pageCount, 5) }, (_, i) => {
           const total5 = Math.min(pageCount, 5)
           const base = Math.max(0, Math.min(pagination.pageIndex - 2, pageCount - total5))
@@ -68,8 +68,8 @@ export function Pagination<T>({
             </button>
           )
         })}
-        <button className={paginationBtnCls} onClick={() => table.nextPage()} disabled={!canNext} title="Next page">›</button>
-        <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => table.lastPage()} disabled={!canNext} title="Last page">»</button>
+        <button className={paginationBtnCls} onClick={() => setPagination(prev => ({ ...prev, pageIndex: Math.min(pageCount - 1, prev.pageIndex + 1) }))} disabled={!canNext} title="Next page">›</button>
+        <button className={cn(paginationBtnCls, 'hidden sm:inline-flex')} onClick={() => setPagination(prev => ({ ...prev, pageIndex: pageCount - 1 }))} disabled={!canNext} title="Last page">»</button>
       </div>
     </div>
   )
