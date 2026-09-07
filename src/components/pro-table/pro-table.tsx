@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
-  type RowSelectionState,
   type ColumnPinningState,
   type Column,
 } from '@tanstack/react-table'
@@ -20,6 +19,7 @@ import { useBuiltColumns } from './use-built-columns'
 import { useSpecialColumns } from './use-special-columns'
 import { useColumnVisibility } from './use-column-visibility'
 import { useExpandedRows } from './use-expanded-rows'
+import { useRowSelectionState, useSelectionChange } from './use-row-selection'
 import { useSticky } from './use-sticky'
 import { useProTableData } from './use-pro-table-data'
 import { PAGE_SIZE_OPTIONS } from './constants'
@@ -106,18 +106,7 @@ export function ProTable<T extends object>({
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
   // ─── Row selection ───
-  const [rowSelectionState, setRowSelectionState] = useState<RowSelectionState>({})
-  // Reset selection when the underlying data changes, but skip the initial run: on mount
-  // `rowSelectionState` is already empty, and resetting it to a fresh `{}` would trigger
-  // an extra render that fires `rowSelection.onChange` with `([], [])`.
-  const dataIdentityIsInitialRef = useRef(true)
-  useEffect(() => {
-    if (dataIdentityIsInitialRef.current) {
-      dataIdentityIsInitialRef.current = false
-      return
-    }
-    setRowSelectionState({})
-  }, [dataIdentity])
+  const [rowSelectionState, setRowSelectionState] = useRowSelectionState(dataIdentity)
 
   // ─── Expand ───
   const { expandedKeys, toggleExpand } = useExpandedRows()
@@ -164,21 +153,12 @@ export function ProTable<T extends object>({
   })
 
   // ─── Selection derived state ───
-  const selectedModelRows = table.getSelectedRowModel().rows
-  const selectedKeys = selectedModelRows.map(row => getRowKey(row.original, row.index))
-  const selectedOriginals = selectedModelRows.map(r => r.original)
-
-  // Skip the initial run so `rowSelection.onChange` doesn't fire on mount with `([], [])`
-  // — mirrors the `paginationIsInitialRef` guard in use-pro-table-data.ts / types.ts.
-  const selectionIsInitialRef = useRef(true)
-  useEffect(() => {
-    if (selectionIsInitialRef.current) {
-      selectionIsInitialRef.current = false
-      return
-    }
-    rowSelection?.onChange?.(selectedKeys, selectedOriginals)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowSelectionState])
+  const { selectedKeys, selectedOriginals } = useSelectionChange<T>({
+    table,
+    rowSelectionState,
+    rowSelection,
+    getRowKey,
+  })
 
   const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
   const pageSizeOptions = paginationConfig?.pageSizeOptions ?? PAGE_SIZE_OPTIONS
