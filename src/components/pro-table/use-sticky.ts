@@ -100,8 +100,10 @@ export function useSticky({ sticky }: UseStickyOptions) {
 
   // When sticky active: listen to resize/scroll to keep position synced, and observe
   // the table so the cloned header width tracks the real table (from state, not a ref
-  // read during render).
-  useEffect(() => {
+  // read during render). useLayoutEffect (like the fit-height effect above) so the
+  // width and fixed-position style are committed before paint, avoiding a flash of the
+  // clone at the wrong width / without `position: fixed` on its first frame.
+  useLayoutEffect(() => {
     if (!stickyWindowScroll || !wsIsSticky) return
     wsSyncPosition()
     window.addEventListener('resize', wsSyncPosition)
