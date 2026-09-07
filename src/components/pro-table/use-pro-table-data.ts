@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import type { PaginationState, SortingState } from '@tanstack/react-table'
 import type { QueryParams, RequestResult } from './types'
@@ -59,7 +60,12 @@ export function useProTableData<T extends object>({
   const modeWarnedRef = useRef(false)
   useEffect(() => {
     if (modeWarnedRef.current) return
-    if (process.env.NODE_ENV === 'production') return
+    // `import.meta.env.PROD` is Vite's build-time constant: it is statically replaced
+    // (with `true` in the published bundle) so the whole warning block is tree-shaken out
+    // of production output — and it never leaves a bare `process` reference that would
+    // throw `ReferenceError: process is not defined` in a native-ESM / Deno / worker
+    // runtime that loads the shipped file without a bundler.
+    if (import.meta.env.PROD) return
     if (request && dataSource !== undefined) {
       modeWarnedRef.current = true
       // eslint-disable-next-line no-console
@@ -107,22 +113,29 @@ export function useProTableData<T extends object>({
         // There is no `row[base_from]` field, so substring-matching that literal key
         // empties the table. Instead resolve the underlying `row[base]` and compare it
         // as a date against the inclusive bound this key represents.
+        //
+        // Guard on the row shape, not on key shape alone: a plain text column can
+        // legitimately be named `sent_from` / `transfer_to`. Only take the range path
+        // when the literal key is NOT a field on the row AND the base key IS — otherwise
+        // fall through to the normal substring match on the real field.
         const rangeMatch = /^(.+)_(from|to)$/.exec(key)
-        if (rangeMatch) {
+        if (rangeMatch && !(key in (row as Record<string, unknown>))) {
           const [, base, side] = rangeMatch
-          const cell = (row as Record<string, unknown>)[base]
-          const cellTime = new Date(cell as string | number | Date).getTime()
-          // Missing/unparseable cell is excluded whenever a bound is set.
-          if (Number.isNaN(cellTime)) return false
-          let boundTime = new Date(val as string | number | Date).getTime()
-          if (Number.isNaN(boundTime)) return true
-          // A bare `YYYY-MM-DD` bound (what the date input emits) parses to midnight.
-          // For the upper bound, extend it to the end of that day so a same-day cell
-          // with a time component is still included.
-          if (side === 'to' && /^\d{4}-\d{2}-\d{2}$/.test(String(val))) {
-            boundTime += 24 * 60 * 60 * 1000 - 1
+          if (base in (row as Record<string, unknown>)) {
+            const cell = (row as Record<string, unknown>)[base]
+            const cellTime = new Date(cell as string | number | Date).getTime()
+            // Missing/unparseable cell is excluded whenever a bound is set.
+            if (Number.isNaN(cellTime)) return false
+            let boundTime = new Date(val as string | number | Date).getTime()
+            if (Number.isNaN(boundTime)) return true
+            // A bare `YYYY-MM-DD` bound (what the date input emits) parses to midnight.
+            // For the upper bound, extend it to the end of that day so a same-day cell
+            // with a time component is still included.
+            if (side === 'to' && /^\d{4}-\d{2}-\d{2}$/.test(String(val))) {
+              boundTime += 24 * 60 * 60 * 1000 - 1
+            }
+            return side === 'from' ? cellTime >= boundTime : cellTime <= boundTime
           }
-          return side === 'from' ? cellTime >= boundTime : cellTime <= boundTime
         }
 
         const cell = (row as Record<string, unknown>)[key]

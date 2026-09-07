@@ -458,6 +458,25 @@ describe('useProTableData — client-mode dateRange filtering', () => {
 
     expect(hook.current.tableData.map(r => r.id)).toEqual(['good'])
   })
+
+  it('substring-matches a real _from/_to field instead of taking the range path', () => {
+    interface TransferRow { id: string; sent_from: string }
+    const transfers: TransferRow[] = [
+      { id: '1', sent_from: 'Alice' },
+      { id: '2', sent_from: 'Bob' },
+      { id: '3', sent_from: 'Alicia' },
+    ]
+    const { result: hook } = renderHook(() =>
+      useProTableData<TransferRow>({ dataSource: transfers, rowKey: 'id', defaultPageSize: 10 }),
+    )
+
+    act(() => hook.current.handleSearch({ sent_from: 'ali' }))
+
+    // The literal `sent_from` field exists on the row, so it must be substring-matched
+    // as a plain text column — not misread as a `sent` dateRange bound (which would
+    // empty the table).
+    expect(hook.current.tableData.map(r => r.id)).toEqual(['1', '3'])
+  })
 })
 
 describe('useProTableData — mode misconfiguration warnings', () => {
@@ -514,14 +533,13 @@ describe('useProTableData — mode misconfiguration warnings', () => {
   })
 
   it('is silent in production', () => {
-    const original = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('PROD', true)
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     renderHook(() => useProTableData<Row>({ rowKey: 'id', defaultPageSize: 10 }))
 
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
-    process.env.NODE_ENV = original
+    vi.unstubAllEnvs()
   })
 })
