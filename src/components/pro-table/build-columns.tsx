@@ -5,6 +5,8 @@ import type { ProColumnType } from './types'
 export function buildColumns<T>(
   proColumns: ProColumnType<T>[],
   liveRef: React.MutableRefObject<Map<string, ProColumnType<T>>>,
+  locale?: string,
+  currency?: string,
 ): ColumnDef<T>[] {
   return proColumns.filter(col => !col.hideInTable).map(col => {
     const key = (col.key ?? col.dataIndex ?? col.title) as string
@@ -26,7 +28,7 @@ export function buildColumns<T>(
           const live = liveRef.current.get(key) ?? col
           const value = getValue()
           if (live.render) return live.render(value, row.original, row.index)
-          return renderValue(value, live.valueType ?? 'text', live.valueEnum)
+          return renderValue(value, live.valueType ?? 'text', live.valueEnum, locale, currency)
         },
       }
       return def

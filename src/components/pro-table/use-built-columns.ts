@@ -20,7 +20,11 @@ function colKey<T>(c: ProColumnType<T>): string {
  * See types.ts for the full rationale. Do not "simplify" the deps arrays or drop
  * the eslint-disable comments — that machinery is intentional.
  */
-export function useBuiltColumns<T>(columnDefs: ProColumnType<T>[]): {
+export function useBuiltColumns<T>(
+  columnDefs: ProColumnType<T>[],
+  locale?: string,
+  currency?: string,
+): {
   builtColumns: ColumnDef<T>[]
   columnsSignature: string
 } {
@@ -60,10 +64,11 @@ export function useBuiltColumns<T>(columnDefs: ProColumnType<T>[]): {
   )
 
   const builtColumns = useMemo(
-    () => buildColumns(columnDefs, liveColumnsRef),
+    () => buildColumns(columnDefs, liveColumnsRef, locale, currency),
     // Keyed on structure, not identity — render closures are read via liveRef.
+    // `locale`/`currency` are added so changing them rebuilds the value formatters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columnsSignature],
+    [columnsSignature, locale, currency],
   )
 
   return { builtColumns, columnsSignature }

@@ -45,6 +45,8 @@ export function ProTable<T extends object>({
   size = 'sm',
   persistColumnVisibility = true,
   sticky = false,
+  locale,
+  currency,
 }: ProTableProps<T>) {
   // ─── Sticky ───
   const {
@@ -94,7 +96,7 @@ export function ProTable<T extends object>({
   const loading = loadingProp ?? loadingData
 
   // ─── Built columns (load-bearing memo machinery — see use-built-columns.ts) ───
-  const { builtColumns, columnsSignature } = useBuiltColumns(columnDefs)
+  const { builtColumns, columnsSignature } = useBuiltColumns(columnDefs, locale, currency)
 
   // ─── Column visibility persistence ───
   const [columnVisibility, setColumnVisibility] = useColumnVisibility<T>({
