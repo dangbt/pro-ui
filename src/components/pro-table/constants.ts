@@ -1,11 +1,5 @@
 import type { Size } from '../../lib/size'
 
-export const pageSizeCls: Record<Size, string> = {
-  sm: 'h-[var(--sz)] px-2 text-xs',
-  md: 'h-[var(--sz)] px-3 text-sm',
-  lg: 'h-[var(--sz)] px-3 text-base',
-}
-
 export const rowPyCls: Record<Size, string> = {
   sm: 'py-1.5',
   md: 'py-2.5',

@@ -1,23 +1,16 @@
 import { useState, useRef } from 'react'
-import { createPortal } from 'react-dom'
 import { Pin, PinOff } from 'lucide-react'
 import type { Column } from '@tanstack/react-table'
 import { cn } from '../../lib/cn'
-import { useClickOutside } from '../../lib/use-click-outside'
+import { PortalMenu } from './portal-menu'
 
 export function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
   const pinned = column.getIsPinned()
-
-  useClickOutside([menuRef, triggerRef], () => setOpen(false), open)
 
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const rect = triggerRef.current?.getBoundingClientRect()
-    if (rect) setPos({ top: rect.bottom + 4, left: rect.left })
     setOpen(v => !v)
   }
 
@@ -37,43 +30,41 @@ export function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
       >
         {pinned ? <Pin className="w-3 h-3" /> : <PinOff className="w-3 h-3" />}
       </button>
-      {open && typeof document !== 'undefined' && createPortal(
-        <div
-          ref={menuRef}
-          data-react-aria-top-layer
-          className="fixed min-w-[120px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
-          style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
-        >
-          {pinned !== 'left' && (
-            <button
-              type="button"
-              onClick={() => { column.pin('left'); setOpen(false) }}
-              className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
-            >
-              <Pin className="w-3 h-3 rotate-45" /> Pin left
-            </button>
-          )}
-          {pinned !== 'right' && (
-            <button
-              type="button"
-              onClick={() => { column.pin('right'); setOpen(false) }}
-              className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
-            >
-              <Pin className="w-3 h-3 -rotate-45" /> Pin right
-            </button>
-          )}
-          {pinned && (
-            <button
-              type="button"
-              onClick={() => { column.pin(false); setOpen(false) }}
-              className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
-            >
-              <PinOff className="w-3 h-3" /> Unpin
-            </button>
-          )}
-        </div>,
-        document.body,
-      )}
+      <PortalMenu
+        open={open}
+        onClose={() => setOpen(false)}
+        triggerRef={triggerRef}
+        anchor="left"
+        className="min-w-[120px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
+      >
+        {pinned !== 'left' && (
+          <button
+            type="button"
+            onClick={() => { column.pin('left'); setOpen(false) }}
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
+          >
+            <Pin className="w-3 h-3 rotate-45" /> Pin left
+          </button>
+        )}
+        {pinned !== 'right' && (
+          <button
+            type="button"
+            onClick={() => { column.pin('right'); setOpen(false) }}
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
+          >
+            <Pin className="w-3 h-3 -rotate-45" /> Pin right
+          </button>
+        )}
+        {pinned && (
+          <button
+            type="button"
+            onClick={() => { column.pin(false); setOpen(false) }}
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-fg-2 hover:bg-surface-subtle text-left"
+          >
+            <PinOff className="w-3 h-3" /> Unpin
+          </button>
+        )}
+      </PortalMenu>
     </div>
   )
 }

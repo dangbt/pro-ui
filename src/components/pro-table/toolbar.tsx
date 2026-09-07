@@ -1,8 +1,7 @@
-import { useRef, useEffect, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { useRef, useState, type ReactNode } from 'react'
 import { RefreshCw, Columns3 } from 'lucide-react'
 import { Button } from '../button'
-import { cn } from '../../lib/cn'
+import { PortalMenu } from './portal-menu'
 import type { Column } from '@tanstack/react-table'
 
 interface ColumnToggleItem {
@@ -22,60 +21,45 @@ interface ToolbarProps {
 
 function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ top: 0, right: 0 })
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node) && !wrapperRef.current?.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const hideable = columns.filter(c => c.canHide)
   if (!hideable.length) return null
 
-  const handleOpen = () => {
-    const rect = wrapperRef.current?.getBoundingClientRect()
-    if (rect) setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
-    setOpen(v => !v)
-  }
-
   return (
-    <div ref={wrapperRef} className="relative">
-      <Button variant="ghost" size="sm" onPress={handleOpen} aria-label="Toggle columns">
+    <div className="relative">
+      <Button
+        ref={triggerRef}
+        variant="ghost"
+        size="sm"
+        onPress={() => setOpen(v => !v)}
+        aria-label="Toggle columns"
+      >
         <Columns3 className="w-4 h-4" />
       </Button>
-      {open && typeof document !== 'undefined' && createPortal(
-        <div
-          ref={menuRef}
-          data-react-aria-top-layer
-          className="fixed min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
-          style={{ top: pos.top, right: pos.right, zIndex: 9999 }}
-        >
-          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">Columns</p>
-          {hideable.map(col => (
-            <label
-              key={col.id}
-              className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-fg-2 hover:bg-surface-subtle cursor-pointer select-none"
-            >
-              <input
-                type="checkbox"
-                checked={col.isVisible}
-                onChange={col.toggle}
-                className="w-3.5 h-3.5 accent-primary rounded"
-              />
-              {col.label}
-            </label>
-          ))}
-        </div>,
-        document.body,
-      )}
+      <PortalMenu
+        open={open}
+        onClose={() => setOpen(false)}
+        triggerRef={triggerRef}
+        anchor="right"
+        className="min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
+      >
+        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">Columns</p>
+        {hideable.map(col => (
+          <label
+            key={col.id}
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-fg-2 hover:bg-surface-subtle cursor-pointer select-none"
+          >
+            <input
+              type="checkbox"
+              checked={col.isVisible}
+              onChange={col.toggle}
+              className="w-3.5 h-3.5 accent-primary rounded"
+            />
+            {col.label}
+          </label>
+        ))}
+      </PortalMenu>
     </div>
   )
 }
