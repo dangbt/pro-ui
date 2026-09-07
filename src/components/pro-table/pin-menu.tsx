@@ -35,7 +35,7 @@ export function PinMenu<T>({ column }: { column: Column<T, unknown> }) {
         )}
         title={pinned ? 'Pinned' : 'Pin column'}
       >
-        {pinned ? <Pin className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
+        {pinned ? <Pin className="w-3 h-3" /> : <PinOff className="w-3 h-3" />}
       </button>
       {open && typeof document !== 'undefined' && createPortal(
         <div

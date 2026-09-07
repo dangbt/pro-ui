@@ -32,14 +32,11 @@ export function useSticky({ sticky }: UseStickyOptions) {
       if (!el) return
       const top = el.getBoundingClientRect().top
       // Account for sibling elements below (pagination, bulk bar, etc.)
-      const parent = el.parentElement
       let siblingHeight = 0
-      if (parent) {
-        let sibling = el.nextElementSibling
-        while (sibling) {
-          siblingHeight += (sibling as HTMLElement).offsetHeight ?? 0
-          sibling = sibling.nextElementSibling
-        }
+      let sibling = el.nextElementSibling
+      while (sibling) {
+        siblingHeight += (sibling as HTMLElement).offsetHeight ?? 0
+        sibling = sibling.nextElementSibling
       }
       const offset = siblingHeight + 8
       const next = `${Math.max(160, Math.round(window.innerHeight - top - offset))}px`
@@ -60,11 +57,11 @@ export function useSticky({ sticky }: UseStickyOptions) {
   // ─── Window-scroll sticky mode ───
   const wsSentinelRef = useRef<HTMLDivElement>(null)
   const wsWrapperRef = useRef<HTMLDivElement>(null)
-  const wsTheadRef = useRef<HTMLTableSectionElement>(null)
   const wsTableRef = useRef<HTMLTableElement>(null)
   const [wsIsSticky, setWsIsSticky] = useState(false)
   const [wsScrollLeft, setWsScrollLeft] = useState(0)
   const [wsStyle, setWsStyle] = useState<React.CSSProperties>({})
+  const [wsTableWidth, setWsTableWidth] = useState<number>()
 
   // IntersectionObserver: detect when sentinel leaves viewport
   useEffect(() => {
@@ -94,17 +91,31 @@ export function useSticky({ sticky }: UseStickyOptions) {
       overflow: 'hidden',
       pointerEvents: 'none',
     })
+    const table = wsTableRef.current
+    if (table) {
+      const width = table.offsetWidth
+      setWsTableWidth((prev) => (prev === width ? prev : width))
+    }
   }, [stickyOffsetTop])
 
-  // When sticky active: listen to resize/scroll to keep position synced
+  // When sticky active: listen to resize/scroll to keep position synced, and observe
+  // the table so the cloned header width tracks the real table (from state, not a ref
+  // read during render).
   useEffect(() => {
     if (!stickyWindowScroll || !wsIsSticky) return
     wsSyncPosition()
     window.addEventListener('resize', wsSyncPosition)
     window.addEventListener('scroll', wsSyncPosition)
+    const table = wsTableRef.current
+    let ro: ResizeObserver | undefined
+    if (table) {
+      ro = new ResizeObserver(wsSyncPosition)
+      ro.observe(table)
+    }
     return () => {
       window.removeEventListener('resize', wsSyncPosition)
       window.removeEventListener('scroll', wsSyncPosition)
+      ro?.disconnect()
     }
   }, [stickyWindowScroll, wsIsSticky, wsSyncPosition])
 
@@ -125,10 +136,10 @@ export function useSticky({ sticky }: UseStickyOptions) {
     scrollRef,
     wsSentinelRef,
     wsWrapperRef,
-    wsTheadRef,
     wsTableRef,
     wsIsSticky,
     wsScrollLeft,
+    wsTableWidth,
     wsStyle,
     wsHandleScroll,
   }

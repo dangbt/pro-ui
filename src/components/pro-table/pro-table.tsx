@@ -63,10 +63,10 @@ export function ProTable<T extends object>({
     scrollRef,
     wsSentinelRef,
     wsWrapperRef,
-    wsTheadRef,
     wsTableRef,
     wsIsSticky,
     wsScrollLeft,
+    wsTableWidth,
     wsStyle,
     wsHandleScroll,
   } = useSticky({ sticky })
@@ -177,7 +177,17 @@ export function ProTable<T extends object>({
 
   // ─── Row selection ───
   const [rowSelectionState, setRowSelectionState] = useState<RowSelectionState>({})
-  useEffect(() => { setRowSelectionState({}) }, [dataIdentity])
+  // Reset selection when the underlying data changes, but skip the initial run: on mount
+  // `rowSelectionState` is already empty, and resetting it to a fresh `{}` would trigger
+  // an extra render that fires `rowSelection.onChange` with `([], [])`.
+  const dataIdentityIsInitialRef = useRef(true)
+  useEffect(() => {
+    if (dataIdentityIsInitialRef.current) {
+      dataIdentityIsInitialRef.current = false
+      return
+    }
+    setRowSelectionState({})
+  }, [dataIdentity])
 
   // ─── Expand ───
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
@@ -275,10 +285,17 @@ export function ProTable<T extends object>({
 
   // ─── Selection derived state ───
   const selectedModelRows = table.getSelectedRowModel().rows
-  const selectedKeys = selectedModelRows.map((row, i) => getRowKey(row.original, i))
+  const selectedKeys = selectedModelRows.map(row => getRowKey(row.original, row.index))
   const selectedOriginals = selectedModelRows.map(r => r.original)
 
+  // Skip the initial run so `rowSelection.onChange` doesn't fire on mount with `([], [])`
+  // — mirrors the `paginationIsInitialRef` guard in use-pro-table-data.ts / types.ts.
+  const selectionIsInitialRef = useRef(true)
   useEffect(() => {
+    if (selectionIsInitialRef.current) {
+      selectionIsInitialRef.current = false
+      return
+    }
     rowSelection?.onChange?.(selectedKeys, selectedOriginals)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelectionState])
@@ -326,7 +343,7 @@ export function ProTable<T extends object>({
             <table
               className="w-full text-sm bg-surface-subtle border-b border-border"
               style={{
-                width: wsTableRef.current?.offsetWidth,
+                width: wsTableWidth,
                 transform: `translateX(-${wsScrollLeft}px)`,
               }}
             >
@@ -394,7 +411,7 @@ export function ProTable<T extends object>({
           onScroll={stickyWindowScroll ? wsHandleScroll : undefined}
         >
           <table ref={stickyWindowScroll ? wsTableRef as unknown as React.Ref<HTMLTableElement> : undefined} className="w-full text-sm">
-            <thead ref={stickyWindowScroll ? wsTheadRef as unknown as React.Ref<HTMLTableSectionElement> : undefined} className={cn(
+            <thead className={cn(
               'bg-surface-subtle border-b border-border',
               stickyEnabled && !stickyWindowScroll && 'sticky z-[3]',
             )} style={stickyEnabled && !stickyWindowScroll ? { top: stickyOffsetTop } : undefined}>

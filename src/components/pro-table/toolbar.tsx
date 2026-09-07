@@ -116,5 +116,3 @@ export function buildColumnToggles<T>(
       toggle: () => col.toggleVisibility(),
     }))
 }
-
-export { cn }
