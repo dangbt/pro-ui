@@ -113,14 +113,14 @@ function UserPreviewCard() {
   return (
     <div className="w-64">
       <div className="flex items-start gap-3">
-        <Avatar size="lg" name="Dâng Bùi Tấn" src="https://avatars.githubusercontent.com/u/1?v=4" />
+        <Avatar size="lg" name="Jane Cooper" />
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-fg leading-tight">Dâng Bùi Tấn</p>
-          <p className="text-xs text-fg-muted">@dangbt</p>
+          <p className="text-sm font-semibold text-fg leading-tight">Jane Cooper</p>
+          <p className="text-xs text-fg-muted">@janecooper</p>
         </div>
       </div>
       <p className="mt-2 text-xs text-fg-2">
-        Building pro-ui — an AI-native React component library on React Aria &amp; Tailwind v4.
+        Frontend engineer building accessible design systems with React &amp; Tailwind.
       </p>
       <div className="mt-2 flex items-center gap-3 text-xs text-fg-muted">
         <span><span className="font-semibold text-fg-2">128</span> followers</span>
@@ -147,7 +147,7 @@ export function PreviewCardSection() {
           <p className="text-sm text-fg-2">
             Follow{' '}
             <PreviewCard content={<UserPreviewCard />}>
-              <Link>@dangbt</Link>
+              <Link>@janecooper</Link>
             </PreviewCard>{' '}
             for updates.
           </p>
@@ -156,7 +156,7 @@ export function PreviewCardSection() {
           <p className="text-sm text-fg-2">
             Maintained by{' '}
             <PreviewCard content={<UserPreviewCard />} placement="top" showArrow>
-              <Link>@dangbt</Link>
+              <Link>@janecooper</Link>
             </PreviewCard>
             .
           </p>

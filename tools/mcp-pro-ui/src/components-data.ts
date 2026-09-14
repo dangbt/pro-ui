@@ -753,18 +753,18 @@ import { Info } from 'lucide-react'
   content={
     <div className="w-64">
       <div className="flex items-center gap-3">
-        <Avatar size="lg" name="Dâng Bùi Tấn" />
+        <Avatar size="lg" name="Jane Cooper" />
         <div>
-          <p className="text-sm font-semibold">Dâng Bùi Tấn</p>
-          <p className="text-xs text-fg-muted">@dangbt</p>
+          <p className="text-sm font-semibold">Jane Cooper</p>
+          <p className="text-xs text-fg-muted">@janecooper</p>
         </div>
       </div>
-      <p className="mt-2 text-xs text-fg-2">Building pro-ui.</p>
+      <p className="mt-2 text-xs text-fg-2">Frontend engineer building accessible design systems.</p>
       <Button variant="primary" className="mt-3 w-full">Follow</Button>
     </div>
   }
 >
-  <Link>@dangbt</Link>
+  <Link>@janecooper</Link>
 </PreviewCard>`,
   },
 
