@@ -47,6 +47,7 @@ npm install @dangbt/pro-ui
 - TagGroup, Slider, ColorPicker, FileTrigger, DropZone: Specialized inputs.
 - Spinner, Skeleton, ProgressBar, Meter: Loading and progress components.
 - Breadcrumbs, Toolbar, Disclosure, GridList, ListBox, Tree: Navigation and layout components.
+- NavigationTree: Data-driven hierarchical sidebar navigation with nested sections, current-route highlighting (selectedRoute), and keyboard navigation.
 - ThemeProvider, useTheme: Dark/light/system theme context. Persist to localStorage. Toggle .dark class on html element.
 
 ## App Setup

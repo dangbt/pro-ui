@@ -55,6 +55,7 @@ export const NAV: NavGroup[] = [
     items: [
       { id: 'tabs',        label: 'Tabs'        },
       { id: 'breadcrumbs', label: 'Breadcrumbs' },
+      { id: 'navigation-tree', label: 'NavigationTree' },
       { id: 'toolbar',     label: 'Toolbar'     },
       { id: 'dropdown',    label: 'Dropdown'    },
       { id: 'segmented',   label: 'Segmented'   },

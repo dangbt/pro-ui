@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Plus, Download, Trash2 } from 'lucide-react'
 import {
   Button, Input, Switch, Alert, Tabs, Breadcrumbs,
-  Toolbar, ToolbarSeparator, ToggleButton,
+  Toolbar, ToolbarSeparator, ToggleButton, NavigationTree,
 } from '../../components'
+import type { NavigationTreeNode, NavigationTreeSectionDef } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 
@@ -100,6 +101,82 @@ export function ToolbarSection() {
             <ToolbarSeparator />
             <Button size="sm" variant="ghost" className="text-danger"><Trash2 className="w-3.5 h-3.5" /> Delete</Button>
           </Toolbar>
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+const NAV_TREE_ITEMS: (NavigationTreeNode | NavigationTreeSectionDef)[] = [
+  {
+    title: 'Getting Started',
+    items: [
+      { id: 'introduction', label: 'Introduction', href: '/docs/introduction' },
+      { id: 'installation', label: 'Installation', href: '/docs/installation' },
+      {
+        id: 'guides',
+        label: 'Guides',
+        children: [
+          { id: 'theming', label: 'Theming', href: '/docs/guides/theming' },
+          { id: 'dark-mode', label: 'Dark mode', href: '/docs/guides/dark-mode' },
+          {
+            id: 'advanced',
+            label: 'Advanced',
+            children: [
+              { id: 'ssr', label: 'Server rendering', href: '/docs/guides/ssr' },
+              { id: 'a11y', label: 'Accessibility', href: '/docs/guides/a11y' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Components',
+    items: [
+      { id: 'button', label: 'Button', href: '/docs/components/button' },
+      {
+        id: 'overlay',
+        label: 'Overlay',
+        children: [
+          { id: 'modal', label: 'Modal', href: '/docs/components/modal' },
+          { id: 'drawer', label: 'Drawer', href: '/docs/components/drawer' },
+        ],
+      },
+    ],
+  },
+]
+
+export function NavigationTreeSection() {
+  const [selectedRoute, setSelectedRoute] = useState('/docs/guides/theming')
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="NavigationTree"
+        description="Data-driven hierarchical sidebar navigation — nested sections, current-route highlighting, and full keyboard navigation."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Docs sidebar — click to navigate" center={false}>
+          <div className="w-full max-w-64 border border-border rounded-[var(--base-radius)] bg-surface">
+            <NavigationTree
+              aria-label="Documentation"
+              items={NAV_TREE_ITEMS}
+              selectedRoute={selectedRoute}
+              defaultExpandedKeys={['guides', 'advanced', 'overlay']}
+              onClick={(e) => {
+                // Prevent real navigation in the demo; sync selectedRoute instead.
+                const link = (e.target as HTMLElement).closest('a')
+                if (link) {
+                  e.preventDefault()
+                  setSelectedRoute(new URL(link.href).pathname)
+                }
+              }}
+            />
+          </div>
+          <p className="text-xs text-fg-muted mt-3">
+            Selected route: <code className="text-fg-2">{selectedRoute}</code>
+          </p>
         </Demo>
       </div>
     </div>

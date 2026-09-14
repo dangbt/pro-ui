@@ -23,7 +23,7 @@ import {
   ModalSection, DrawerSection, TooltipSection, MenuSection, PopoverSection, PreviewCardSection,
 } from './showcase/sections/overlay'
 import {
-  TabsSection, BreadcrumbsSection, ToolbarSection,
+  TabsSection, BreadcrumbsSection, ToolbarSection, NavigationTreeSection,
 } from './showcase/sections/navigation'
 import {
   ListBoxSection, GridListSection, TreeSection,
@@ -71,6 +71,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   menu:            <MenuSection />,
   tabs:            <TabsSection />,
   breadcrumbs:     <BreadcrumbsSection />,
+  'navigation-tree': <NavigationTreeSection />,
   toolbar:         <ToolbarSection />,
   listbox:         <ListBoxSection />,
   gridlist:        <GridListSection />,

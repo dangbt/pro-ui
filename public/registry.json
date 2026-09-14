@@ -2312,6 +2312,58 @@
       "example": "import { Breadcrumbs } from '@dangbt/pro-ui'\n\n<Breadcrumbs\n  items={[\n    { id: 'home', label: 'Home', href: '/' },\n    { id: 'users', label: 'Users', href: '/users' },\n    { id: 'current', label: 'John Doe' },\n  ]}\n/>"
     },
     {
+      "name": "NavigationTree",
+      "import": "NavigationTree",
+      "package": "@dangbt/pro-ui",
+      "category": "display",
+      "description": "Data-driven hierarchical sidebar navigation built on React Aria NavigationTree — nested sections, expand/collapse, current-route highlighting via selectedRoute, and full keyboard navigation.",
+      "useCases": [
+        "docs sidebar",
+        "hierarchical navigation",
+        "nested nav menu",
+        "side navigation"
+      ],
+      "props": [
+        {
+          "name": "items",
+          "type": "(NavigationTreeNode | NavigationTreeSectionDef)[]",
+          "required": true,
+          "description": "Nodes and/or sections. NavigationTreeNode: { id, label, href?, icon?, children?, isDisabled? }. NavigationTreeSectionDef: { title, items }"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "required": true,
+          "description": "Accessible label for the navigation region"
+        },
+        {
+          "name": "selectedRoute",
+          "type": "string | null",
+          "required": false,
+          "description": "The current route; the item whose href matches gets aria-current=\"page\" and active styling"
+        },
+        {
+          "name": "defaultExpandedKeys",
+          "type": "Iterable<Key>",
+          "required": false,
+          "description": "Initially expanded node ids (uncontrolled)"
+        },
+        {
+          "name": "expandedKeys",
+          "type": "Iterable<Key>",
+          "required": false,
+          "description": "Expanded node ids (controlled)"
+        },
+        {
+          "name": "onExpandedChange",
+          "type": "(keys: Set<Key>) => void",
+          "required": false,
+          "description": "Called when nodes expand/collapse"
+        }
+      ],
+      "example": "import { NavigationTree } from '@dangbt/pro-ui'\n\n<NavigationTree\n  aria-label=\"Documentation\"\n  selectedRoute=\"/docs/install\"\n  defaultExpandedKeys={['guides']}\n  items={[\n    {\n      title: 'Getting Started',\n      items: [\n        { id: 'intro', label: 'Introduction', href: '/docs/intro' },\n        {\n          id: 'guides', label: 'Guides',\n          children: [\n            { id: 'install', label: 'Installation', href: '/docs/install' },\n            { id: 'config', label: 'Configuration', href: '/docs/config' },\n          ],\n        },\n      ],\n    },\n  ]}\n/>"
+    },
+    {
       "name": "Disclosure",
       "import": "Disclosure, Accordion",
       "package": "@dangbt/pro-ui",

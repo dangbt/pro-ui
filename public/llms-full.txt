@@ -1,7 +1,7 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
-> Generated from mcp-pro-ui components-data. Total: 52 components.
+> Generated from mcp-pro-ui components-data. Total: 53 components.
 
 ## App Setup
 
@@ -1712,6 +1712,52 @@ import { Breadcrumbs } from '@dangbt/pro-ui'
     { id: 'home', label: 'Home', href: '/' },
     { id: 'users', label: 'Users', href: '/users' },
     { id: 'current', label: 'John Doe' },
+  ]}
+/>
+```
+
+---
+
+## NavigationTree
+
+Data-driven hierarchical sidebar navigation built on React Aria NavigationTree — nested sections, expand/collapse, current-route highlighting via selectedRoute, and full keyboard navigation.
+
+Import: `import { NavigationTree } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| items | (NavigationTreeNode | NavigationTreeSectionDef)[] | ✅ | — | Nodes and/or sections. NavigationTreeNode: { id, label, href?, icon?, children?, isDisabled? }. NavigationTreeSectionDef: { title, items } |
+| aria-label | string | ✅ | — | Accessible label for the navigation region |
+| selectedRoute | string | null | — | — | The current route; the item whose href matches gets aria-current="page" and active styling |
+| defaultExpandedKeys | Iterable<Key> | — | — | Initially expanded node ids (uncontrolled) |
+| expandedKeys | Iterable<Key> | — | — | Expanded node ids (controlled) |
+| onExpandedChange | (keys: Set<Key>) => void | — | — | Called when nodes expand/collapse |
+
+### Example
+
+```tsx
+import { NavigationTree } from '@dangbt/pro-ui'
+
+<NavigationTree
+  aria-label="Documentation"
+  selectedRoute="/docs/install"
+  defaultExpandedKeys={['guides']}
+  items={[
+    {
+      title: 'Getting Started',
+      items: [
+        { id: 'intro', label: 'Introduction', href: '/docs/intro' },
+        {
+          id: 'guides', label: 'Guides',
+          children: [
+            { id: 'install', label: 'Installation', href: '/docs/install' },
+            { id: 'config', label: 'Configuration', href: '/docs/config' },
+          ],
+        },
+      ],
+    },
   ]}
 />
 ```

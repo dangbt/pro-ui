@@ -1406,6 +1406,44 @@ import { DialogTrigger } from 'react-aria-components'
   },
 
   {
+    name: 'NavigationTree',
+    importName: 'NavigationTree',
+    category: 'display',
+    description: 'Data-driven hierarchical sidebar navigation built on React Aria NavigationTree — nested sections, expand/collapse, current-route highlighting via selectedRoute, and full keyboard navigation.',
+    useCases: ['docs sidebar', 'hierarchical navigation', 'nested nav menu', 'side navigation'],
+    props: [
+      { name: 'items', type: '(NavigationTreeNode | NavigationTreeSectionDef)[]', required: true, description: 'Nodes and/or sections. NavigationTreeNode: { id, label, href?, icon?, children?, isDisabled? }. NavigationTreeSectionDef: { title, items }' },
+      { name: 'aria-label', type: 'string', required: true, description: 'Accessible label for the navigation region' },
+      { name: 'selectedRoute', type: 'string | null', required: false, description: 'The current route; the item whose href matches gets aria-current="page" and active styling' },
+      { name: 'defaultExpandedKeys', type: 'Iterable<Key>', required: false, description: 'Initially expanded node ids (uncontrolled)' },
+      { name: 'expandedKeys', type: 'Iterable<Key>', required: false, description: 'Expanded node ids (controlled)' },
+      { name: 'onExpandedChange', type: '(keys: Set<Key>) => void', required: false, description: 'Called when nodes expand/collapse' },
+    ],
+    example: `import { NavigationTree } from '@dangbt/pro-ui'
+
+<NavigationTree
+  aria-label="Documentation"
+  selectedRoute="/docs/install"
+  defaultExpandedKeys={['guides']}
+  items={[
+    {
+      title: 'Getting Started',
+      items: [
+        { id: 'intro', label: 'Introduction', href: '/docs/intro' },
+        {
+          id: 'guides', label: 'Guides',
+          children: [
+            { id: 'install', label: 'Installation', href: '/docs/install' },
+            { id: 'config', label: 'Configuration', href: '/docs/config' },
+          ],
+        },
+      ],
+    },
+  ]}
+/>`,
+  },
+
+  {
     name: 'Disclosure',
     importName: 'Disclosure, Accordion',
     category: 'display',
