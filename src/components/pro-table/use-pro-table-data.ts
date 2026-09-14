@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import type { PaginationState, SortingState } from '@tanstack/react-table'
 import type { QueryParams, RequestResult } from './types'
@@ -52,6 +53,38 @@ export function useProTableData<T extends object>({
 }: UseProTableDataOptions<T>): UseProTableDataReturn<T> {
   const isClientMode = !request && dataSource !== undefined
 
+  // Warn once per mount on a misconfigured mode. `request` and `dataSource` are
+  // documented as mutually exclusive: passing both silently ignores `dataSource`
+  // (request wins, matching today's behaviour); passing neither leaves the table
+  // empty with no request to fire. Silent in production.
+  const modeWarnedRef = useRef(false)
+  useEffect(() => {
+    if (modeWarnedRef.current) return
+    // `import.meta.env.PROD` is Vite's build-time constant: it is statically replaced
+    // (with `true` in the published bundle) so the whole warning block is tree-shaken out
+    // of production output — and it never leaves a bare `process` reference that would
+    // throw `ReferenceError: process is not defined` in a native-ESM / Deno / worker
+    // runtime that loads the shipped file without a bundler.
+    if (import.meta.env.PROD) return
+    if (request && dataSource !== undefined) {
+      modeWarnedRef.current = true
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[ProTable] Both `request` and `dataSource` were provided; they are mutually ' +
+          'exclusive. Using `request` (server mode) and ignoring `dataSource`.',
+      )
+    } else if (!request && dataSource === undefined) {
+      modeWarnedRef.current = true
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[ProTable] Neither `request` nor `dataSource` was provided; the table has no ' +
+          'data source and will stay empty. Provide exactly one.',
+      )
+    }
+    // Intentionally mount-only: warnings fire once, not per render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Server-side state
   const [serverData, setServerData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
@@ -75,6 +108,36 @@ export function useProTableData<T extends object>({
     return dataSource.filter(row => {
       return Object.entries(searchParams).every(([key, val]) => {
         if (val === undefined || val === null || val === '') return true
+
+        // `dateRange` columns emit `${base}_from` / `${base}_to` keys (see search-form).
+        // There is no `row[base_from]` field, so substring-matching that literal key
+        // empties the table. Instead resolve the underlying `row[base]` and compare it
+        // as a date against the inclusive bound this key represents.
+        //
+        // Guard on the row shape, not on key shape alone: a plain text column can
+        // legitimately be named `sent_from` / `transfer_to`. Only take the range path
+        // when the literal key is NOT a field on the row AND the base key IS — otherwise
+        // fall through to the normal substring match on the real field.
+        const rangeMatch = /^(.+)_(from|to)$/.exec(key)
+        if (rangeMatch && !(key in (row as Record<string, unknown>))) {
+          const [, base, side] = rangeMatch
+          if (base in (row as Record<string, unknown>)) {
+            const cell = (row as Record<string, unknown>)[base]
+            const cellTime = new Date(cell as string | number | Date).getTime()
+            // Missing/unparseable cell is excluded whenever a bound is set.
+            if (Number.isNaN(cellTime)) return false
+            let boundTime = new Date(val as string | number | Date).getTime()
+            if (Number.isNaN(boundTime)) return true
+            // A bare `YYYY-MM-DD` bound (what the date input emits) parses to midnight.
+            // For the upper bound, extend it to the end of that day so a same-day cell
+            // with a time component is still included.
+            if (side === 'to' && /^\d{4}-\d{2}-\d{2}$/.test(String(val))) {
+              boundTime += 24 * 60 * 60 * 1000 - 1
+            }
+            return side === 'from' ? cellTime >= boundTime : cellTime <= boundTime
+          }
+        }
+
         const cell = (row as Record<string, unknown>)[key]
         return String(cell ?? '').toLowerCase().includes(String(val).toLowerCase())
       })
@@ -112,21 +175,34 @@ export function useProTableData<T extends object>({
     onPaginationChangeRef.current?.(pagination.pageIndex + 1, pagination.pageSize)
   }, [pagination.pageIndex, pagination.pageSize])
 
+  // Monotonically increasing request id: only the most recently issued request is
+  // allowed to write state. A slow first request that resolves after a faster second
+  // one is stale — its id no longer matches `requestIdRef.current`, so it's dropped
+  // (data, error, and loading are all left to the winner).
+  const requestIdRef = useRef(0)
+
   const fetchData = useCallback(async (queryParams: QueryParams) => {
     const req = requestRef.current
     if (!req) return
+    const requestId = ++requestIdRef.current
     setLoadingServer(true)
     setFetchError(null)
     try {
       const result = await req(queryParams)
+      if (requestId !== requestIdRef.current) return
       if (result.success) {
         setServerData(result.data)
         setTotal(result.total)
+      } else {
+        setFetchError('Failed to load data')
       }
     } catch (err) {
+      if (requestId !== requestIdRef.current) return
       setFetchError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
-      setLoadingServer(false)
+      // Only the winning request clears loading, so a superseded request settling
+      // late doesn't switch the spinner off while the current request is still open.
+      if (requestId === requestIdRef.current) setLoadingServer(false)
     }
   }, [])
 
