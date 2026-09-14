@@ -38,8 +38,11 @@ export function Slider<T extends number | number[] = number>({
       <SliderTrack className="relative w-full h-5 cursor-pointer">
         {({ state }) => (
           <>
-            <div className="absolute inset-x-0 top-1.5 h-2 rounded-full bg-border-subtle" />
-            <SliderFill className="absolute top-1.5 h-2 bg-primary rounded-full" />
+            <div className="absolute inset-x-0 top-1.5 h-2 rounded-full bg-border-subtle overflow-hidden">
+              {/* SliderFill sets an inline `height: 100%`; nesting it in this 8px rail
+                  keeps the fill 8px tall (100% of the rail) instead of the 20px track. */}
+              <SliderFill className="absolute inset-y-0 bg-primary rounded-full" />
+            </div>
             {state.values.map((_, i) => (
               <SliderThumb key={i} index={i} className={thumbClassName} />
             ))}

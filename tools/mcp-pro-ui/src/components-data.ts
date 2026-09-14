@@ -945,7 +945,7 @@ import { Info } from 'lucide-react'
 <Slider label="Price" minValue={0} maxValue={1000} step={10} defaultValue={200} />
 
 {/* Two-thumb range slider */}
-<Slider<number[]> label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />`,
+<Slider label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />`,
   },
 
   {

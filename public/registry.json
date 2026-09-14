@@ -1480,7 +1480,7 @@
           "description": "Show current value text"
         }
       ],
-      "example": "import { Slider } from '@dangbt/pro-ui'\n\n<Slider label=\"Volume\" defaultValue={70} />\n<Slider label=\"Price\" minValue={0} maxValue={1000} step={10} defaultValue={200} />\n\n{/* Two-thumb range slider */}\n<Slider<number[]> label=\"Price range\" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />"
+      "example": "import { Slider } from '@dangbt/pro-ui'\n\n<Slider label=\"Volume\" defaultValue={70} />\n<Slider label=\"Price\" minValue={0} maxValue={1000} step={10} defaultValue={200} />\n\n{/* Two-thumb range slider */}\n<Slider label=\"Price range\" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />"
     },
     {
       "name": "Table",
