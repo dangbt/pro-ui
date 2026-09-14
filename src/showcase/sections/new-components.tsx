@@ -186,6 +186,13 @@ export function BasicTableSection() {
               </Table.Row>
             ))}
           </Table.Body>
+          <Table.Foot>
+            <Table.Row>
+              <Table.Cell>Total</Table.Cell>
+              <Table.Cell>{data.length} people</Table.Cell>
+              <Table.Cell>{data.filter((r) => r.status === 'Active').length} active</Table.Cell>
+            </Table.Row>
+          </Table.Foot>
         </Table>
       </Demo>
     </div>

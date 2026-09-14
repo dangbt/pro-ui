@@ -1418,12 +1418,13 @@
       "import": "Slider",
       "package": "@dangbt/pro-ui",
       "category": "form",
-      "description": "Range slider with optional label and value output display.",
+      "description": "Range slider with optional label and value output display. Pass a two-item array to render a two-thumb range slider; the filled portion is rendered with React Aria's SliderFill.",
       "useCases": [
         "range slider",
         "volume control",
         "price range",
-        "opacity slider"
+        "opacity slider",
+        "min/max range"
       ],
       "props": [
         {
@@ -1455,19 +1456,19 @@
         },
         {
           "name": "defaultValue",
-          "type": "number",
+          "type": "number | number[]",
           "required": false,
-          "description": "Uncontrolled default value"
+          "description": "Uncontrolled default value. Use a 2-item array (e.g. [20, 80]) for a range slider."
         },
         {
           "name": "value",
-          "type": "number",
+          "type": "number | number[]",
           "required": false,
-          "description": "Controlled value"
+          "description": "Controlled value. Use a 2-item array for a range slider."
         },
         {
           "name": "onChange",
-          "type": "(value: number) => void",
+          "type": "(value: number | number[]) => void",
           "required": false,
           "description": "Called on change"
         },
@@ -1479,7 +1480,49 @@
           "description": "Show current value text"
         }
       ],
-      "example": "import { Slider } from '@dangbt/pro-ui'\n\n<Slider label=\"Volume\" defaultValue={70} />\n<Slider label=\"Price range\" minValue={0} maxValue={1000} step={10} defaultValue={200} />"
+      "example": "import { Slider } from '@dangbt/pro-ui'\n\n<Slider label=\"Volume\" defaultValue={70} />\n<Slider label=\"Price\" minValue={0} maxValue={1000} step={10} defaultValue={200} />\n\n{/* Two-thumb range slider */}\n<Slider<number[]> label=\"Price range\" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />"
+    },
+    {
+      "name": "Table",
+      "import": "Table",
+      "package": "@dangbt/pro-ui",
+      "category": "data",
+      "description": "Lightweight static HTML table with a compound API. Use for simple, non-paginated data. For server-side data (search, sort, pagination), use ProTable instead. Subcomponents: Table.Head, Table.Body, Table.Foot, Table.Row, Table.HeaderCell, Table.Cell.",
+      "useCases": [
+        "static table",
+        "simple data table",
+        "summary table",
+        "totals footer"
+      ],
+      "props": [
+        {
+          "name": "bordered",
+          "type": "boolean",
+          "required": false,
+          "description": "Add borders around the table and cells"
+        },
+        {
+          "name": "striped",
+          "type": "boolean",
+          "required": false,
+          "description": "Alternate row background colours"
+        },
+        {
+          "name": "hoverable",
+          "type": "boolean",
+          "required": false,
+          "description": "Highlight rows on hover"
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "required": false,
+          "default": "'md'",
+          "description": "Cell density"
+        }
+      ],
+      "notes": "Table.Foot renders a `<tfoot>` (styled like the head but with a top border and medium-weight text) — use it for totals/summary rows. Compose footer rows with Table.Row + Table.Cell, same as the body.",
+      "example": "import { Table } from '@dangbt/pro-ui'\n\n<Table bordered hoverable>\n  <Table.Head>\n    <Table.Row>\n      <Table.HeaderCell>Item</Table.HeaderCell>\n      <Table.HeaderCell>Amount</Table.HeaderCell>\n    </Table.Row>\n  </Table.Head>\n  <Table.Body>\n    <Table.Row>\n      <Table.Cell>Widget</Table.Cell>\n      <Table.Cell>$10</Table.Cell>\n    </Table.Row>\n    <Table.Row>\n      <Table.Cell>Gadget</Table.Cell>\n      <Table.Cell>$20</Table.Cell>\n    </Table.Row>\n  </Table.Body>\n  <Table.Foot>\n    <Table.Row>\n      <Table.Cell>Total</Table.Cell>\n      <Table.Cell>$30</Table.Cell>\n    </Table.Row>\n  </Table.Foot>\n</Table>"
     },
     {
       "name": "DatePicker",

@@ -43,6 +43,10 @@ function Body({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElem
   return <tbody className={cn(className)} {...props} />
 }
 
+function Foot({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return <tfoot className={cn('border-t border-border font-medium', className)} {...props} />
+}
+
 function Row({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
   const { striped, hoverable, bordered } = useContext(TableCtx)
   return (
@@ -80,4 +84,4 @@ function Cell({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellEleme
   )
 }
 
-export const Table = Object.assign(TableRoot, { Head, Body, Row, HeaderCell, Cell })
+export const Table = Object.assign(TableRoot, { Head, Body, Foot, Row, HeaderCell, Cell })

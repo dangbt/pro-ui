@@ -1,7 +1,7 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
-> Generated from mcp-pro-ui components-data. Total: 50 components.
+> Generated from mcp-pro-ui components-data. Total: 51 components.
 
 ## App Setup
 
@@ -98,6 +98,58 @@ export function UsersPage() {
     />
   )
 }
+```
+
+---
+
+## Table
+
+Lightweight static HTML table with a compound API. Use for simple, non-paginated data. For server-side data (search, sort, pagination), use ProTable instead. Subcomponents: Table.Head, Table.Body, Table.Foot, Table.Row, Table.HeaderCell, Table.Cell.
+
+Import: `import { Table } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| bordered | boolean | — | — | Add borders around the table and cells |
+| striped | boolean | — | — | Alternate row background colours |
+| hoverable | boolean | — | — | Highlight rows on hover |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Cell density |
+
+### Notes
+
+Table.Foot renders a `<tfoot>` (styled like the head but with a top border and medium-weight text) — use it for totals/summary rows. Compose footer rows with Table.Row + Table.Cell, same as the body.
+
+### Example
+
+```tsx
+import { Table } from '@dangbt/pro-ui'
+
+<Table bordered hoverable>
+  <Table.Head>
+    <Table.Row>
+      <Table.HeaderCell>Item</Table.HeaderCell>
+      <Table.HeaderCell>Amount</Table.HeaderCell>
+    </Table.Row>
+  </Table.Head>
+  <Table.Body>
+    <Table.Row>
+      <Table.Cell>Widget</Table.Cell>
+      <Table.Cell>$10</Table.Cell>
+    </Table.Row>
+    <Table.Row>
+      <Table.Cell>Gadget</Table.Cell>
+      <Table.Cell>$20</Table.Cell>
+    </Table.Row>
+  </Table.Body>
+  <Table.Foot>
+    <Table.Row>
+      <Table.Cell>Total</Table.Cell>
+      <Table.Cell>$30</Table.Cell>
+    </Table.Row>
+  </Table.Foot>
+</Table>
 ```
 
 ---
@@ -523,7 +575,7 @@ import { Switch } from '@dangbt/pro-ui'
 
 ## Slider
 
-Range slider with optional label and value output display.
+Range slider with optional label and value output display. Pass a two-item array to render a two-thumb range slider; the filled portion is rendered with React Aria's SliderFill.
 
 Import: `import { Slider } from '@dangbt/pro-ui'`
 
@@ -535,9 +587,9 @@ Import: `import { Slider } from '@dangbt/pro-ui'`
 | minValue | number | — | `0` | Minimum value |
 | maxValue | number | — | `100` | Maximum value |
 | step | number | — | `1` | Step increment |
-| defaultValue | number | — | — | Uncontrolled default value |
-| value | number | — | — | Controlled value |
-| onChange | (value: number) => void | — | — | Called on change |
+| defaultValue | number | number[] | — | — | Uncontrolled default value. Use a 2-item array (e.g. [20, 80]) for a range slider. |
+| value | number | number[] | — | — | Controlled value. Use a 2-item array for a range slider. |
+| onChange | (value: number | number[]) => void | — | — | Called on change |
 | showOutput | boolean | — | `true` | Show current value text |
 
 ### Example
@@ -546,7 +598,10 @@ Import: `import { Slider } from '@dangbt/pro-ui'`
 import { Slider } from '@dangbt/pro-ui'
 
 <Slider label="Volume" defaultValue={70} />
-<Slider label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={200} />
+<Slider label="Price" minValue={0} maxValue={1000} step={10} defaultValue={200} />
+
+{/* Two-thumb range slider */}
+<Slider<number[]> label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />
 ```
 
 ---

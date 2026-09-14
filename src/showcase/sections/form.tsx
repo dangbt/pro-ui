@@ -598,6 +598,9 @@ export function SliderSection() {
         <Demo label="Slider — step" center={false} className="!p-8">
           <Slider label="Zoom" defaultValue={50} minValue={0} maxValue={200} step={10} className="w-full" />
         </Demo>
+        <Demo label="Slider — range" center={false} className="!p-8">
+          <Slider<number[]> label="Price range" defaultValue={[200, 700]} minValue={0} maxValue={1000} step={10} className="w-full" />
+        </Demo>
       </div>
     </div>
   )

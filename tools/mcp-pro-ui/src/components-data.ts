@@ -927,22 +927,66 @@ import { Info } from 'lucide-react'
     name: 'Slider',
     importName: 'Slider',
     category: 'form',
-    description: 'Range slider with optional label and value output display.',
-    useCases: ['range slider', 'volume control', 'price range', 'opacity slider'],
+    description: 'Range slider with optional label and value output display. Pass a two-item array to render a two-thumb range slider; the filled portion is rendered with React Aria\'s SliderFill.',
+    useCases: ['range slider', 'volume control', 'price range', 'opacity slider', 'min/max range'],
     props: [
       { name: 'label', type: 'string', required: false, description: 'Slider label' },
       { name: 'minValue', type: 'number', required: false, default: '0', description: 'Minimum value' },
       { name: 'maxValue', type: 'number', required: false, default: '100', description: 'Maximum value' },
       { name: 'step', type: 'number', required: false, default: '1', description: 'Step increment' },
-      { name: 'defaultValue', type: 'number', required: false, description: 'Uncontrolled default value' },
-      { name: 'value', type: 'number', required: false, description: 'Controlled value' },
-      { name: 'onChange', type: '(value: number) => void', required: false, description: 'Called on change' },
+      { name: 'defaultValue', type: 'number | number[]', required: false, description: 'Uncontrolled default value. Use a 2-item array (e.g. [20, 80]) for a range slider.' },
+      { name: 'value', type: 'number | number[]', required: false, description: 'Controlled value. Use a 2-item array for a range slider.' },
+      { name: 'onChange', type: '(value: number | number[]) => void', required: false, description: 'Called on change' },
       { name: 'showOutput', type: 'boolean', required: false, default: 'true', description: 'Show current value text' },
     ],
     example: `import { Slider } from '@dangbt/pro-ui'
 
 <Slider label="Volume" defaultValue={70} />
-<Slider label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={200} />`,
+<Slider label="Price" minValue={0} maxValue={1000} step={10} defaultValue={200} />
+
+{/* Two-thumb range slider */}
+<Slider<number[]> label="Price range" minValue={0} maxValue={1000} step={10} defaultValue={[200, 700]} />`,
+  },
+
+  {
+    name: 'Table',
+    importName: 'Table',
+    category: 'data',
+    description: 'Lightweight static HTML table with a compound API. Use for simple, non-paginated data. For server-side data (search, sort, pagination), use ProTable instead. Subcomponents: Table.Head, Table.Body, Table.Foot, Table.Row, Table.HeaderCell, Table.Cell.',
+    useCases: ['static table', 'simple data table', 'summary table', 'totals footer'],
+    props: [
+      { name: 'bordered', type: 'boolean', required: false, description: 'Add borders around the table and cells' },
+      { name: 'striped', type: 'boolean', required: false, description: 'Alternate row background colours' },
+      { name: 'hoverable', type: 'boolean', required: false, description: 'Highlight rows on hover' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Cell density' },
+    ],
+    notes: 'Table.Foot renders a `<tfoot>` (styled like the head but with a top border and medium-weight text) — use it for totals/summary rows. Compose footer rows with Table.Row + Table.Cell, same as the body.',
+    example: `import { Table } from '@dangbt/pro-ui'
+
+<Table bordered hoverable>
+  <Table.Head>
+    <Table.Row>
+      <Table.HeaderCell>Item</Table.HeaderCell>
+      <Table.HeaderCell>Amount</Table.HeaderCell>
+    </Table.Row>
+  </Table.Head>
+  <Table.Body>
+    <Table.Row>
+      <Table.Cell>Widget</Table.Cell>
+      <Table.Cell>$10</Table.Cell>
+    </Table.Row>
+    <Table.Row>
+      <Table.Cell>Gadget</Table.Cell>
+      <Table.Cell>$20</Table.Cell>
+    </Table.Row>
+  </Table.Body>
+  <Table.Foot>
+    <Table.Row>
+      <Table.Cell>Total</Table.Cell>
+      <Table.Cell>$30</Table.Cell>
+    </Table.Row>
+  </Table.Foot>
+</Table>`,
   },
 
   {
