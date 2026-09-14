@@ -1,19 +1,26 @@
 import {
-  Checkbox as RACheckbox,
+  CheckboxField as RACheckboxField,
+  CheckboxButton as RACheckboxButton,
   CheckboxGroup as RACheckboxGroup,
   Label,
-  type CheckboxProps as RACheckboxProps,
+  Text,
+  FieldError,
+  type CheckboxFieldProps as RACheckboxFieldProps,
   type CheckboxGroupProps as RACheckboxGroupProps,
 } from 'react-aria-components'
-import { forwardRef } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 type CheckboxSize = 'sm' | 'md' | 'lg'
 
-interface CheckboxProps extends Omit<RACheckboxProps, 'className' | 'children'> {
+interface CheckboxProps extends Omit<RACheckboxFieldProps, 'className' | 'children'> {
   children?: React.ReactNode
   size?: CheckboxSize
   className?: string
+  /** Help text rendered below the checkbox and linked via `aria-describedby`. */
+  description?: ReactNode
+  /** Error text shown when the checkbox is invalid. */
+  errorMessage?: ReactNode
 }
 
 const cbBoxSize: Record<CheckboxSize, string> = {
@@ -28,65 +35,73 @@ const cbLabelText: Record<CheckboxSize, string> = {
 }
 
 export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>(function Checkbox(
-  { children, size = 'md', className, ...props },
+  { children, size = 'md', className, description, errorMessage, ...props },
   ref,
 ) {
   return (
-    <RACheckbox
-      {...props}
-      ref={ref}
-      className={cn(
-        'group flex items-center gap-2 cursor-pointer select-none',
-        'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
-        className,
-      )}
-    >
-      {({ isSelected, isIndeterminate }) => (
-        <>
-          <div
-            className={cn(
-              'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
-              cbBoxSize[size],
-              'border-border bg-surface',
-              'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
-              'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
-              'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
-              'group-hover:border-primary-400',
-              'group-data-[pressed]:scale-95',
-            )}
-          >
-            <svg viewBox="0 0 16 16" className="w-full h-full" aria-hidden>
-              {isIndeterminate ? (
-                <path
-                  d="M 3 8 L 13 8"
-                  stroke="white"
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              ) : (
-                <path
-                  d="M 2.5 8 L 6 12 L 13.5 4"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{
-                    strokeDasharray: '22px',
-                    strokeDashoffset: isSelected ? '44px' : '66px',
-                    transition: 'stroke-dashoffset 200ms ease',
-                  }}
-                />
+    <RACheckboxField {...props} className="flex flex-col gap-1">
+      <RACheckboxButton
+        ref={ref}
+        className={cn(
+          'group flex items-center gap-2 cursor-pointer select-none',
+          'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+          className,
+        )}
+      >
+        {({ isSelected, isIndeterminate }) => (
+          <>
+            <div
+              className={cn(
+                'border-2 rounded-[var(--base-radius)] flex items-center justify-center shrink-0 transition-[colors,transform]',
+                cbBoxSize[size],
+                'border-border bg-surface',
+                'group-data-[selected]:bg-primary group-data-[selected]:border-primary',
+                'group-data-[indeterminate]:bg-primary group-data-[indeterminate]:border-primary',
+                'group-data-[invalid]:border-danger',
+                'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
+                'group-hover:border-primary-400',
+                'group-data-[pressed]:scale-95',
               )}
-            </svg>
-          </div>
-          {children && (
-            <span className={cn(cbLabelText[size], 'text-fg-2')}>{children}</span>
-          )}
-        </>
+            >
+              <svg viewBox="0 0 16 16" className="w-full h-full" aria-hidden>
+                {isIndeterminate ? (
+                  <path
+                    d="M 3 8 L 13 8"
+                    stroke="white"
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                ) : (
+                  <path
+                    d="M 2.5 8 L 6 12 L 13.5 4"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      strokeDasharray: '22px',
+                      strokeDashoffset: isSelected ? '44px' : '66px',
+                      transition: 'stroke-dashoffset 200ms ease',
+                    }}
+                  />
+                )}
+              </svg>
+            </div>
+            {children && (
+              <span className={cn(cbLabelText[size], 'text-fg-2')}>{children}</span>
+            )}
+          </>
+        )}
+      </RACheckboxButton>
+      {description && (
+        <Text slot="description" className="text-xs text-fg-muted">{description}</Text>
       )}
-    </RACheckbox>
+      <FieldError className="text-xs text-danger">
+        {errorMessage || undefined}
+      </FieldError>
+    </RACheckboxField>
   )
 })
 
@@ -98,6 +113,10 @@ interface CheckboxGroupProps extends Omit<RACheckboxGroupProps, 'className' | 'c
   orientation?: 'horizontal' | 'vertical'
   size?: CheckboxSize
   className?: string
+  /** Help text rendered below the group and linked via `aria-describedby`. */
+  description?: ReactNode
+  /** Error text shown when the group is invalid. */
+  errorMessage?: ReactNode
 }
 
 export function CheckboxGroup({
@@ -106,6 +125,8 @@ export function CheckboxGroup({
   orientation = 'vertical',
   size = 'md',
   className,
+  description,
+  errorMessage,
   ...props
 }: CheckboxGroupProps) {
   return (
@@ -124,6 +145,12 @@ export function CheckboxGroup({
           </Checkbox>
         ))}
       </div>
+      {description && (
+        <Text slot="description" className="text-xs text-fg-muted">{description}</Text>
+      )}
+      <FieldError className="text-xs text-danger">
+        {errorMessage || undefined}
+      </FieldError>
     </RACheckboxGroup>
   )
 }

@@ -32,13 +32,14 @@ Import: `import { ProTable } from '@dangbt/pro-ui'`
 | columns | ProColumnType<T>[] | ✅ | — | Column definitions |
 | request | (params: QueryParams) => Promise<RequestResult<T>> | — | — | Server-side data fetcher. Mutually exclusive with dataSource. Held in a ref — replacing the function does not refetch, pass external filters via params. |
 | params | Record<string, unknown> | — | — | External filters owned by the page (search box, tabs, URL query). Merged into the request argument and refetches on change, resetting to page 1. Compared by value, so an inline object literal is safe. |
+| refreshToken | string | number | — | — | Change it to refetch the current page without resetting to page 1 — for reloading after a mutation, a poll tick, or a cache invalidation. Compared with Object.is, so pass a primitive. |
 | dataSource | T[] | — | — | Client-side static data. Mutually exclusive with request. |
 | rowKey | keyof T | ((record: T) => string) | ✅ | — | Unique key for each row |
 | headerTitle | string | — | — | Table header title |
 | toolBarRender | () => ReactNode[] | — | — | Render extra buttons in the toolbar |
 | search | boolean | — | `true` | Set false to hide search form |
 | loading | boolean | — | — | Override loading state |
-| pagination | { defaultPageSize?: number; pageSizeOptions?: number[] } | — | — | Pagination config |
+| pagination | { defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void } | — | — | Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL |
 | rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Enable row selection with checkboxes |
 | bulkActions | BulkActionDef<T>[] | — | — | Actions shown when rows are selected |
 | expandedRowRender | (record: T) => ReactNode | — | — | Render content below expanded row |
@@ -384,10 +385,13 @@ Import: `import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'`
 | isDisabled | boolean | — | — | Disable the checkbox |
 | size | 'sm' | 'md' | 'lg' | — | `'md'` | Checkbox size |
 | children | ReactNode | — | — | Label content |
+| description | ReactNode | — | — | Help text below the checkbox, linked via aria-describedby |
+| errorMessage | ReactNode | — | — | Error text shown when isInvalid is set |
+| isInvalid | boolean | — | — | Marks the checkbox invalid and reveals errorMessage / validation errors |
 
 ### Notes
 
-CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`.
+CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`, plus group-level `description` and `errorMessage` (with `isInvalid`). Both Checkbox and CheckboxGroup render description/error text linked for accessibility via aria-describedby.
 
 ### Example
 
@@ -396,6 +400,16 @@ import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'
 
 // Single checkbox
 <Checkbox defaultSelected>Accept terms and conditions</Checkbox>
+
+// With description
+<Checkbox description="We'll only email you about security alerts.">
+  Enable security alerts
+</Checkbox>
+
+// Invalid with error message
+<Checkbox isInvalid errorMessage="You must accept the terms.">
+  Accept terms and conditions
+</Checkbox>
 
 // Group
 <CheckboxGroup
@@ -427,6 +441,13 @@ Import: `import { RadioGroup } from '@dangbt/pro-ui'`
 | value | string | — | — | Controlled selected value |
 | onChange | (value: string) => void | — | — | Called when selection changes |
 | isDisabled | boolean | — | — | Disable all radios |
+| description | ReactNode | — | — | Group-level help text, linked via aria-describedby |
+| errorMessage | ReactNode | — | — | Group-level error text shown when isInvalid is set |
+| isInvalid | boolean | — | — | Marks the group invalid and reveals errorMessage / validation errors |
+
+### Notes
+
+Each option `description` is rendered through RadioField so the radio input is linked to it via aria-describedby.
 
 ### Example
 
@@ -435,11 +456,23 @@ import { RadioGroup } from '@dangbt/pro-ui'
 
 <RadioGroup
   label="Billing Cycle"
+  description="You can change this later in settings."
   options={[
     { value: 'monthly', label: 'Monthly', description: '$9/month' },
     { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },
   ]}
   defaultValue="monthly"
+/>
+
+// Invalid group
+<RadioGroup
+  label="Billing Cycle"
+  isInvalid
+  errorMessage="Please select a billing cycle."
+  options={[
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'yearly', label: 'Yearly' },
+  ]}
 />
 ```
 
@@ -461,6 +494,9 @@ Import: `import { Switch } from '@dangbt/pro-ui'`
 | isDisabled | boolean | — | — | Disable the switch |
 | size | 'sm' | 'md' | 'lg' | — | `'md'` | Switch size |
 | children | ReactNode | — | — | Label content |
+| description | ReactNode | — | — | Help text below the switch, linked via aria-describedby |
+| errorMessage | ReactNode | — | — | Error text shown when isInvalid is set |
+| isInvalid | boolean | — | — | Marks the switch invalid and reveals errorMessage / validation errors |
 
 ### Example
 
@@ -470,6 +506,16 @@ import { Switch } from '@dangbt/pro-ui'
 <Switch defaultSelected>Email notifications</Switch>
 <Switch isSelected={enabled} onChange={setEnabled}>
   Dark mode
+</Switch>
+
+// With description
+<Switch description="Automatically back up your data every hour.">
+  Hourly backups
+</Switch>
+
+// Invalid with error message
+<Switch isInvalid errorMessage="You must enable two-factor authentication.">
+  Two-factor authentication
 </Switch>
 ```
 

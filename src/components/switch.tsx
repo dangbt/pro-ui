@@ -1,13 +1,23 @@
-import { Switch as RASwitch, type SwitchProps as RASwitchProps } from 'react-aria-components'
-import { forwardRef } from 'react'
+import {
+  SwitchField as RASwitchField,
+  SwitchButton as RASwitchButton,
+  Text,
+  FieldError,
+  type SwitchFieldProps as RASwitchFieldProps,
+} from 'react-aria-components'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 type SwitchSize = 'sm' | 'md' | 'lg'
 
-interface SwitchProps extends Omit<RASwitchProps, 'className' | 'children'> {
+interface SwitchProps extends Omit<RASwitchFieldProps, 'className' | 'children'> {
   children?: React.ReactNode
   size?: SwitchSize
   className?: string
+  /** Help text rendered below the switch and linked via `aria-describedby`. */
+  description?: ReactNode
+  /** Error text shown when the switch is invalid. */
+  errorMessage?: ReactNode
 }
 
 const trackSize: Record<SwitchSize, string> = {
@@ -29,37 +39,45 @@ const switchLabelText: Record<SwitchSize, string> = {
 }
 
 export const Switch = forwardRef<HTMLLabelElement, SwitchProps>(function Switch(
-  { children, size = 'md', className, ...props },
+  { children, size = 'md', className, description, errorMessage, ...props },
   ref,
 ) {
   return (
-    <RASwitch
-      {...props}
-      ref={ref}
-      className={cn(
-        'group flex items-center gap-2 cursor-pointer select-none',
-        'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
-        className,
-      )}
-    >
-      <div
+    <RASwitchField {...props} className="flex flex-col gap-1">
+      <RASwitchButton
+        ref={ref}
         className={cn(
-          'relative rounded-full transition-colors duration-200 flex items-center p-0.5',
-          'bg-border',
-          'group-data-[selected]:bg-primary',
-          'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
-          trackSize[size],
+          'group flex items-center gap-2 cursor-pointer select-none',
+          'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+          className,
         )}
       >
         <div
           className={cn(
-            'bg-canvas rounded-full shadow-sm transition-transform duration-200 translate-x-0',
-            thumbSize[size],
+            'relative rounded-full transition-colors duration-200 flex items-center p-0.5',
+            'bg-border',
+            'group-data-[selected]:bg-primary',
+            'group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger',
+            'group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-primary group-data-[focus-visible]:ring-offset-1',
+            trackSize[size],
           )}
-        />
-      </div>
-      {children && <span className={`${switchLabelText[size]} text-fg-2`}>{children}</span>}
-    </RASwitch>
+        >
+          <div
+            className={cn(
+              'bg-canvas rounded-full shadow-sm transition-transform duration-200 translate-x-0',
+              thumbSize[size],
+            )}
+          />
+        </div>
+        {children && <span className={`${switchLabelText[size]} text-fg-2`}>{children}</span>}
+      </RASwitchButton>
+      {description && (
+        <Text slot="description" className="text-xs text-fg-muted">{description}</Text>
+      )}
+      <FieldError className="text-xs text-danger">
+        {errorMessage || undefined}
+      </FieldError>
+    </RASwitchField>
   )
 })
 

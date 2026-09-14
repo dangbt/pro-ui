@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.7.0",
+  "version": "1.8.4",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "homepage": "https://pro-ui.pages.dev",
   "docs": "https://pro-ui.pages.dev/docs",
@@ -51,6 +51,12 @@
           "description": "External filters owned by the page (search box, tabs, URL query). Merged into the request argument and refetches on change, resetting to page 1. Compared by value, so an inline object literal is safe."
         },
         {
+          "name": "refreshToken",
+          "type": "string | number",
+          "required": false,
+          "description": "Change it to refetch the current page without resetting to page 1 — for reloading after a mutation, a poll tick, or a cache invalidation. Compared with Object.is, so pass a primitive."
+        },
+        {
           "name": "dataSource",
           "type": "T[]",
           "required": false,
@@ -89,9 +95,9 @@
         },
         {
           "name": "pagination",
-          "type": "{ defaultPageSize?: number; pageSizeOptions?: number[] }",
+          "type": "{ defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void }",
           "required": false,
-          "description": "Pagination config"
+          "description": "Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL"
         },
         {
           "name": "rowSelection",
@@ -1241,10 +1247,28 @@
           "type": "ReactNode",
           "required": false,
           "description": "Label content"
+        },
+        {
+          "name": "description",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Help text below the checkbox, linked via aria-describedby"
+        },
+        {
+          "name": "errorMessage",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Error text shown when isInvalid is set"
+        },
+        {
+          "name": "isInvalid",
+          "type": "boolean",
+          "required": false,
+          "description": "Marks the checkbox invalid and reveals errorMessage / validation errors"
         }
       ],
-      "notes": "CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: \"horizontal\" | \"vertical\"`, `value`, `onChange`.",
-      "example": "import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'\n\n// Single checkbox\n<Checkbox defaultSelected>Accept terms and conditions</Checkbox>\n\n// Group\n<CheckboxGroup\n  label=\"Permissions\"\n  options={[\n    { value: 'read', label: 'Read' },\n    { value: 'write', label: 'Write' },\n    { value: 'admin', label: 'Admin', disabled: true },\n  ]}\n  defaultValue={['read']}\n/>"
+      "notes": "CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: \"horizontal\" | \"vertical\"`, `value`, `onChange`, plus group-level `description` and `errorMessage` (with `isInvalid`). Both Checkbox and CheckboxGroup render description/error text linked for accessibility via aria-describedby.",
+      "example": "import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'\n\n// Single checkbox\n<Checkbox defaultSelected>Accept terms and conditions</Checkbox>\n\n// With description\n<Checkbox description=\"We'll only email you about security alerts.\">\n  Enable security alerts\n</Checkbox>\n\n// Invalid with error message\n<Checkbox isInvalid errorMessage=\"You must accept the terms.\">\n  Accept terms and conditions\n</Checkbox>\n\n// Group\n<CheckboxGroup\n  label=\"Permissions\"\n  options={[\n    { value: 'read', label: 'Read' },\n    { value: 'write', label: 'Write' },\n    { value: 'admin', label: 'Admin', disabled: true },\n  ]}\n  defaultValue={['read']}\n/>"
     },
     {
       "name": "RadioGroup",
@@ -1295,9 +1319,28 @@
           "type": "boolean",
           "required": false,
           "description": "Disable all radios"
+        },
+        {
+          "name": "description",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Group-level help text, linked via aria-describedby"
+        },
+        {
+          "name": "errorMessage",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Group-level error text shown when isInvalid is set"
+        },
+        {
+          "name": "isInvalid",
+          "type": "boolean",
+          "required": false,
+          "description": "Marks the group invalid and reveals errorMessage / validation errors"
         }
       ],
-      "example": "import { RadioGroup } from '@dangbt/pro-ui'\n\n<RadioGroup\n  label=\"Billing Cycle\"\n  options={[\n    { value: 'monthly', label: 'Monthly', description: '$9/month' },\n    { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },\n  ]}\n  defaultValue=\"monthly\"\n/>"
+      "notes": "Each option `description` is rendered through RadioField so the radio input is linked to it via aria-describedby.",
+      "example": "import { RadioGroup } from '@dangbt/pro-ui'\n\n<RadioGroup\n  label=\"Billing Cycle\"\n  description=\"You can change this later in settings.\"\n  options={[\n    { value: 'monthly', label: 'Monthly', description: '$9/month' },\n    { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },\n  ]}\n  defaultValue=\"monthly\"\n/>\n\n// Invalid group\n<RadioGroup\n  label=\"Billing Cycle\"\n  isInvalid\n  errorMessage=\"Please select a billing cycle.\"\n  options={[\n    { value: 'monthly', label: 'Monthly' },\n    { value: 'yearly', label: 'Yearly' },\n  ]}\n/>"
     },
     {
       "name": "Switch",
@@ -1348,9 +1391,27 @@
           "type": "ReactNode",
           "required": false,
           "description": "Label content"
+        },
+        {
+          "name": "description",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Help text below the switch, linked via aria-describedby"
+        },
+        {
+          "name": "errorMessage",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Error text shown when isInvalid is set"
+        },
+        {
+          "name": "isInvalid",
+          "type": "boolean",
+          "required": false,
+          "description": "Marks the switch invalid and reveals errorMessage / validation errors"
         }
       ],
-      "example": "import { Switch } from '@dangbt/pro-ui'\n\n<Switch defaultSelected>Email notifications</Switch>\n<Switch isSelected={enabled} onChange={setEnabled}>\n  Dark mode\n</Switch>"
+      "example": "import { Switch } from '@dangbt/pro-ui'\n\n<Switch defaultSelected>Email notifications</Switch>\n<Switch isSelected={enabled} onChange={setEnabled}>\n  Dark mode\n</Switch>\n\n// With description\n<Switch description=\"Automatically back up your data every hour.\">\n  Hourly backups\n</Switch>\n\n// Invalid with error message\n<Switch isInvalid errorMessage=\"You must enable two-factor authentication.\">\n  Two-factor authentication\n</Switch>"
     },
     {
       "name": "Slider",

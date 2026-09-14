@@ -814,12 +814,25 @@ import { Info } from 'lucide-react'
       { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the checkbox' },
       { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Checkbox size' },
       { name: 'children', type: 'ReactNode', required: false, description: 'Label content' },
+      { name: 'description', type: 'ReactNode', required: false, description: 'Help text below the checkbox, linked via aria-describedby' },
+      { name: 'errorMessage', type: 'ReactNode', required: false, description: 'Error text shown when isInvalid is set' },
+      { name: 'isInvalid', type: 'boolean', required: false, description: 'Marks the checkbox invalid and reveals errorMessage / validation errors' },
     ],
-    notes: 'CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`.',
+    notes: 'CheckboxGroup props: `label`, `options: { value, label, disabled? }[]`, `orientation: "horizontal" | "vertical"`, `value`, `onChange`, plus group-level `description` and `errorMessage` (with `isInvalid`). Both Checkbox and CheckboxGroup render description/error text linked for accessibility via aria-describedby.',
     example: `import { Checkbox, CheckboxGroup } from '@dangbt/pro-ui'
 
 // Single checkbox
 <Checkbox defaultSelected>Accept terms and conditions</Checkbox>
+
+// With description
+<Checkbox description="We'll only email you about security alerts.">
+  Enable security alerts
+</Checkbox>
+
+// Invalid with error message
+<Checkbox isInvalid errorMessage="You must accept the terms.">
+  Accept terms and conditions
+</Checkbox>
 
 // Group
 <CheckboxGroup
@@ -846,16 +859,32 @@ import { Info } from 'lucide-react'
       { name: 'value', type: 'string', required: false, description: 'Controlled selected value' },
       { name: 'onChange', type: '(value: string) => void', required: false, description: 'Called when selection changes' },
       { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable all radios' },
+      { name: 'description', type: 'ReactNode', required: false, description: 'Group-level help text, linked via aria-describedby' },
+      { name: 'errorMessage', type: 'ReactNode', required: false, description: 'Group-level error text shown when isInvalid is set' },
+      { name: 'isInvalid', type: 'boolean', required: false, description: 'Marks the group invalid and reveals errorMessage / validation errors' },
     ],
+    notes: 'Each option `description` is rendered through RadioField so the radio input is linked to it via aria-describedby.',
     example: `import { RadioGroup } from '@dangbt/pro-ui'
 
 <RadioGroup
   label="Billing Cycle"
+  description="You can change this later in settings."
   options={[
     { value: 'monthly', label: 'Monthly', description: '$9/month' },
     { value: 'yearly', label: 'Yearly', description: '$90/year — save 17%' },
   ]}
   defaultValue="monthly"
+/>
+
+// Invalid group
+<RadioGroup
+  label="Billing Cycle"
+  isInvalid
+  errorMessage="Please select a billing cycle."
+  options={[
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'yearly', label: 'Yearly' },
+  ]}
 />`,
   },
 
@@ -872,12 +901,25 @@ import { Info } from 'lucide-react'
       { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the switch' },
       { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Switch size' },
       { name: 'children', type: 'ReactNode', required: false, description: 'Label content' },
+      { name: 'description', type: 'ReactNode', required: false, description: 'Help text below the switch, linked via aria-describedby' },
+      { name: 'errorMessage', type: 'ReactNode', required: false, description: 'Error text shown when isInvalid is set' },
+      { name: 'isInvalid', type: 'boolean', required: false, description: 'Marks the switch invalid and reveals errorMessage / validation errors' },
     ],
     example: `import { Switch } from '@dangbt/pro-ui'
 
 <Switch defaultSelected>Email notifications</Switch>
 <Switch isSelected={enabled} onChange={setEnabled}>
   Dark mode
+</Switch>
+
+// With description
+<Switch description="Automatically back up your data every hour.">
+  Hourly backups
+</Switch>
+
+// Invalid with error message
+<Switch isInvalid errorMessage="You must enable two-factor authentication.">
+  Two-factor authentication
 </Switch>`,
   },
 

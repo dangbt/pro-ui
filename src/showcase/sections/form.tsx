@@ -495,6 +495,18 @@ export function CheckboxSection() {
           />
         </Demo>
 
+        <Demo label="With description" center={false}>
+          <Checkbox size={size} description="We'll only email you about security alerts.">
+            Enable security alerts
+          </Checkbox>
+        </Demo>
+
+        <Demo label="Invalid — errorMessage" center={false}>
+          <Checkbox size={size} isInvalid errorMessage="You must accept the terms to continue.">
+            Accept terms and conditions
+          </Checkbox>
+        </Demo>
+
       </div>
     </div>
   )
@@ -538,6 +550,18 @@ export function TogglesSection() {
             ]}
           />
         </Demo>
+        <Demo label="RadioGroup — invalid errorMessage" center={false}>
+          <RadioGroup
+            label="Subscription plan"
+            description="You can change this later in settings."
+            isInvalid
+            errorMessage="Please select a plan to continue."
+            options={[
+              { value: 'free', label: 'Free', description: 'Up to 5 projects' },
+              { value: 'pro', label: 'Pro', description: 'Unlimited projects' },
+            ]}
+          />
+        </Demo>
         <Demo label="Switch" center={false}>
           <div className="space-y-3">
             <Switch size={size} defaultSelected>Enable dark mode</Switch>
@@ -545,6 +569,18 @@ export function TogglesSection() {
             <Switch size={size} defaultSelected>Compact mode</Switch>
             <Switch size={size} isDisabled>Disabled</Switch>
           </div>
+        </Demo>
+
+        <Demo label="Switch — with description" center={false}>
+          <Switch size={size} description="Automatically back up your data every hour.">
+            Hourly backups
+          </Switch>
+        </Demo>
+
+        <Demo label="Switch — invalid errorMessage" center={false}>
+          <Switch size={size} isInvalid errorMessage="You must enable two-factor authentication.">
+            Two-factor authentication
+          </Switch>
         </Demo>
       </div>
     </div>
