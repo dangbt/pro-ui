@@ -332,6 +332,8 @@ toast.info('New version available.')
 
 // With options:
 toast.success('Saved!', { duration: 5000, persistent: false })`,
+    notes:
+      'SSR-safe: on the server and the first client render ToastProvider outputs nothing, then mounts its portal after hydration, so SSR frameworks (Next.js, React Router, Hydrogen) hydrate without a mismatch (no React error #418/#423). Toasts fired before the provider mounts are queued and shown once it mounts. No app-side mount-gating wrapper is needed.',
   },
 
   // ─── THEME ────────────────────────────────────────────────────────────────
@@ -367,6 +369,8 @@ export function ThemeToggle() {
     </button>
   )
 }`,
+    notes:
+      "SSR-safe: the server and the first client render both use `defaultTheme` (and `'light'` for `resolvedTheme`); the provider syncs to the stored/system theme after mount, so hydration never mismatches (no React error #418/#423). To apply the persisted theme class to <html> before hydration and avoid a flash, inject the inline script from `getThemeInitScript(storageKey?)` in your document <head>: `<script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />`.",
   },
 
   // ─── DISPLAY ──────────────────────────────────────────────────────────────

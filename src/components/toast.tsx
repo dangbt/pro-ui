@@ -168,6 +168,11 @@ const positionCls: Record<NonNullable<ToastProviderProps['position']>, string> =
 /**
  * Mount once at your app root — renders toasts in a portal.
  *
+ * SSR-safe: the server and the first client render both output `null`, so
+ * hydration never mismatches (no React error #418/#423). The portal is
+ * attached only after mount via `useEffect`. Toasts fired before mount are
+ * retained in the store and shown as soon as the provider mounts.
+ *
  * @example
  * ```tsx
  * // main.tsx / layout.tsx
@@ -176,8 +181,15 @@ const positionCls: Record<NonNullable<ToastProviderProps['position']>, string> =
  */
 export function ToastProvider({ position = 'bottom-right' }: ToastProviderProps) {
   const toasts = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const [mounted, setMounted] = useState(false)
 
-  if (typeof document === 'undefined') return null // SSR guard
+  // Only render the portal after mount so the server render and the first
+  // client render agree (both `null`), keeping hydration stable.
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || typeof document === 'undefined') return null
 
   return createPortal(
     <div

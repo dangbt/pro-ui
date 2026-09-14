@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "homepage": "https://pro-ui.pages.dev",
   "docs": "https://pro-ui.pages.dev/docs",
@@ -420,6 +420,7 @@
           "description": "Toast position on screen"
         }
       ],
+      "notes": "SSR-safe: on the server and the first client render ToastProvider outputs nothing, then mounts its portal after hydration, so SSR frameworks (Next.js, React Router, Hydrogen) hydrate without a mismatch (no React error #418/#423). Toasts fired before the provider mounts are queued and shown once it mounts. No app-side mount-gating wrapper is needed.",
       "example": "// 1. Mount provider once (e.g. in App.tsx)\nimport { ToastProvider, toast } from '@dangbt/pro-ui'\n\nexport function App() {\n  return (\n    <>\n      <ToastProvider />\n      {/* rest of app */}\n    </>\n  )\n}\n\n// 2. Call from anywhere\ntoast.success('User created successfully!')\ntoast.error('Something went wrong.')\ntoast.warning('Please review your input.')\ntoast.info('New version available.')\n\n// With options:\ntoast.success('Saved!', { duration: 5000, persistent: false })"
     },
     {
@@ -456,6 +457,7 @@
           "description": "App content"
         }
       ],
+      "notes": "SSR-safe: the server and the first client render both use `defaultTheme` (and `'light'` for `resolvedTheme`); the provider syncs to the stored/system theme after mount, so hydration never mismatches (no React error #418/#423). To apply the persisted theme class to <html> before hydration and avoid a flash, inject the inline script from `getThemeInitScript(storageKey?)` in your document <head>: `<script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />`.",
       "example": "// 1. Wrap app (e.g. main.tsx)\nimport { ThemeProvider } from '@dangbt/pro-ui'\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <ThemeProvider defaultTheme=\"system\">\n    <App />\n  </ThemeProvider>\n)\n\n// 2. Use in any component\nimport { useTheme } from '@dangbt/pro-ui'\n\nexport function ThemeToggle() {\n  const { theme, setTheme } = useTheme()\n  return (\n    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>\n      {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}\n    </button>\n  )\n}"
     },
     {

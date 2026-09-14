@@ -76,7 +76,7 @@ export { Timeline, TimelineItem }       from './timeline'
 export { Layout, useSider }             from './layout'
 
 /* ── Theme ─────────────────────────────────────────────── */
-export { ThemeProvider, useTheme }      from './theme-provider'
+export { ThemeProvider, useTheme, getThemeInitScript } from './theme-provider'
 export type { Theme }                   from './theme-provider'
 
 /* ── ProTable ──────────────────────────────────────────── */

@@ -27,3 +27,20 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   }
   globalThis.IntersectionObserver = IO as unknown as typeof IntersectionObserver
 }
+
+// jsdom does not implement matchMedia. ThemeProvider reads it after mount to
+// resolve 'system' → 'light' | 'dark'. Provide a minimal, no-op shim.
+if (typeof globalThis.matchMedia !== 'function') {
+  globalThis.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener() {},
+    removeListener() {},
+    addEventListener() {},
+    removeEventListener() {},
+    dispatchEvent() {
+      return false
+    },
+  })) as unknown as typeof globalThis.matchMedia
+}
