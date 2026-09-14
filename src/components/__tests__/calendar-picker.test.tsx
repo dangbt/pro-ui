@@ -1,19 +1,7 @@
 import { render, screen, fireEvent, within } from '@testing-library/react'
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { CalendarDate } from '@internationalized/date'
 import { Calendar, DatePicker } from '../date-picker'
-
-// jsdom does not implement CSS.escape, which React Aria's selection manager
-// calls when a ListBox mounts. Polyfill it so the month/year dropdowns work.
-beforeAll(() => {
-  if (typeof globalThis.CSS === 'undefined') {
-    // @ts-expect-error minimal shim
-    globalThis.CSS = {}
-  }
-  if (typeof globalThis.CSS.escape !== 'function') {
-    globalThis.CSS.escape = (value: string) => String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&')
-  }
-})
 
 /**
  * The RAC CalendarGrid renders a `role="grid"` whose accessible name is the

@@ -1,32 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { Menu } from '../menu'
 import { Button } from '../button'
-
-// jsdom lacks CSS.escape (used by React Aria's selection manager) and
-// IntersectionObserver (used by MenuLoadMoreItem's load-more sentinel).
-// Polyfill both so the menu can mount.
-beforeAll(() => {
-  if (typeof globalThis.CSS === 'undefined') {
-    // @ts-expect-error minimal shim
-    globalThis.CSS = {}
-  }
-  if (typeof globalThis.CSS.escape !== 'function') {
-    globalThis.CSS.escape = (value: string) => String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&')
-  }
-  if (typeof globalThis.IntersectionObserver === 'undefined') {
-    class IO {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-      takeRecords() { return [] }
-      root = null
-      rootMargin = ''
-      thresholds = []
-    }
-    globalThis.IntersectionObserver = IO as unknown as typeof IntersectionObserver
-  }
-})
 
 function openMenu() {
   fireEvent.click(screen.getByRole('button', { name: 'Open' }))
@@ -73,7 +48,7 @@ describe('Menu — empty state & loading', () => {
     )
     openMenu()
     expect(screen.queryByText('No items')).toBeNull()
-    expect(screen.getAllByRole('status').length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('status')).toHaveLength(1)
   })
 
   it('renders a load-more spinner when onLoadMore + isLoading with items', () => {

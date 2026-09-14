@@ -22,7 +22,8 @@ export interface MenuItemDef {
   separator?: boolean
 }
 
-interface MenuProps_ extends Omit<MenuProps<MenuItemDef>, 'children' | 'className'> {
+interface MenuProps_
+  extends Omit<MenuProps<MenuItemDef>, 'children' | 'className' | 'renderEmptyState'> {
   trigger: React.ReactNode
   items: MenuItemDef[]
   onAction?: (key: Key) => void
@@ -100,7 +101,7 @@ export function Menu({
           </Collection>
           {isAsync && (
             <MenuLoadMoreItem
-              isLoading={isLoading}
+              isLoading={isLoading && items.length > 0}
               onLoadMore={onLoadMore}
               className="flex items-center justify-center py-2"
             >
