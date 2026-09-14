@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '../button'
 import { Input } from '../input'
 import { Select } from '../select'
-import type { Size } from '../../lib/size'
+import { inputCls, type Size } from '../../lib/size'
 import type { ProColumnType } from './types'
 
 interface SearchFormProps<T> {
@@ -12,14 +12,9 @@ interface SearchFormProps<T> {
   size?: Size
 }
 
-const dateCls: Record<Size, string> = {
-  sm: 'h-[var(--sz)] px-2 text-xs',
-  md: 'h-[var(--sz)] px-3 text-sm',
-  lg: 'h-[var(--sz)] px-3 text-base',
-}
-
 export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: SearchFormProps<T>) {
   const [values, setValues] = useState<Record<string, unknown>>({})
+  const dateInputCls = inputCls(size)
 
   const searchable = columns.filter(
     col => !col.hideInSearch && (col.dataIndex || col.key),
@@ -75,14 +70,14 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
                     type="date"
                     value={(values[`${key}_from`] as string) ?? ''}
                     onChange={e => set(`${key}_from`, e.target.value)}
-                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateInputCls}`}
                   />
                   <span className="text-fg-disabled text-xs">–</span>
                   <input
                     type="date"
                     value={(values[`${key}_to`] as string) ?? ''}
                     onChange={e => set(`${key}_to`, e.target.value)}
-                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                    className={`flex-1 border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateInputCls}`}
                   />
                 </div>
               </div>
@@ -111,7 +106,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
                   type="date"
                   value={(values[key] as string) ?? ''}
                   onChange={e => set(key, e.target.value)}
-                  className={`w-full border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateCls[size]}`}
+                  className={`w-full border border-border rounded-[var(--base-radius)] focus:outline-2 focus:outline-primary ${dateInputCls}`}
                 />
               </div>
             )

@@ -156,19 +156,35 @@ export interface ProTableProps<T extends object> {
   }
   size?: Size
   /**
+   * BCP-47 locale tag used to format `date` and `number`/`money` columns.
+   * Defaults to `'vi-VN'`, preserving the output for existing consumers. Set it to
+   * match your audience (e.g. `'en-US'`, `'de-DE'`) instead of writing a custom
+   * `render` per column.
+   */
+  locale?: string
+  /**
+   * ISO-4217 currency code used by `valueType: 'money'`. Defaults to `'VND'`.
+   * Pair it with `locale` to control both the currency and its formatting
+   * (e.g. `locale="en-US" currency="USD"`).
+   */
+  currency?: string
+  /**
    * Make the table header sticky relative to the nearest scroll container.
-   * - `true`: sticky relative to the page scroll (top: 0). Không có scroll ngang
-   *   (dùng `overflow-x: clip` để header bám theo trang).
-   * - `{ offsetTop: number }`: sticky với offset trên (ví dụ cho fixed navbar).
-   * - `{ maxHeight }`: bảng cuộn TRONG khung có chiều cao giới hạn → header vẫn
-   *   dính (trong khung) VÀ **có lại scroll ngang** cho bảng nhiều cột. Nhận:
-   *   - số (px) hoặc chuỗi CSS (vd `'70vh'`, `'calc(100vh - 15rem)'`);
-   *   - `'fit'`: tự tính chiều cao để bảng **fit màn hình** (fill từ vị trí bảng
-   *     tới đáy viewport), tự cập nhật khi resize/layout đổi.
-   * - `{ windowScroll: true, offsetTop?: number }`: header dính theo **window scroll**
-   *   VÀ vẫn cho phép **scroll ngang**. Không set height cố định cho table — table
-   *   auto fit nội dung. Dùng IntersectionObserver để detect sticky state, header
-   *   clone được `position: fixed` và sync `scrollLeft` với wrapper.
+   * - `true`: sticky relative to the page scroll (top: 0). No horizontal scroll
+   *   (uses `overflow-x: clip` so the header tracks the page).
+   * - `{ offsetTop: number }`: sticky with a top offset (e.g. for a fixed navbar).
+   * - `{ maxHeight }`: the table scrolls INSIDE a height-limited box → the header
+   *   stays stuck (within the box) AND horizontal scroll is restored for wide
+   *   tables. Accepts:
+   *   - a number (px) or a CSS string (e.g. `'70vh'`, `'calc(100vh - 15rem)'`);
+   *   - `'fit'`: auto-computes a height so the table **fits the screen** (fills from
+   *     the table's position down to the bottom of the viewport), updating on
+   *     resize/layout changes.
+   * - `{ windowScroll: true, offsetTop?: number }`: the header sticks to **window
+   *   scroll** AND horizontal scroll is still allowed. No fixed table height — the
+   *   table auto-fits its content. Uses an IntersectionObserver to detect the sticky
+   *   state; the header clone is `position: fixed` and syncs `scrollLeft` with the
+   *   wrapper.
    */
   sticky?: boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }
 }

@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import { cn } from '../../lib/cn'
 
 export function IndeterminateCheckbox({
@@ -8,6 +9,14 @@ export function IndeterminateCheckbox({
   onChange,
   ...rest
 }: React.InputHTMLAttributes<HTMLInputElement> & { indeterminate?: boolean }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // `indeterminate` is a DOM property, not an HTML attribute, so React cannot set it
+  // declaratively — assign it imperatively on the native input.
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.indeterminate = !!indeterminate
+  }, [indeterminate])
+
   return (
     <label
       className={cn(
@@ -15,10 +24,9 @@ export function IndeterminateCheckbox({
         disabled && 'cursor-not-allowed opacity-50',
         className,
       )}
-      role="checkbox"
-      aria-checked={indeterminate ? 'mixed' : !!checked}
     >
       <input
+        ref={inputRef}
         type="checkbox"
         className="sr-only peer"
         checked={checked}

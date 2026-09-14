@@ -1,36 +1,29 @@
-import { Fragment, useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
-  flexRender,
-  type RowSelectionState,
-  type VisibilityState,
   type ColumnPinningState,
-  type ColumnDef,
   type Column,
 } from '@tanstack/react-table'
-import { ChevronRight, ChevronDown } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { SearchForm } from './search-form'
 import { Toolbar, buildColumnToggles } from './toolbar'
-import { buildColumns } from './build-columns'
-import { IndeterminateCheckbox } from './checkbox'
-import { PinMenu, getPinnedStyle, getPinnedCls } from './pin-menu'
 import { Pagination } from './pagination'
 import { BulkActions } from './bulk-actions'
+import { TableHeader } from './table-header'
+import { TableBody } from './table-body'
+import { useBuiltColumns } from './use-built-columns'
+import { useSpecialColumns } from './use-special-columns'
+import { useColumnVisibility } from './use-column-visibility'
+import { useExpandedRows } from './use-expanded-rows'
+import { useRowSelectionState, useSelectionChange } from './use-row-selection'
 import { useSticky } from './use-sticky'
 import { useProTableData } from './use-pro-table-data'
-import { rowPyCls, cellTextCls, PAGE_SIZE_OPTIONS } from './constants'
-import type { ProTableProps, ProColumnType } from './types'
-
-// ─── Helpers ───
-
-function colKey<T>(c: ProColumnType<T>): string {
-  return (c.key ?? c.dataIndex ?? c.title) as string
-}
+import { PAGE_SIZE_OPTIONS } from './constants'
+import type { ProTableProps } from './types'
 
 export function ProTable<T extends object>({
   columns: columnDefs,
@@ -52,6 +45,8 @@ export function ProTable<T extends object>({
   size = 'sm',
   persistColumnVisibility = true,
   sticky = false,
+  locale,
+  currency,
 }: ProTableProps<T>) {
   // ─── Sticky ───
   const {
@@ -63,10 +58,10 @@ export function ProTable<T extends object>({
     scrollRef,
     wsSentinelRef,
     wsWrapperRef,
-    wsTheadRef,
     wsTableRef,
     wsIsSticky,
     wsScrollLeft,
+    wsTableWidth,
     wsStyle,
     wsHandleScroll,
   } = useSticky({ sticky })
@@ -100,94 +95,23 @@ export function ProTable<T extends object>({
 
   const loading = loadingProp ?? loadingData
 
-  // ─── Live column ref ───
-  // Updated synchronously in render (not in useEffect) because cell functions
-  // execute during the same render pass — an effect would run too late.
-  const liveColumns = useMemo(
-    () => new Map(columnDefs.map(c => [colKey(c), c])),
-    [columnDefs],
-  )
-  const liveColumnsRef = useRef(liveColumns)
-  liveColumnsRef.current = liveColumns
-
-  // ─── Column structure signature ───
-  // Memo builtColumns only when structural fields change, not when render
-  // closures get a new identity. This prevents TanStack from rebuilding Column
-  // instances (which would remount every cell via flexRender).
-  const columnsSignature = useMemo(
-    () =>
-      JSON.stringify(
-        columnDefs.map(c => ({
-          key: colKey(c),
-          title: c.title,
-          dataIndex: c.dataIndex,
-          valueType: c.valueType,
-          valueEnum: c.valueEnum,
-          sortable: c.sortable,
-          disableHiding: c.disableHiding,
-          pinnable: c.pinnable,
-          width: c.width,
-          align: c.align,
-          hideInTable: c.hideInTable,
-          hasRender: !!c.render,
-        })),
-      ),
-    [columnDefs],
-  )
-
-  const builtColumns = useMemo(
-    () => buildColumns(columnDefs, liveColumnsRef),
-    // Keyed on structure, not identity — render closures are read via liveRef.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columnsSignature],
-  )
+  // ─── Built columns (load-bearing memo machinery — see use-built-columns.ts) ───
+  const { builtColumns, columnsSignature } = useBuiltColumns(columnDefs, locale, currency)
 
   // ─── Column visibility persistence ───
-  const persistVisibility = persistColumnVisibility !== false
-  const visibilityStorageKey = useMemo(() => {
-    if (typeof persistColumnVisibility === 'string') return persistColumnVisibility
-    const cols = columnDefs.map(c => colKey(c)).join(',')
-    return `pro-table:colvis:${headerTitle ?? ''}:${cols}`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [persistColumnVisibility, columnsSignature, headerTitle])
-
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    const defaults = Object.fromEntries(
-      columnDefs.filter(c => c.hideInTable).map(c => [colKey(c), false]),
-    )
-    if (!persistVisibility || typeof window === 'undefined') return defaults
-    try {
-      const stored = window.localStorage.getItem(visibilityStorageKey)
-      if (stored) return { ...defaults, ...(JSON.parse(stored) as VisibilityState) }
-    } catch {
-      /* ignore */
-    }
-    return defaults
+  const [columnVisibility, setColumnVisibility] = useColumnVisibility<T>({
+    columnDefs,
+    columnsSignature,
+    persistColumnVisibility,
+    headerTitle,
   })
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
-  useEffect(() => {
-    if (!persistVisibility || typeof window === 'undefined') return
-    try {
-      window.localStorage.setItem(visibilityStorageKey, JSON.stringify(columnVisibility))
-    } catch {
-      /* storage may be full or unavailable */
-    }
-  }, [persistVisibility, visibilityStorageKey, columnVisibility])
-
   // ─── Row selection ───
-  const [rowSelectionState, setRowSelectionState] = useState<RowSelectionState>({})
-  useEffect(() => { setRowSelectionState({}) }, [dataIdentity])
+  const [rowSelectionState, setRowSelectionState] = useRowSelectionState(dataIdentity)
 
   // ─── Expand ───
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
-  const toggleExpand = (key: string) => {
-    setExpandedKeys(prev => {
-      const next = new Set(prev)
-      next.has(key) ? next.delete(key) : next.add(key)
-      return next
-    })
-  }
+  const { expandedKeys, toggleExpand } = useExpandedRows()
 
   // ─── Row key ───
   const getRowKey = useCallback((record: T, index: number): string => {
@@ -196,64 +120,21 @@ export function ProTable<T extends object>({
     return val != null ? String(val) : String(index)
   }, [rowKey])
 
-  // ─── Expand column (stable identity) ───
-  const expandedKeysRef = useRef(expandedKeys)
-  expandedKeysRef.current = expandedKeys
-  const getRowKeyRef = useRef(getRowKey)
-  getRowKeyRef.current = getRowKey
-
-  const expandColumn: ColumnDef<T> = useMemo(() => ({
-    id: 'expand',
-    size: 40,
-    enableSorting: false,
-    enableHiding: false,
-    enablePinning: false,
-    header: () => null,
-    cell: ({ row }) => {
-      const key = getRowKeyRef.current(row.original, row.index)
-      const expanded = expandedKeysRef.current.has(key)
-      return (
-        <span className="flex items-center justify-center text-fg-disabled">
-          {expanded
-            ? <ChevronDown className="w-4 h-4" />
-            : <ChevronRight className="w-4 h-4" />}
-        </span>
-      )
-    },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [])
-
-  // ─── Selection column (stable identity) ───
-  const selectionColumn: ColumnDef<T> = useMemo(() => ({
-    id: 'select',
-    size: 40,
-    enableSorting: false,
-    enableHiding: false,
-    enablePinning: false,
-    header: ({ table }) => (
-      <IndeterminateCheckbox
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={table.getIsSomePageRowsSelected()}
-        onChange={table.getToggleAllPageRowsSelectedHandler()}
-      />
-    ),
-    cell: ({ row }) => (
-      <IndeterminateCheckbox
-        checked={row.getIsSelected()}
-        disabled={!row.getCanSelect()}
-        onChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  }), [])
-
-  // ─── Merged columns array ───
+  // ─── Leading expand / selection columns (stable identity) ───
   const hasExpand = !!expandedRowRender
   const hasSelection = !!rowSelection
-  const columns = useMemo(() => [
-    ...(hasExpand ? [expandColumn] : []),
-    ...(hasSelection ? [selectionColumn] : []),
-    ...builtColumns,
-  ], [hasExpand, expandColumn, hasSelection, selectionColumn, builtColumns])
+  const specialColumns = useSpecialColumns<T>({
+    hasExpand,
+    hasSelection,
+    expandedKeys,
+    getRowKey,
+  })
+
+  // ─── Merged columns array ───
+  const columns = useMemo(
+    () => [...specialColumns, ...builtColumns],
+    [specialColumns, builtColumns],
+  )
 
   // ─── Table instance ───
   const table = useReactTable({
@@ -274,14 +155,12 @@ export function ProTable<T extends object>({
   })
 
   // ─── Selection derived state ───
-  const selectedModelRows = table.getSelectedRowModel().rows
-  const selectedKeys = selectedModelRows.map((row, i) => getRowKey(row.original, i))
-  const selectedOriginals = selectedModelRows.map(r => r.original)
-
-  useEffect(() => {
-    rowSelection?.onChange?.(selectedKeys, selectedOriginals)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowSelectionState])
+  const { selectedKeys, selectedOriginals } = useSelectionChange<T>({
+    table,
+    rowSelectionState,
+    rowSelection,
+    getRowKey,
+  })
 
   const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
   const pageSizeOptions = paginationConfig?.pageSizeOptions ?? PAGE_SIZE_OPTIONS
@@ -326,50 +205,21 @@ export function ProTable<T extends object>({
             <table
               className="w-full text-sm bg-surface-subtle border-b border-border"
               style={{
-                width: wsTableRef.current?.offsetWidth,
+                width: wsTableWidth,
                 transform: `translateX(-${wsScrollLeft}px)`,
               }}
             >
-              <thead className="bg-surface-subtle border-b border-border shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => {
-                      const align = (header.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                      const canSort = header.column.getCanSort()
-                      const pinned = header.column.getIsPinned()
-                      return (
-                        <th
-                          key={header.id}
-                          className={cn(
-                            'px-4 py-2.5 text-xs font-semibold text-fg-muted uppercase tracking-wide whitespace-nowrap group',
-                            header.id === 'select' && 'px-3 text-center',
-                            align === 'center' && 'text-center',
-                            align === 'right' && 'text-right',
-                            canSort && 'cursor-pointer select-none hover:text-fg-2',
-                            getPinnedCls(pinned, 'bg-surface-subtle'),
-                          )}
-                          style={{
-                            ...getPinnedStyle(header.column as Column<unknown, unknown>),
-                            width: header.getSize(),
-                            minWidth: header.getSize(),
-                          }}
-                          onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                        >
-                          <span className="inline-flex items-center gap-1 pointer-events-auto">
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {canSort && (
-                              <span className="text-fg-disabled">
-                                {header.column.getIsSorted() === 'asc' ? '↑'
-                                  : header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
-                              </span>
-                            )}
-                          </span>
-                        </th>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </thead>
+              <TableHeader
+                table={table}
+                theadClassName="bg-surface-subtle border-b border-border shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
+                // The clone lives in its own <table>; it needs explicit column
+                // widths to stay aligned with the real one. No PinMenu: the
+                // wrapper is aria-hidden + pointer-events:none, so it'd be dead.
+                withExplicitWidths
+                // The wrapper is pointer-events:none; re-enable hit-testing on
+                // the header text so clicking the stuck clone still sorts.
+                interactiveOverlay
+              />
             </table>
           </div>,
           document.body,
@@ -394,143 +244,30 @@ export function ProTable<T extends object>({
           onScroll={stickyWindowScroll ? wsHandleScroll : undefined}
         >
           <table ref={stickyWindowScroll ? wsTableRef as unknown as React.Ref<HTMLTableElement> : undefined} className="w-full text-sm">
-            <thead ref={stickyWindowScroll ? wsTheadRef as unknown as React.Ref<HTMLTableSectionElement> : undefined} className={cn(
-              'bg-surface-subtle border-b border-border',
-              stickyEnabled && !stickyWindowScroll && 'sticky z-[3]',
-            )} style={stickyEnabled && !stickyWindowScroll ? { top: stickyOffsetTop } : undefined}>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => {
-                    const align = (header.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                    const canSort = header.column.getCanSort()
-                    const canPin = header.column.getCanPin()
-                    const pinned = header.column.getIsPinned()
-                    return (
-                      <th
-                        key={header.id}
-                        className={cn(
-                          'px-4 py-2.5 text-xs font-semibold text-fg-muted uppercase tracking-wide whitespace-nowrap group',
-                          header.id === 'select' && 'px-3 text-center',
-                          align === 'center' && 'text-center',
-                          align === 'right' && 'text-right',
-                          canSort && 'cursor-pointer select-none hover:text-fg-2',
-                          getPinnedCls(pinned, 'bg-surface-subtle'),
-                        )}
-                        style={getPinnedStyle(header.column as Column<unknown, unknown>)}
-                        onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                        aria-sort={canSort ? (header.column.getIsSorted() === 'asc' ? 'ascending' : header.column.getIsSorted() === 'desc' ? 'descending' : 'none') : undefined}
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {canSort && (
-                            <span className="text-fg-disabled">
-                              {header.column.getIsSorted() === 'asc' ? '↑'
-                                : header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
-                            </span>
-                          )}
-                          {canPin && (
-                            <PinMenu column={header.column as Column<unknown, unknown>} />
-                          )}
-                        </span>
-                      </th>
-                    )
-                  })}
-                </tr>
-              ))}
-            </thead>
-
-            <tbody className="divide-y divide-border-subtle">
-              {loading ? (
-                <tr>
-                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-fg-disabled text-sm">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                      Loading...
-                    </div>
-                  </td>
-                </tr>
-              ) : fetchError ? (
-                <tr>
-                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-sm">
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-danger font-medium">Failed to load</p>
-                      <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
-                      <button
-                        type="button"
-                        onClick={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
-                        className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ) : table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={table.getVisibleLeafColumns().length} className="py-16 text-center text-fg-disabled text-sm">
-                    No data
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row, i) => {
-                  const key = getRowKey(row.original, i)
-                  const expanded = expandedKeys.has(key)
-                  const rowHandlers = onRow?.(row.original, i)
-                  const rowCls = cn(
-                    'hover:bg-surface-subtle transition-colors',
-                    (expandedRowRender || rowHandlers?.onClick) && 'cursor-pointer',
-                    rowClassName?.(row.original, i),
-                  )
-                  const handleRowClick: React.MouseEventHandler<HTMLTableRowElement> = (e) => {
-                    const interactive = (e.target as HTMLElement).closest(
-                      'button, a, input, select, textarea, [role="button"], [role="menuitem"], [role="option"], [data-no-expand]',
-                    )
-                    if (expandedRowRender && !interactive) toggleExpand(key)
-                    rowHandlers?.onClick?.(e)
-                  }
-                  return (
-                    <Fragment key={key}>
-                      <tr
-                        onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
-                        onDoubleClick={rowHandlers?.onDoubleClick}
-                        onContextMenu={rowHandlers?.onContextMenu}
-                        className={rowCls}
-                      >
-                        {row.getVisibleCells().map(cell => {
-                          const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
-                          const pinned = cell.column.getIsPinned()
-                          return (
-                            <td
-                              key={cell.id}
-                              className={cn(
-                                'px-4 text-fg-2',
-                                rowPyCls[size],
-                                cellTextCls[size],
-                                cell.column.id === 'select' && 'px-3 text-center',
-                                cell.column.id === 'expand' && 'px-2 text-center',
-                                align === 'center' && 'text-center',
-                                align === 'right' && 'text-right',
-                                getPinnedCls(pinned, 'bg-surface'),
-                              )}
-                              style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
-                            >
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          )
-                        })}
-                      </tr>
-                      {expandedRowRender && expanded && (
-                        <tr className="bg-surface-subtle">
-                          <td colSpan={table.getVisibleLeafColumns().length} className="px-0 py-0">
-                            {expandedRowRender(row.original)}
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
-                  )
-                })
+            <TableHeader
+              table={table}
+              theadClassName={cn(
+                'bg-surface-subtle border-b border-border',
+                stickyEnabled && !stickyWindowScroll && 'sticky z-[3]',
               )}
-            </tbody>
+              theadStyle={stickyEnabled && !stickyWindowScroll ? { top: stickyOffsetTop } : undefined}
+              // Real header: interactive PinMenu is reachable here.
+              withPinMenu
+            />
+
+            <TableBody
+              table={table}
+              size={size}
+              loading={loading}
+              fetchError={fetchError}
+              onRetry={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
+              getRowKey={getRowKey}
+              expandedKeys={expandedKeys}
+              toggleExpand={toggleExpand}
+              expandedRowRender={expandedRowRender}
+              rowClassName={rowClassName}
+              onRow={onRow}
+            />
           </table>
         </div>
 

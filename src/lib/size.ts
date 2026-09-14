@@ -18,6 +18,15 @@ export const inputPx: Record<Size, string> = {
   lg: 'px-4',
 }
 
+/**
+ * Canonical height + padding + text-size class string for a native input-like
+ * control at a given size. Combines `inputHeight`, `inputPx` and `inputText`.
+ * Use this instead of re-declaring per-component size→class maps.
+ */
+export function inputCls(size: Size): string {
+  return `${inputHeight[size]} ${inputPx[size]} ${inputText[size]}`
+}
+
 export const textareaPy: Record<Size, string> = {
   sm: 'py-1.5',
   md: 'py-2',

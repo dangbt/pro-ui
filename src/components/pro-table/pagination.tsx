@@ -1,7 +1,7 @@
 import type { Table, PaginationState } from '@tanstack/react-table'
 import { cn } from '../../lib/cn'
-import { pageSizeCls, PAGE_SIZE_OPTIONS } from './constants'
-import type { Size } from '../../lib/size'
+import { PAGE_SIZE_OPTIONS } from './constants'
+import { inputCls, type Size } from '../../lib/size'
 
 interface PaginationProps<T> {
   table: Table<T>
@@ -24,11 +24,13 @@ export function Pagination<T>({
   const canPrev = table.getCanPreviousPage()
   const canNext = table.getCanNextPage()
 
+  const sizeCls = inputCls(size)
+
   const paginationBtnCls = cn(
     'inline-flex items-center justify-center min-w-8 px-2 border border-border bg-surface text-fg-muted',
     'rounded-[var(--base-radius)] hover:bg-surface-subtle transition-colors',
     'disabled:opacity-40 disabled:cursor-not-allowed',
-    pageSizeCls[size],
+    sizeCls,
   )
 
   return (
@@ -38,7 +40,7 @@ export function Pagination<T>({
         <select
           value={pagination.pageSize}
           onChange={e => setPagination(prev => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))}
-          className={cn(pageSizeCls[size], 'border border-border rounded-[var(--base-radius)] bg-surface text-fg cursor-pointer')}
+          className={cn(sizeCls, 'border border-border rounded-[var(--base-radius)] bg-surface text-fg cursor-pointer')}
         >
           {pageSizeOptions.map(s => (
             <option key={s} value={s}>{s} / page</option>

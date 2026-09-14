@@ -103,13 +103,13 @@
           "name": "rowSelection",
           "type": "{ onChange?: (keys: string[], rows: T[]) => void }",
           "required": false,
-          "description": "Enable row selection with checkboxes"
+          "description": "Enable row-selection checkboxes. Required for bulkActions to appear — without rowSelection there is no way to select the rows a bulk action operates on."
         },
         {
           "name": "bulkActions",
           "type": "BulkActionDef<T>[]",
           "required": false,
-          "description": "Actions shown when rows are selected"
+          "description": "Actions shown when rows are selected. Requires rowSelection to be set."
         },
         {
           "name": "expandedRowRender",
@@ -133,7 +133,7 @@
           "name": "size",
           "type": "'sm' | 'md' | 'lg'",
           "required": false,
-          "default": "'md'",
+          "default": "'sm'",
           "description": "Table density size"
         },
         {
@@ -142,6 +142,27 @@
           "required": false,
           "default": "true",
           "description": "Persist show/hide column state to localStorage. true = auto-derived key; string = explicit key; false = disabled"
+        },
+        {
+          "name": "sticky",
+          "type": "boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }",
+          "required": false,
+          "default": "false",
+          "description": "Make the table header sticky. true = stick to page scroll (top:0, no horizontal scroll); { offsetTop } = stick with a top offset for a fixed navbar; { maxHeight } = scroll inside a height-limited box (number px, CSS string, or the string \"fit\" to fill the viewport) with horizontal scroll restored; { windowScroll: true, offsetTop? } = stick to window scroll while keeping horizontal scroll."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "required": false,
+          "default": "'vi-VN'",
+          "description": "BCP-47 locale tag used to format date and number/money columns. Defaults to 'vi-VN'; set it to match your audience (e.g. 'en-US') instead of writing a custom render per column."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "required": false,
+          "default": "'VND'",
+          "description": "ISO-4217 currency code used by valueType: 'money'. Defaults to 'VND'. Pair with locale to control both the currency and its formatting."
         }
       ],
       "example": "import { ProTable } from '@dangbt/pro-ui'\nimport type { ProColumnType } from '@dangbt/pro-ui'\n\ninterface User {\n  id: string\n  name: string\n  email: string\n  status: 'active' | 'inactive'\n  createdAt: string\n}\n\nconst columns: ProColumnType<User>[] = [\n  { title: 'Name', dataIndex: 'name', sortable: true },\n  { title: 'Email', dataIndex: 'email' },\n  {\n    title: 'Status',\n    dataIndex: 'status',\n    valueType: 'select',\n    valueEnum: {\n      active: { text: 'Active', color: 'success' },\n      inactive: { text: 'Inactive', color: 'default' },\n    },\n  },\n  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },\n]\n\nexport function UsersPage() {\n  return (\n    <ProTable<User>\n      headerTitle=\"Users\"\n      columns={columns}\n      rowKey=\"id\"\n      request={async ({ current, pageSize, ...filters }) => {\n        const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)\n        const data = await res.json()\n        return { data: data.items, total: data.total, success: true }\n      }}\n      toolBarRender={() => [\n        <Button key=\"add\" variant=\"solid\" onPress={() => {}}>Add User</Button>\n      ]}\n      rowSelection={{ onChange: (keys, rows) => console.log(keys, rows) }}\n      bulkActions={[\n        { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },\n      ]}\n    />\n  )\n}"
