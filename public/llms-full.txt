@@ -623,16 +623,17 @@ Import: `import { DatePicker, DateRangePicker, DateField, Calendar, RangeCalenda
 | minValue | DateValue | — | — | Minimum selectable date |
 | maxValue | DateValue | — | — | Maximum selectable date |
 | isDisabled | boolean | — | — | Disable the picker |
+| showMonthYearPicker | boolean | — | `false` | Show month + year dropdown pickers in the calendar header (also on DateRangePicker, Calendar, RangeCalendar) |
 | size | 'sm' | 'md' | 'lg' | — | `'md'` | Field size |
 
 ### Notes
 
-Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`
+Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`. `showMonthYearPicker` (default false) adds month + year dropdowns to the calendar header on DatePicker, DateRangePicker, Calendar and RangeCalendar; the year list respects minValue/maxValue.
 
 ### Example
 
 ```tsx
-import { DatePicker, DateRangePicker } from '@dangbt/pro-ui'
+import { DatePicker, DateRangePicker, Calendar } from '@dangbt/pro-ui'
 import { today, getLocalTimeZone } from '@internationalized/date'
 
 // Single date
@@ -643,6 +644,10 @@ import { today, getLocalTimeZone } from '@internationalized/date'
   label="Booking period"
   minValue={today(getLocalTimeZone())}
 />
+
+// Jump to any month/year from the header
+<DatePicker label="Birthday" showMonthYearPicker />
+<Calendar showMonthYearPicker />
 ```
 
 ---

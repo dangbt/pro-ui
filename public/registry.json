@@ -1581,6 +1581,13 @@
           "description": "Disable the picker"
         },
         {
+          "name": "showMonthYearPicker",
+          "type": "boolean",
+          "required": false,
+          "default": "false",
+          "description": "Show month + year dropdown pickers in the calendar header (also on DateRangePicker, Calendar, RangeCalendar)"
+        },
+        {
           "name": "size",
           "type": "'sm' | 'md' | 'lg'",
           "required": false,
@@ -1588,8 +1595,8 @@
           "description": "Field size"
         }
       ],
-      "notes": "Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from \"@internationalized/date\"`",
-      "example": "import { DatePicker, DateRangePicker } from '@dangbt/pro-ui'\nimport { today, getLocalTimeZone } from '@internationalized/date'\n\n// Single date\n<DatePicker label=\"Start date\" />\n\n// Date range\n<DateRangePicker\n  label=\"Booking period\"\n  minValue={today(getLocalTimeZone())}\n/>"
+      "notes": "Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from \"@internationalized/date\"`. `showMonthYearPicker` (default false) adds month + year dropdowns to the calendar header on DatePicker, DateRangePicker, Calendar and RangeCalendar; the year list respects minValue/maxValue.",
+      "example": "import { DatePicker, DateRangePicker, Calendar } from '@dangbt/pro-ui'\nimport { today, getLocalTimeZone } from '@internationalized/date'\n\n// Single date\n<DatePicker label=\"Start date\" />\n\n// Date range\n<DateRangePicker\n  label=\"Booking period\"\n  minValue={today(getLocalTimeZone())}\n/>\n\n// Jump to any month/year from the header\n<DatePicker label=\"Birthday\" showMonthYearPicker />\n<Calendar showMonthYearPicker />"
     },
     {
       "name": "TimeField",

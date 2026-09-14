@@ -17,6 +17,12 @@ import {
   Heading,
   CalendarGridHeader,
   CalendarHeaderCell,
+  CalendarMonthPicker,
+  CalendarYearPicker,
+  Select,
+  SelectValue,
+  ListBox,
+  ListBoxItem,
   type DatePickerProps,
   type DateRangePickerProps,
   type DateFieldProps,
@@ -24,8 +30,9 @@ import {
   type RangeCalendarProps,
   type DateValue,
   type DateRange,
+  type Key,
 } from 'react-aria-components'
-import { Calendar as CalendarLucide, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react'
+import { Calendar as CalendarLucide, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, ChevronDown as ChevronDownIcon } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
@@ -62,21 +69,95 @@ const calendarCellCls = cn(
 
 const calendarNavBtnCls = 'p-1 hover:bg-surface-subtle rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary text-fg-muted hover:text-fg-2 transition-colors'
 
+/* ── month / year picker dropdown (built on RAC Select) ──── */
+
+const pickerTriggerCls = cn(
+  'flex items-center gap-1 h-7 px-2 text-sm font-semibold text-fg-2 bg-transparent',
+  'rounded-[var(--base-radius)] cursor-pointer outline-none',
+  'hover:bg-surface-subtle transition-colors',
+  'focus-visible:ring-2 focus-visible:ring-primary',
+  'pressed:bg-surface-subtle',
+)
+
+const pickerPopoverCls = cn(
+  'w-[var(--trigger-width)] min-w-max bg-surface border border-border shadow-lg z-50',
+  'rounded-[var(--base-radius)] overflow-hidden',
+  'entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out',
+)
+
+const pickerListBoxCls = 'py-1 max-h-56 overflow-auto outline-none'
+
+const pickerItemCls = cn(
+  'px-3 py-1.5 text-sm cursor-pointer outline-none text-fg-2 whitespace-nowrap',
+  'hover:bg-primary-50 hover:text-primary',
+  'focus:bg-primary-50 focus:text-primary',
+  'selected:bg-primary-100 selected:text-primary selected:font-medium',
+)
+
+type PickerItem = { id: number; formatted: string }
+type PickerRenderProps = {
+  'aria-label': string
+  value: Key
+  onChange: (key: Key | null) => void
+  items: PickerItem[]
+}
+
+/** Renders a RAC Select bound to a Calendar month/year picker's aria render props. */
+function PickerSelect({ 'aria-label': ariaLabel, value, onChange, items }: PickerRenderProps) {
+  return (
+    <Select
+      aria-label={ariaLabel}
+      selectedKey={value}
+      onSelectionChange={key => onChange(key)}
+    >
+      <Button className={pickerTriggerCls}>
+        <SelectValue />
+        <ChevronDownIcon className="w-3.5 h-3.5 text-fg-disabled shrink-0" />
+      </Button>
+      <Popover className={pickerPopoverCls}>
+        <ListBox className={pickerListBoxCls} items={items}>
+          {item => (
+            <ListBoxItem id={item.id} textValue={item.formatted} className={pickerItemCls}>
+              {item.formatted}
+            </ListBoxItem>
+          )}
+        </ListBox>
+      </Popover>
+    </Select>
+  )
+}
+
+/** Calendar header with prev/next buttons and (optionally) month + year dropdowns. */
+function CalendarHeaderNav({ showMonthYearPicker }: { showMonthYearPicker?: boolean }) {
+  return (
+    <div className={cn('flex items-center justify-between mb-3', showMonthYearPicker && 'gap-1')}>
+      <Button slot="previous" className={calendarNavBtnCls}>
+        <ChevronLeftIcon className="w-4 h-4" />
+      </Button>
+      {showMonthYearPicker ? (
+        <div className="flex items-center gap-1">
+          <CalendarMonthPicker>
+            {renderProps => <PickerSelect {...renderProps} />}
+          </CalendarMonthPicker>
+          <CalendarYearPicker>
+            {renderProps => <PickerSelect {...renderProps} />}
+          </CalendarYearPicker>
+        </div>
+      ) : (
+        <Heading className="text-sm font-semibold text-fg-2" />
+      )}
+      <Button slot="next" className={calendarNavBtnCls}>
+        <ChevronRightIcon className="w-4 h-4" />
+      </Button>
+    </div>
+  )
+}
+
 /* ── shared Calendar inner layout ───────────────────────── */
-function CalendarInner({ showNav = true }: { showNav?: boolean }) {
+function CalendarInner({ showNav = true, showMonthYearPicker }: { showNav?: boolean; showMonthYearPicker?: boolean }) {
   return (
     <>
-      {showNav && (
-        <div className="flex items-center justify-between mb-3">
-          <Button slot="previous" className={calendarNavBtnCls}>
-            <ChevronLeftIcon className="w-4 h-4" />
-          </Button>
-          <Heading className="text-sm font-semibold text-fg-2" />
-          <Button slot="next" className={calendarNavBtnCls}>
-            <ChevronRightIcon className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
+      {showNav && <CalendarHeaderNav showMonthYearPicker={showMonthYearPicker} />}
       <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
         <CalendarGridHeader>
           {day => (
@@ -93,18 +174,10 @@ function CalendarInner({ showNav = true }: { showNav?: boolean }) {
   )
 }
 
-function RangeCalendarInner() {
+function RangeCalendarInner({ showMonthYearPicker }: { showMonthYearPicker?: boolean }) {
   return (
     <>
-      <div className="flex items-center justify-between mb-3">
-        <Button slot="previous" className={calendarNavBtnCls}>
-          <ChevronLeftIcon className="w-4 h-4" />
-        </Button>
-        <Heading className="text-sm font-semibold text-fg-2" />
-        <Button slot="next" className={calendarNavBtnCls}>
-          <ChevronRightIcon className="w-4 h-4" />
-        </Button>
-      </div>
+      <CalendarHeaderNav showMonthYearPicker={showMonthYearPicker} />
       <CalendarGrid className="w-full border-separate border-spacing-y-0.5">
         <CalendarGridHeader>
           {day => (
@@ -137,9 +210,11 @@ interface DatePickerProps_<T extends DateValue> extends Omit<DatePickerProps<T>,
   label?: string
   size?: Size
   className?: string
+  /** Show month + year dropdown pickers in the calendar header. @default false */
+  showMonthYearPicker?: boolean
 }
 
-export function DatePicker<T extends DateValue>({ label, size = 'md', className, ...props }: DatePickerProps_<T>) {
+export function DatePicker<T extends DateValue>({ label, size = 'md', className, showMonthYearPicker, ...props }: DatePickerProps_<T>) {
   return (
     <RADatePicker {...props} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
@@ -154,7 +229,7 @@ export function DatePicker<T extends DateValue>({ label, size = 'md', className,
       <Popover className={calendarPopoverCls}>
         <Dialog className="outline-none">
           <RACalendar className="w-64 outline-none">
-            <CalendarInner />
+            <CalendarInner showMonthYearPicker={showMonthYearPicker} />
           </RACalendar>
         </Dialog>
       </Popover>
@@ -168,12 +243,15 @@ interface DateRangePickerProps_<T extends DateValue> extends Omit<DateRangePicke
   label?: string
   size?: Size
   className?: string
+  /** Show month + year dropdown pickers in the calendar header. @default false */
+  showMonthYearPicker?: boolean
 }
 
 export function DateRangePicker<T extends DateValue>({
   label,
   size = 'md',
   className,
+  showMonthYearPicker,
   ...props
 }: DateRangePickerProps_<T>) {
   return (
@@ -194,7 +272,7 @@ export function DateRangePicker<T extends DateValue>({
       <Popover className={calendarPopoverCls}>
         <Dialog className="outline-none">
           <RARangeCalendar className="w-64 outline-none">
-            <RangeCalendarInner />
+            <RangeCalendarInner showMonthYearPicker={showMonthYearPicker} />
           </RARangeCalendar>
         </Dialog>
       </Popover>
@@ -231,12 +309,14 @@ export function DateField<T extends DateValue>({ label, size = 'md', className, 
 
 interface CalendarProps_<T extends DateValue> extends Omit<CalendarProps<T>, 'className'> {
   className?: string
+  /** Show month + year dropdown pickers in the calendar header. @default false */
+  showMonthYearPicker?: boolean
 }
 
-export function Calendar<T extends DateValue>({ className, ...props }: CalendarProps_<T>) {
+export function Calendar<T extends DateValue>({ className, showMonthYearPicker, ...props }: CalendarProps_<T>) {
   return (
     <RACalendar {...props} className={cn('w-64 p-3 bg-surface border border-border rounded-[var(--base-radius)] shadow-sm outline-none', className)}>
-      <CalendarInner />
+      <CalendarInner showMonthYearPicker={showMonthYearPicker} />
     </RACalendar>
   )
 }
@@ -245,12 +325,14 @@ export function Calendar<T extends DateValue>({ className, ...props }: CalendarP
 
 interface RangeCalendarProps_<T extends DateValue> extends Omit<RangeCalendarProps<T>, 'className'> {
   className?: string
+  /** Show month + year dropdown pickers in the calendar header. @default false */
+  showMonthYearPicker?: boolean
 }
 
-export function RangeCalendar<T extends DateValue>({ className, ...props }: RangeCalendarProps_<T>) {
+export function RangeCalendar<T extends DateValue>({ className, showMonthYearPicker, ...props }: RangeCalendarProps_<T>) {
   return (
     <RARangeCalendar {...props} className={cn('w-64 p-3 bg-surface border border-border rounded-[var(--base-radius)] shadow-sm outline-none', className)}>
-      <RangeCalendarInner />
+      <RangeCalendarInner showMonthYearPicker={showMonthYearPicker} />
     </RARangeCalendar>
   )
 }

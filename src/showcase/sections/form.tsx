@@ -399,6 +399,15 @@ export function DateSection() {
           <DatePicker size={size} label="Disabled" isDisabled className="w-full" />
         </Demo>
 
+        <Demo label="DatePicker — month/year picker" center={false}>
+          <DatePicker
+            size={size}
+            label="Jump to month/year"
+            showMonthYearPicker
+            className="w-full"
+          />
+        </Demo>
+
         <Demo label="DateRangePicker — basic" center={false} className="col-span-full">
           <DateRangePicker size={size} label="Date range" className="w-full" />
         </Demo>
@@ -430,6 +439,10 @@ export function DateSection() {
 
         <Demo label="Calendar — standalone" center={true} className="col-span-full">
           <Calendar />
+        </Demo>
+
+        <Demo label="Calendar — month/year picker" center={true} className="col-span-full">
+          <Calendar showMonthYearPicker />
         </Demo>
 
         <Demo label="RangeCalendar — standalone" center={true} className="col-span-full">

@@ -1003,10 +1003,11 @@ import { Info } from 'lucide-react'
       { name: 'minValue', type: 'DateValue', required: false, description: 'Minimum selectable date' },
       { name: 'maxValue', type: 'DateValue', required: false, description: 'Maximum selectable date' },
       { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the picker' },
+      { name: 'showMonthYearPicker', type: 'boolean', required: false, default: 'false', description: 'Show month + year dropdown pickers in the calendar header (also on DateRangePicker, Calendar, RangeCalendar)' },
       { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Field size' },
     ],
-    notes: 'Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`',
-    example: `import { DatePicker, DateRangePicker } from '@dangbt/pro-ui'
+    notes: 'Requires `@internationalized/date` for DateValue types. Import: `import { today, getLocalTimeZone } from "@internationalized/date"`. `showMonthYearPicker` (default false) adds month + year dropdowns to the calendar header on DatePicker, DateRangePicker, Calendar and RangeCalendar; the year list respects minValue/maxValue.',
+    example: `import { DatePicker, DateRangePicker, Calendar } from '@dangbt/pro-ui'
 import { today, getLocalTimeZone } from '@internationalized/date'
 
 // Single date
@@ -1016,7 +1017,11 @@ import { today, getLocalTimeZone } from '@internationalized/date'
 <DateRangePicker
   label="Booking period"
   minValue={today(getLocalTimeZone())}
-/>`,
+/>
+
+// Jump to any month/year from the header
+<DatePicker label="Birthday" showMonthYearPicker />
+<Calendar showMonthYearPicker />`,
   },
 
   {
