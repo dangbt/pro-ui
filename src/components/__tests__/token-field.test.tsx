@@ -37,28 +37,34 @@ describe('TokenField', () => {
 describe('TagFieldValue', () => {
   // tokenize / createFieldValue are protected on RAC's TokenFieldValue; access
   // them through a runtime cast to exercise the tag-input behaviour directly.
+  type Segment = { type: string; text: string }
   type TagInternals = {
-    tokenize(text: string): { type: string; text: string }[]
-    createFieldValue(segments: readonly { type: string; text: string }[]): unknown
+    tokenize(text: string): Segment[]
+    createFieldValue(segments: readonly Segment[]): unknown
   }
+  const internals = () => new TagFieldValue([]) as unknown as TagInternals
 
-  it('splits typed text on commas and newlines into trimmed token segments', () => {
-    const value = new TagFieldValue([]) as unknown as TagInternals
-    const segments = value.tokenize('design, frontend\nux')
-    expect(segments).toHaveLength(3)
-    expect(segments.every(s => s.type === 'token')).toBe(true)
-    expect(segments.map(s => s.text)).toEqual(['design', 'frontend', 'ux'])
+  it('keeps an undelimited piece as a text segment', () => {
+    expect(internals().tokenize('de')).toEqual([{ type: 'text', text: 'de' }])
   })
 
-  it('drops empty pieces produced by extra separators or whitespace', () => {
-    const value = new TagFieldValue([]) as unknown as TagInternals
-    const segments = value.tokenize(' a , , \n  b ')
-    expect(segments.map(s => s.text)).toEqual(['a', 'b'])
+  it('commits a piece into a token once a delimiter follows it', () => {
+    expect(internals().tokenize('de,')).toEqual([{ type: 'token', text: 'de' }])
+  })
+
+  it('tokenizes the delimited piece and keeps the trailing text untrimmed', () => {
+    expect(internals().tokenize('a, b')).toEqual([
+      { type: 'token', text: 'a' },
+      { type: 'text', text: ' b' },
+    ])
+  })
+
+  it('drops empty and whitespace-only pieces', () => {
+    expect(internals().tokenize(' , \n')).toEqual([])
   })
 
   it('createFieldValue returns a TagFieldValue instance', () => {
-    const value = new TagFieldValue([]) as unknown as TagInternals
-    const next = value.createFieldValue([{ type: 'token', text: 'x' }])
+    const next = internals().createFieldValue([{ type: 'token', text: 'x' }])
     expect(next).toBeInstanceOf(TagFieldValue)
   })
 })

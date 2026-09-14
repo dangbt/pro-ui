@@ -27,10 +27,17 @@ export { TokenFieldValue }
 
 /**
  * A {@link TokenFieldValue} subclass that turns typed text into tokens — a
- * classic "tag input". It overrides RAC's `tokenize` to split entered text on
- * commas and newlines into token segments (trimming whitespace and dropping
- * empty pieces), and `createFieldValue` so every value derived from typing stays
- * a `TagFieldValue` and keeps tokenizing.
+ * classic "tag input". It overrides RAC's `tokenize` to convert every piece
+ * that is *followed by* a comma or newline into a token segment (trimmed, with
+ * empty pieces dropped). The trailing piece — the text after the last delimiter,
+ * with no delimiter after it — stays a plain `{ type: 'text' }` segment
+ * (untrimmed) so the caret stays put and it keeps being re-tokenized as the user
+ * types the next character. `createFieldValue` is overridden so every value
+ * derived from typing stays a `TagFieldValue` and keeps tokenizing.
+ *
+ * RAC calls `tokenize` on every input change and merges the trailing text
+ * segment with the new keystroke before re-tokenizing, so only committing a
+ * token once a delimiter has been typed is what lets normal typing work.
  *
  * @alpha Relies on RAC's alpha `TokenField` value model, which may change.
  *
@@ -38,16 +45,34 @@ export { TokenFieldValue }
  * ```tsx
  * const [tags, setTags] = useState(() => new TagFieldValue([]))
  * <TokenField label="Topics" value={tags} onChange={setTags} allowsNewlines />
- * // Typing "design, frontend\nux" yields three tokens: design, frontend, ux.
+ * // Typing "design," commits token "design"; "frontend\n" commits "frontend".
  * ```
  */
 export class TagFieldValue<T = unknown> extends TokenFieldValue<T> {
   protected tokenize(text: string): TokenFieldSegment<T>[] {
-    return text
-      .split(/[,\n]/)
-      .map(part => part.trim())
-      .filter(part => part.length > 0)
-      .map(part => ({ type: 'token', text: part }) as TokenSegment<T>)
+    const segments: TokenFieldSegment<T>[] = []
+    // Split into pieces, capturing the delimiters so we know which pieces were
+    // *followed by* a comma/newline (those become tokens) versus the trailing
+    // piece (no delimiter after it → stays editable text).
+    const pieces = text.split(/[,\n]/)
+    for (let i = 0; i < pieces.length; i++) {
+      const isLast = i === pieces.length - 1
+      if (isLast) {
+        // Trailing, undelimited piece: keep as an untrimmed text segment so the
+        // caret stays put and it re-tokenizes on the next keystroke. Drop it
+        // only when empty (nothing typed after the last delimiter).
+        if (pieces[i].length > 0) {
+          segments.push({ type: 'text', text: pieces[i] } as TextSegment)
+        }
+      } else {
+        // Delimited piece → a token. Trim and drop empty/whitespace-only pieces.
+        const trimmed = pieces[i].trim()
+        if (trimmed.length > 0) {
+          segments.push({ type: 'token', text: trimmed } as TokenSegment<T>)
+        }
+      }
+    }
+    return segments
   }
 
   protected createFieldValue(segments: readonly TokenFieldSegment<T>[]): this {
