@@ -40,13 +40,16 @@ Import: `import { ProTable } from '@dangbt/pro-ui'`
 | search | boolean | — | `true` | Set false to hide search form |
 | loading | boolean | — | — | Override loading state |
 | pagination | { defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void } | — | — | Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL |
-| rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Enable row selection with checkboxes |
-| bulkActions | BulkActionDef<T>[] | — | — | Actions shown when rows are selected |
+| rowSelection | { onChange?: (keys: string[], rows: T[]) => void } | — | — | Enable row-selection checkboxes. Required for bulkActions to appear — without rowSelection there is no way to select the rows a bulk action operates on. |
+| bulkActions | BulkActionDef<T>[] | — | — | Actions shown when rows are selected. Requires rowSelection to be set. |
 | expandedRowRender | (record: T) => ReactNode | — | — | Render content below expanded row |
 | rowClassName | (record: T, index: number) => string | — | — | Add CSS classes to rows conditionally |
 | onRow | (record: T, index: number) => { onClick?; onDoubleClick?; onContextMenu? } | — | — | Row event handlers |
-| size | 'sm' | 'md' | 'lg' | — | `'md'` | Table density size |
+| size | 'sm' | 'md' | 'lg' | — | `'sm'` | Table density size |
 | persistColumnVisibility | boolean | string | — | `true` | Persist show/hide column state to localStorage. true = auto-derived key; string = explicit key; false = disabled |
+| sticky | boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean } | — | `false` | Make the table header sticky. true = stick to page scroll (top:0, no horizontal scroll); { offsetTop } = stick with a top offset for a fixed navbar; { maxHeight } = scroll inside a height-limited box (number px, CSS string, or the string "fit" to fill the viewport) with horizontal scroll restored; { windowScroll: true, offsetTop? } = stick to window scroll while keeping horizontal scroll. |
+| locale | string | — | `'vi-VN'` | BCP-47 locale tag used to format date and number/money columns. Defaults to 'vi-VN'; set it to match your audience (e.g. 'en-US') instead of writing a custom render per column. |
+| currency | string | — | `'VND'` | ISO-4217 currency code used by valueType: 'money'. Defaults to 'VND'. Pair with locale to control both the currency and its formatting. |
 
 ### Example
 
