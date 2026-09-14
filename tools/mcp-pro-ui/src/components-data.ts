@@ -1149,7 +1149,7 @@ function TagsDemo() {
 
   {
     name: 'TokenField',
-    importName: 'TokenField, TokenFieldValue',
+    importName: 'TokenField, TokenFieldValue, TagFieldValue',
     category: 'form',
     description:
       'Alpha. A text input with inline, keyboard-selectable tokens (tags / mentions). Wraps React Aria Components\' alpha TokenField. Value is RAC\'s TokenFieldValue<T> — a list of segments, each either { type: "text", text } or { type: "token", text, value? }.',
@@ -1168,10 +1168,28 @@ function TagsDemo() {
       { name: 'isReadOnly', type: 'boolean', required: false, description: 'Make the field read only' },
     ],
     notes:
-      'Alpha: the underlying React Aria TokenField API is alpha and may change. Build values with `new TokenFieldValue([{ type: "text", text }, { type: "token", text, value? }])`. Tokens are keyboard-selectable and deletable via RAC behaviour — do not add custom key handling.',
-    example: `import { TokenField, TokenFieldValue } from '@dangbt/pro-ui'
+      'Alpha: the underlying React Aria TokenField API is alpha and may change. Build values with `new TokenFieldValue([{ type: "text", text }, { type: "token", text, value? }])`. For a tag input where typed text becomes tokens, use `TagFieldValue` (a TokenFieldValue subclass whose tokenize splits on commas/newlines) together with `allowsNewlines`. Tokens are keyboard-selectable and deletable via RAC behaviour — do not add custom key handling.',
+    example: `import { TokenField, TokenFieldValue, TagFieldValue } from '@dangbt/pro-ui'
 import { useState } from 'react'
 
+// Tag input — TagFieldValue turns typed text into tokens on comma/Enter.
+function TagInput() {
+  const [tags, setTags] = useState(
+    () => new TagFieldValue([{ type: 'token', text: 'design' }]),
+  )
+
+  return (
+    <TokenField
+      label="Topics"
+      description="Type a tag and press comma or Enter."
+      value={tags}
+      onChange={setTags}
+      allowsNewlines
+    />
+  )
+}
+
+// @mention — tokens carry an arbitrary value.
 function MentionInput() {
   const [value, setValue] = useState(
     () =>

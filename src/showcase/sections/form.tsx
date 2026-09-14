@@ -5,7 +5,7 @@ import {
   Select, AsyncSelect, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
   Switch, Slider, DatePicker, DateRangePicker, DateField, Calendar, RangeCalendar,
   TagGroup, TimeField, ToggleButton, ToggleButtonGroup, FileTrigger, Autocomplete,
-  TokenField, TokenFieldValue,
+  TokenField, TokenFieldValue, TagFieldValue,
 } from '../../components'
 import type { TagItem } from '../../components'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
@@ -740,14 +740,14 @@ export function AutocompleteSection() {
 export function TokenFieldSection() {
   const size = useShowcaseSize()
 
-  // Tag-input example: two tokens followed by a trailing text segment for typing.
-  const [tags, setTags] = useState(
+  // Tag-input example: TagFieldValue turns typed text into tokens on comma/Enter.
+  // Typed as the base TokenFieldValue (RAC's onChange yields the base type) but
+  // seeded with a TagFieldValue, so derived values keep tokenizing.
+  const [tags, setTags] = useState<TokenFieldValue>(
     () =>
-      new TokenFieldValue([
+      new TagFieldValue([
         { type: 'token', text: 'design' },
-        { type: 'text', text: ' ' },
         { type: 'token', text: 'frontend' },
-        { type: 'text', text: ' ' },
       ]),
   )
 
@@ -774,10 +774,11 @@ export function TokenFieldSection() {
           <TokenField
             size={size}
             label="Topics"
-            description="Type text; tokens are selectable with the keyboard and deletable with Backspace."
+            description="Type a tag and press comma or Enter."
             placeholder="Add topics…"
             value={tags}
             onChange={setTags}
+            allowsNewlines
             className="w-full"
           />
         </Demo>

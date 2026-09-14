@@ -25,6 +25,36 @@ export type TextSegment = Extract<TokenFieldSegment<unknown>, { type: 'text' }>
 // Re-export the RAC value model so consumers build values with RAC's own types.
 export { TokenFieldValue }
 
+/**
+ * A {@link TokenFieldValue} subclass that turns typed text into tokens — a
+ * classic "tag input". It overrides RAC's `tokenize` to split entered text on
+ * commas and newlines into token segments (trimming whitespace and dropping
+ * empty pieces), and `createFieldValue` so every value derived from typing stays
+ * a `TagFieldValue` and keeps tokenizing.
+ *
+ * @alpha Relies on RAC's alpha `TokenField` value model, which may change.
+ *
+ * @example
+ * ```tsx
+ * const [tags, setTags] = useState(() => new TagFieldValue([]))
+ * <TokenField label="Topics" value={tags} onChange={setTags} allowsNewlines />
+ * // Typing "design, frontend\nux" yields three tokens: design, frontend, ux.
+ * ```
+ */
+export class TagFieldValue<T = unknown> extends TokenFieldValue<T> {
+  protected tokenize(text: string): TokenFieldSegment<T>[] {
+    return text
+      .split(/[,\n]/)
+      .map(part => part.trim())
+      .filter(part => part.length > 0)
+      .map(part => ({ type: 'token', text: part }) as TokenSegment<T>)
+  }
+
+  protected createFieldValue(segments: readonly TokenFieldSegment<T>[]): this {
+    return new TagFieldValue(segments) as this
+  }
+}
+
 interface TokenFieldProps<T = unknown>
   extends Omit<RATokenFieldProps<TokenFieldValue<T>>, 'className' | 'children'> {
   /** Field label rendered above the input. */
