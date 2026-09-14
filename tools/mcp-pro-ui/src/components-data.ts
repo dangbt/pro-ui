@@ -586,28 +586,59 @@ import { Search, Mail } from 'lucide-react'
 
   {
     name: 'Menu',
-    importName: 'Menu, MenuItem, MenuSection',
+    importName: 'Menu',
     category: 'overlay',
-    description: 'Dropdown action menu with keyboard navigation, sections, and icons.',
-    useCases: ['action menu', 'context menu', 'dropdown options', 'more options button'],
+    description: 'Dropdown action menu with keyboard navigation, icons, shortcuts, empty state, and async load-more paging.',
+    useCases: ['action menu', 'context menu', 'dropdown options', 'more options button', 'async paged menu'],
     props: [
-      { name: 'items', type: 'MenuItemDef[]', required: true, description: 'Menu item definitions' },
-      { name: 'placement', type: 'Placement', required: false, description: 'Menu placement relative to trigger' },
+      { name: 'trigger', type: 'ReactNode', required: true, description: 'Element that opens the menu (e.g. a Button)' },
+      { name: 'items', type: 'MenuItemDef[]', required: true, description: 'Menu item definitions ({ id, label, icon?, shortcut?, danger?, disabled?, separator? })' },
+      { name: 'onAction', type: '(key: Key) => void', required: false, description: 'Called with the id of the selected item' },
+      { name: 'onLoadMore', type: '() => void', required: false, description: 'Called when the load-more sentinel scrolls into view. Enables async paging and caps the menu height.' },
+      { name: 'isLoading', type: 'boolean', required: false, description: 'Whether more items are loading. Shows a spinner in the load-more row and the empty state.' },
+      { name: 'emptyContent', type: 'ReactNode', required: false, default: "'No items'", description: 'Content shown when items is empty' },
     ],
     example: `import { Menu, Button } from '@dangbt/pro-ui'
-import { DialogTrigger } from 'react-aria-components'
-import { MoreHorizontal } from 'lucide-react'
+import type { MenuItemDef } from '@dangbt/pro-ui'
+import { useCallback, useRef, useState } from 'react'
 
-<DialogTrigger>
-  <Button variant="ghost" size="sm"><MoreHorizontal size={16} /></Button>
-  <Menu
-    items={[
-      { key: 'edit', label: 'Edit', onAction: () => handleEdit() },
-      { key: 'duplicate', label: 'Duplicate', onAction: () => handleDuplicate() },
-      { key: 'delete', label: 'Delete', danger: true, onAction: () => handleDelete() },
-    ]}
-  />
-</DialogTrigger>`,
+// Basic menu
+<Menu
+  trigger={<Button variant="secondary">Actions ▾</Button>}
+  items={[
+    { id: 'edit', label: 'Edit', shortcut: '⌘E' },
+    { id: 'sep', label: '', separator: true },
+    { id: 'delete', label: 'Delete', danger: true },
+  ]}
+  onAction={(key) => console.log(key)}
+/>
+
+// Async load-more menu: pages load as you scroll
+function AsyncMenu() {
+  const [items, setItems] = useState<MenuItemDef[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const page = useRef(0)
+
+  const loadMore = useCallback(async () => {
+    if (isLoading) return
+    setIsLoading(true)
+    const res = await fetch(\`/api/items?page=\${page.current + 1}\`)
+    const data = await res.json()
+    page.current += 1
+    setItems((prev) => [...prev, ...data.items])
+    setIsLoading(false)
+  }, [isLoading])
+
+  return (
+    <Menu
+      trigger={<Button variant="secondary">Async ▾</Button>}
+      items={items}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      emptyContent="No items yet"
+    />
+  )
+}`,
   },
 
   {

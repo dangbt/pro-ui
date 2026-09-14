@@ -1,6 +1,8 @@
+import { useState, useCallback, useRef } from 'react'
 import {
   Button, Input, Select, Modal, ConfirmModal, Drawer, Tooltip, Menu, Popover, toast,
 } from '../../components'
+import type { MenuItemDef } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 
@@ -134,8 +136,48 @@ export function MenuSection() {
             onAction={k => alert(String(k))}
           />
         </Demo>
+        <Demo label="Menu — async load more">
+          <AsyncMenuDemo size={size} />
+        </Demo>
       </div>
     </div>
+  )
+}
+
+/** Loads 3 pages of fake items page-by-page as you scroll the menu. */
+function AsyncMenuDemo({ size }: { size: ReturnType<typeof useShowcaseSize> }) {
+  const TOTAL_PAGES = 3
+  const PAGE_SIZE = 8
+  const [items, setItems] = useState<MenuItemDef[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const pageRef = useRef(0)
+
+  const loadMore = useCallback(() => {
+    if (isLoading || pageRef.current >= TOTAL_PAGES) return
+    setIsLoading(true)
+    const nextPage = pageRef.current + 1
+    // Simulate a network request with latency.
+    setTimeout(() => {
+      const start = pageRef.current * PAGE_SIZE
+      const newItems: MenuItemDef[] = Array.from({ length: PAGE_SIZE }, (_, i) => ({
+        id: `item-${start + i}`,
+        label: `Item ${start + i + 1}`,
+      }))
+      pageRef.current = nextPage
+      setItems(prev => [...prev, ...newItems])
+      setIsLoading(false)
+    }, 700)
+  }, [isLoading])
+
+  return (
+    <Menu
+      trigger={<Button size={size} variant="secondary">Async ▾</Button>}
+      items={items}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      emptyContent="No items yet"
+      onAction={k => alert(String(k))}
+    />
   )
 }
 

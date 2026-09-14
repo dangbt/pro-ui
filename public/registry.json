@@ -827,31 +827,57 @@
     },
     {
       "name": "Menu",
-      "import": "Menu, MenuItem, MenuSection",
+      "import": "Menu",
       "package": "@dangbt/pro-ui",
       "category": "overlay",
-      "description": "Dropdown action menu with keyboard navigation, sections, and icons.",
+      "description": "Dropdown action menu with keyboard navigation, icons, shortcuts, empty state, and async load-more paging.",
       "useCases": [
         "action menu",
         "context menu",
         "dropdown options",
-        "more options button"
+        "more options button",
+        "async paged menu"
       ],
       "props": [
+        {
+          "name": "trigger",
+          "type": "ReactNode",
+          "required": true,
+          "description": "Element that opens the menu (e.g. a Button)"
+        },
         {
           "name": "items",
           "type": "MenuItemDef[]",
           "required": true,
-          "description": "Menu item definitions"
+          "description": "Menu item definitions ({ id, label, icon?, shortcut?, danger?, disabled?, separator? })"
         },
         {
-          "name": "placement",
-          "type": "Placement",
+          "name": "onAction",
+          "type": "(key: Key) => void",
           "required": false,
-          "description": "Menu placement relative to trigger"
+          "description": "Called with the id of the selected item"
+        },
+        {
+          "name": "onLoadMore",
+          "type": "() => void",
+          "required": false,
+          "description": "Called when the load-more sentinel scrolls into view. Enables async paging and caps the menu height."
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "required": false,
+          "description": "Whether more items are loading. Shows a spinner in the load-more row and the empty state."
+        },
+        {
+          "name": "emptyContent",
+          "type": "ReactNode",
+          "required": false,
+          "default": "'No items'",
+          "description": "Content shown when items is empty"
         }
       ],
-      "example": "import { Menu, Button } from '@dangbt/pro-ui'\nimport { DialogTrigger } from 'react-aria-components'\nimport { MoreHorizontal } from 'lucide-react'\n\n<DialogTrigger>\n  <Button variant=\"ghost\" size=\"sm\"><MoreHorizontal size={16} /></Button>\n  <Menu\n    items={[\n      { key: 'edit', label: 'Edit', onAction: () => handleEdit() },\n      { key: 'duplicate', label: 'Duplicate', onAction: () => handleDuplicate() },\n      { key: 'delete', label: 'Delete', danger: true, onAction: () => handleDelete() },\n    ]}\n  />\n</DialogTrigger>"
+      "example": "import { Menu, Button } from '@dangbt/pro-ui'\nimport type { MenuItemDef } from '@dangbt/pro-ui'\nimport { useCallback, useRef, useState } from 'react'\n\n// Basic menu\n<Menu\n  trigger={<Button variant=\"secondary\">Actions ▾</Button>}\n  items={[\n    { id: 'edit', label: 'Edit', shortcut: '⌘E' },\n    { id: 'sep', label: '', separator: true },\n    { id: 'delete', label: 'Delete', danger: true },\n  ]}\n  onAction={(key) => console.log(key)}\n/>\n\n// Async load-more menu: pages load as you scroll\nfunction AsyncMenu() {\n  const [items, setItems] = useState<MenuItemDef[]>([])\n  const [isLoading, setIsLoading] = useState(false)\n  const page = useRef(0)\n\n  const loadMore = useCallback(async () => {\n    if (isLoading) return\n    setIsLoading(true)\n    const res = await fetch(`/api/items?page=${page.current + 1}`)\n    const data = await res.json()\n    page.current += 1\n    setItems((prev) => [...prev, ...data.items])\n    setIsLoading(false)\n  }, [isLoading])\n\n  return (\n    <Menu\n      trigger={<Button variant=\"secondary\">Async ▾</Button>}\n      items={items}\n      isLoading={isLoading}\n      onLoadMore={loadMore}\n      emptyContent=\"No items yet\"\n    />\n  )\n}"
     },
     {
       "name": "Tabs",
