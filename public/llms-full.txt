@@ -1,7 +1,7 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
-> Generated from mcp-pro-ui components-data. Total: 51 components.
+> Generated from mcp-pro-ui components-data. Total: 52 components.
 
 ## App Setup
 
@@ -1221,6 +1221,52 @@ import { Info } from 'lucide-react'
 <Tooltip content="This field is required for compliance">
   <Button variant="ghost" size="sm"><Info size={14} /></Button>
 </Tooltip>
+```
+
+---
+
+## PreviewCard
+
+Popover that opens on hover, focus, or long-press of its trigger. Unlike a tooltip, it may contain interactive content (links, buttons). Built on React Aria PreviewTrigger. Great for GitHub-style user/link preview cards.
+
+Import: `import { PreviewCard } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| children | ReactNode | ✅ | — | The trigger element (e.g. a Link or Button). Must be focusable. |
+| content | ReactNode | ✅ | — | Content rendered inside the card. May contain interactive elements. |
+| delay | number | — | `600` | Delay in ms before the card opens on hover/focus |
+| closeDelay | number | — | `300` | Delay in ms before the card closes |
+| placement | Placement | — | `'bottom'` | Placement relative to the trigger |
+| showArrow | boolean | — | `false` | Show arrow pointing at the trigger |
+| isOpen | boolean | — | — | Controlled open state |
+| defaultOpen | boolean | — | — | Uncontrolled initial open state |
+| onOpenChange | (isOpen: boolean) => void | — | — | Called when open state changes |
+
+### Example
+
+```tsx
+import { PreviewCard, Link, Avatar, Button } from '@dangbt/pro-ui'
+
+<PreviewCard
+  content={
+    <div className="w-64">
+      <div className="flex items-center gap-3">
+        <Avatar size="lg" name="Dâng Bùi Tấn" />
+        <div>
+          <p className="text-sm font-semibold">Dâng Bùi Tấn</p>
+          <p className="text-xs text-fg-muted">@dangbt</p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-fg-2">Building pro-ui.</p>
+      <Button variant="primary" className="mt-3 w-full">Follow</Button>
+    </div>
+  }
+>
+  <Link>@dangbt</Link>
+</PreviewCard>
 ```
 
 ---

@@ -25,6 +25,7 @@ npm install @dangbt/pro-ui
 - Drawer: Slide-in panel (left/right/bottom). Use inside DialogTrigger.
 - Popover: Floating anchored panel.
 - Tooltip: Hover/focus tooltip.
+- PreviewCard: Hover/focus/long-press popover with interactive content (GitHub-style preview card).
 - Menu: Dropdown action menu.
 - Toast: Global notifications. Mount ToastProvider once, call toast.success/error/warning/info() anywhere.
 - Alert: Inline alert (info/success/warning/danger variants).

@@ -46,6 +46,7 @@ export const NAV: NavGroup[] = [
       { id: 'drawer',  label: 'Drawer'          },
       { id: 'popover', label: 'Popover'         },
       { id: 'tooltip', label: 'Tooltip'         },
+      { id: 'preview-card', label: 'PreviewCard' },
       { id: 'menu',    label: 'Dropdown Menu'   },
     ],
   },

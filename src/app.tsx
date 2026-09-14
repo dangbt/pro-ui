@@ -20,7 +20,7 @@ import {
   TagsSection, FileSection, AutocompleteSection,
 } from './showcase/sections/form'
 import {
-  ModalSection, DrawerSection, TooltipSection, MenuSection, PopoverSection,
+  ModalSection, DrawerSection, TooltipSection, MenuSection, PopoverSection, PreviewCardSection,
 } from './showcase/sections/overlay'
 import {
   TabsSection, BreadcrumbsSection, ToolbarSection,
@@ -67,6 +67,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   drawer:          <DrawerSection />,
   popover:         <PopoverSection />,
   tooltip:         <TooltipSection />,
+  'preview-card':  <PreviewCardSection />,
   menu:            <MenuSection />,
   tabs:            <TabsSection />,
   breadcrumbs:     <BreadcrumbsSection />,

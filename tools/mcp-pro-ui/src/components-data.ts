@@ -731,6 +731,44 @@ import { Info } from 'lucide-react'
   },
 
   {
+    name: 'PreviewCard',
+    importName: 'PreviewCard',
+    category: 'overlay',
+    description: 'Popover that opens on hover, focus, or long-press of its trigger. Unlike a tooltip, it may contain interactive content (links, buttons). Built on React Aria PreviewTrigger. Great for GitHub-style user/link preview cards.',
+    useCases: ['user preview card', 'link preview', 'hover card with actions', 'rich hover tooltip'],
+    props: [
+      { name: 'children', type: 'ReactNode', required: true, description: 'The trigger element (e.g. a Link or Button). Must be focusable.' },
+      { name: 'content', type: 'ReactNode', required: true, description: 'Content rendered inside the card. May contain interactive elements.' },
+      { name: 'delay', type: 'number', required: false, default: '600', description: 'Delay in ms before the card opens on hover/focus' },
+      { name: 'closeDelay', type: 'number', required: false, default: '300', description: 'Delay in ms before the card closes' },
+      { name: 'placement', type: 'Placement', required: false, default: "'bottom'", description: 'Placement relative to the trigger' },
+      { name: 'showArrow', type: 'boolean', required: false, default: 'false', description: 'Show arrow pointing at the trigger' },
+      { name: 'isOpen', type: 'boolean', required: false, description: 'Controlled open state' },
+      { name: 'defaultOpen', type: 'boolean', required: false, description: 'Uncontrolled initial open state' },
+      { name: 'onOpenChange', type: '(isOpen: boolean) => void', required: false, description: 'Called when open state changes' },
+    ],
+    example: `import { PreviewCard, Link, Avatar, Button } from '@dangbt/pro-ui'
+
+<PreviewCard
+  content={
+    <div className="w-64">
+      <div className="flex items-center gap-3">
+        <Avatar size="lg" name="Dâng Bùi Tấn" />
+        <div>
+          <p className="text-sm font-semibold">Dâng Bùi Tấn</p>
+          <p className="text-xs text-fg-muted">@dangbt</p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-fg-2">Building pro-ui.</p>
+      <Button variant="primary" className="mt-3 w-full">Follow</Button>
+    </div>
+  }
+>
+  <Link>@dangbt</Link>
+</PreviewCard>`,
+  },
+
+  {
     name: 'Spinner',
     importName: 'Spinner',
     category: 'feedback',

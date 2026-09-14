@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import {
-  Button, Input, Select, Modal, ConfirmModal, Drawer, Tooltip, Menu, Popover, toast,
+  Button, Input, Select, Modal, ConfirmModal, Drawer, Tooltip, Menu, Popover, PreviewCard, Avatar, Link, toast,
 } from '../../components'
 import type { MenuItemDef } from '../../components'
 import { Demo, SectionHeader } from '../shared'
@@ -101,6 +101,65 @@ export function TooltipSection() {
           <Tooltip content="More information">
             <button className="w-7 h-7 rounded-full border border-border text-fg-disabled hover:border-primary hover:text-primary transition-colors text-sm flex items-center justify-center">?</button>
           </Tooltip>
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+/** GitHub-style user preview card: avatar, name, bio, Follow button. */
+function UserPreviewCard() {
+  const size = useShowcaseSize()
+  return (
+    <div className="w-64">
+      <div className="flex items-start gap-3">
+        <Avatar size="lg" name="Dâng Bùi Tấn" src="https://avatars.githubusercontent.com/u/1?v=4" />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-fg leading-tight">Dâng Bùi Tấn</p>
+          <p className="text-xs text-fg-muted">@dangbt</p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-fg-2">
+        Building pro-ui — an AI-native React component library on React Aria &amp; Tailwind v4.
+      </p>
+      <div className="mt-2 flex items-center gap-3 text-xs text-fg-muted">
+        <span><span className="font-semibold text-fg-2">128</span> followers</span>
+        <span><span className="font-semibold text-fg-2">42</span> following</span>
+      </div>
+      <div className="mt-3">
+        <Button size={size} variant="primary" className="w-full" onPress={() => alert('Followed!')}>
+          Follow
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export function PreviewCardSection() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="PreviewCard"
+        description="A popover that opens on hover, focus, or long-press — unlike a tooltip, it may contain interactive content (links, buttons)."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="User preview (hover / focus the link)">
+          <p className="text-sm text-fg-2">
+            Follow{' '}
+            <PreviewCard content={<UserPreviewCard />}>
+              <Link>@dangbt</Link>
+            </PreviewCard>{' '}
+            for updates.
+          </p>
+        </Demo>
+        <Demo label="With arrow · placement top">
+          <p className="text-sm text-fg-2">
+            Maintained by{' '}
+            <PreviewCard content={<UserPreviewCard />} placement="top" showArrow>
+              <Link>@dangbt</Link>
+            </PreviewCard>
+            .
+          </p>
         </Demo>
       </div>
     </div>
