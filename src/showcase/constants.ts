@@ -33,6 +33,7 @@ export const NAV: NavGroup[] = [
       { id: 'tags',          label: 'Tags'                },
       { id: 'file',          label: 'File Upload'         },
       { id: 'autocomplete',  label: 'Autocomplete'        },
+      { id: 'token-field',   label: 'TokenField'          },
       { id: 'dropzone',      label: 'Drop Zone'           },
       { id: 'upload',        label: 'Upload'              },
       { id: 'transfer',      label: 'Transfer'            },

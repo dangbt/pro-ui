@@ -17,7 +17,7 @@ import { MCPSection, CreateAppSection } from './showcase/sections/getting-starte
 import {
   ButtonSection, ToggleButtonSection, TextInputsSection, SelectSection,
   DateSection, CheckboxSection, TogglesSection, SliderSection,
-  TagsSection, FileSection, AutocompleteSection,
+  TagsSection, FileSection, AutocompleteSection, TokenFieldSection,
 } from './showcase/sections/form'
 import {
   ModalSection, DrawerSection, TooltipSection, MenuSection, PopoverSection, PreviewCardSection,
@@ -62,6 +62,7 @@ const SECTIONS: Record<string, React.ReactNode> = {
   tags:            <TagsSection />,
   file:            <FileSection />,
   autocomplete:    <AutocompleteSection />,
+  'token-field':   <TokenFieldSection />,
   dropzone:        <DropZoneSection />,
   modal:           <ModalSection />,
   drawer:          <DrawerSection />,

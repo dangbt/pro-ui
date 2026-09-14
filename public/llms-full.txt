@@ -1,7 +1,7 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
-> Generated from mcp-pro-ui components-data. Total: 53 components.
+> Generated from mcp-pro-ui components-data. Total: 54 components.
 
 ## App Setup
 
@@ -715,6 +715,61 @@ function TagsDemo() {
       label="Skills"
       items={tags}
       onRemove={(keys) => setTags(tags.filter(t => !keys.has(t.id)))}
+    />
+  )
+}
+```
+
+---
+
+## TokenField
+
+Alpha. A text input with inline, keyboard-selectable tokens (tags / mentions). Wraps React Aria Components' alpha TokenField. Value is RAC's TokenFieldValue<T> — a list of segments, each either { type: "text", text } or { type: "token", text, value? }.
+
+Import: `import { TokenField, TokenFieldValue } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| label | string | — | — | Field label |
+| description | string | — | — | Helper text below the field |
+| errorMessage | ReactNode | — | — | Error message below the field |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Visual size |
+| placeholder | string | — | — | Placeholder shown when empty |
+| value | TokenFieldValue<T> | — | — | Controlled value |
+| defaultValue | TokenFieldValue<T> | — | — | Uncontrolled initial value |
+| onChange | (value: TokenFieldValue<T>) => void | — | — | Called when the value changes |
+| renderToken | (token: TokenSegment<T>) => ReactNode | — | — | Customise a token's content; defaults to token.text |
+| isDisabled | boolean | — | — | Disable the field |
+| isReadOnly | boolean | — | — | Make the field read only |
+
+### Notes
+
+Alpha: the underlying React Aria TokenField API is alpha and may change. Build values with `new TokenFieldValue([{ type: "text", text }, { type: "token", text, value? }])`. Tokens are keyboard-selectable and deletable via RAC behaviour — do not add custom key handling.
+
+### Example
+
+```tsx
+import { TokenField, TokenFieldValue } from '@dangbt/pro-ui'
+import { useState } from 'react'
+
+function MentionInput() {
+  const [value, setValue] = useState(
+    () =>
+      new TokenFieldValue<{ id: string }>([
+        { type: 'text', text: 'Ping ' },
+        { type: 'token', text: '@ada', value: { id: 'u1' } },
+        { type: 'text', text: ' about the release.' },
+      ]),
+  )
+
+  return (
+    <TokenField<{ id: string }>
+      label="Message"
+      placeholder="Mention someone with @…"
+      value={value}
+      onChange={setValue}
     />
   )
 }

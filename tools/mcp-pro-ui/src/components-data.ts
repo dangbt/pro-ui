@@ -1148,6 +1148,52 @@ function TagsDemo() {
   },
 
   {
+    name: 'TokenField',
+    importName: 'TokenField, TokenFieldValue',
+    category: 'form',
+    description:
+      'Alpha. A text input with inline, keyboard-selectable tokens (tags / mentions). Wraps React Aria Components\' alpha TokenField. Value is RAC\'s TokenFieldValue<T> — a list of segments, each either { type: "text", text } or { type: "token", text, value? }.',
+    useCases: ['tag input', 'mention input (@user)', 'structured search field', 'inline token editor'],
+    props: [
+      { name: 'label', type: 'string', required: false, description: 'Field label' },
+      { name: 'description', type: 'string', required: false, description: 'Helper text below the field' },
+      { name: 'errorMessage', type: 'ReactNode', required: false, description: 'Error message below the field' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Visual size' },
+      { name: 'placeholder', type: 'string', required: false, description: 'Placeholder shown when empty' },
+      { name: 'value', type: 'TokenFieldValue<T>', required: false, description: 'Controlled value' },
+      { name: 'defaultValue', type: 'TokenFieldValue<T>', required: false, description: 'Uncontrolled initial value' },
+      { name: 'onChange', type: '(value: TokenFieldValue<T>) => void', required: false, description: 'Called when the value changes' },
+      { name: 'renderToken', type: '(token: TokenSegment<T>) => ReactNode', required: false, description: "Customise a token's content; defaults to token.text" },
+      { name: 'isDisabled', type: 'boolean', required: false, description: 'Disable the field' },
+      { name: 'isReadOnly', type: 'boolean', required: false, description: 'Make the field read only' },
+    ],
+    notes:
+      'Alpha: the underlying React Aria TokenField API is alpha and may change. Build values with `new TokenFieldValue([{ type: "text", text }, { type: "token", text, value? }])`. Tokens are keyboard-selectable and deletable via RAC behaviour — do not add custom key handling.',
+    example: `import { TokenField, TokenFieldValue } from '@dangbt/pro-ui'
+import { useState } from 'react'
+
+function MentionInput() {
+  const [value, setValue] = useState(
+    () =>
+      new TokenFieldValue<{ id: string }>([
+        { type: 'text', text: 'Ping ' },
+        { type: 'token', text: '@ada', value: { id: 'u1' } },
+        { type: 'text', text: ' about the release.' },
+      ]),
+  )
+
+  return (
+    <TokenField<{ id: string }>
+      label="Message"
+      placeholder="Mention someone with @…"
+      value={value}
+      onChange={setValue}
+    />
+  )
+}`,
+  },
+
+  {
     name: 'ToggleButton',
     importName: 'ToggleButton, ToggleButtonGroup',
     category: 'form',

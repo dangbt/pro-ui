@@ -5,6 +5,7 @@ import {
   Select, AsyncSelect, ComboBox, Checkbox, CheckboxGroup, RadioGroup,
   Switch, Slider, DatePicker, DateRangePicker, DateField, Calendar, RangeCalendar,
   TagGroup, TimeField, ToggleButton, ToggleButtonGroup, FileTrigger, Autocomplete,
+  TokenField, TokenFieldValue,
 } from '../../components'
 import type { TagItem } from '../../components'
 import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
@@ -730,6 +731,93 @@ export function AutocompleteSection() {
             { id: 'solid', label: 'Solid' },
             { id: 'qwik',  label: 'Qwik'  },
           ]} />
+        </Demo>
+      </div>
+    </div>
+  )
+}
+
+export function TokenFieldSection() {
+  const size = useShowcaseSize()
+
+  // Tag-input example: two tokens followed by a trailing text segment for typing.
+  const [tags, setTags] = useState(
+    () =>
+      new TokenFieldValue([
+        { type: 'token', text: 'design' },
+        { type: 'text', text: ' ' },
+        { type: 'token', text: 'frontend' },
+        { type: 'text', text: ' ' },
+      ]),
+  )
+
+  // @mention example: tokens carry an arbitrary value (the user id).
+  const [mentions, setMentions] = useState(
+    () =>
+      new TokenFieldValue<{ id: string }>([
+        { type: 'text', text: 'Ping ' },
+        { type: 'token', text: '@ada', value: { id: 'u1' } },
+        { type: 'text', text: ' and ' },
+        { type: 'token', text: '@linus', value: { id: 'u2' } },
+        { type: 'text', text: ' about the release.' },
+      ]),
+  )
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        title="TokenField"
+        description="Alpha — a text input with inline, keyboard-selectable tokens (tags / mentions). Built on React Aria's alpha TokenField; its API may change."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Demo label="Tag input" center={false}>
+          <TokenField
+            size={size}
+            label="Topics"
+            description="Type text; tokens are selectable with the keyboard and deletable with Backspace."
+            placeholder="Add topics…"
+            value={tags}
+            onChange={setTags}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="@mention — tokens carry a value" center={false}>
+          <TokenField<{ id: string }>
+            size={size}
+            label="Message"
+            placeholder="Mention someone with @…"
+            value={mentions}
+            onChange={setMentions}
+            renderToken={token => <span>{token.text}</span>}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="Disabled" center={false}>
+          <TokenField
+            size={size}
+            label="Disabled"
+            isDisabled
+            defaultValue={new TokenFieldValue([
+              { type: 'token', text: 'locked' },
+              { type: 'text', text: '' },
+            ])}
+            className="w-full"
+          />
+        </Demo>
+
+        <Demo label="Read only" center={false}>
+          <TokenField
+            size={size}
+            label="Read only"
+            isReadOnly
+            defaultValue={new TokenFieldValue([
+              { type: 'text', text: 'Assigned to ' },
+              { type: 'token', text: '@team' },
+            ])}
+            className="w-full"
+          />
         </Demo>
       </div>
     </div>

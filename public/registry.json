@@ -1805,6 +1805,90 @@
       "example": "import { TagGroup } from '@dangbt/pro-ui'\nimport { useState } from 'react'\n\nfunction TagsDemo() {\n  const [tags, setTags] = useState([\n    { id: '1', label: 'React', color: 'primary' as const },\n    { id: '2', label: 'TypeScript', color: 'info' as const },\n    { id: '3', label: 'Tailwind', color: 'success' as const },\n  ])\n\n  return (\n    <TagGroup\n      label=\"Skills\"\n      items={tags}\n      onRemove={(keys) => setTags(tags.filter(t => !keys.has(t.id)))}\n    />\n  )\n}"
     },
     {
+      "name": "TokenField",
+      "import": "TokenField, TokenFieldValue",
+      "package": "@dangbt/pro-ui",
+      "category": "form",
+      "description": "Alpha. A text input with inline, keyboard-selectable tokens (tags / mentions). Wraps React Aria Components' alpha TokenField. Value is RAC's TokenFieldValue<T> — a list of segments, each either { type: \"text\", text } or { type: \"token\", text, value? }.",
+      "useCases": [
+        "tag input",
+        "mention input (@user)",
+        "structured search field",
+        "inline token editor"
+      ],
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": false,
+          "description": "Field label"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "Helper text below the field"
+        },
+        {
+          "name": "errorMessage",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Error message below the field"
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "required": false,
+          "default": "'md'",
+          "description": "Visual size"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "required": false,
+          "description": "Placeholder shown when empty"
+        },
+        {
+          "name": "value",
+          "type": "TokenFieldValue<T>",
+          "required": false,
+          "description": "Controlled value"
+        },
+        {
+          "name": "defaultValue",
+          "type": "TokenFieldValue<T>",
+          "required": false,
+          "description": "Uncontrolled initial value"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: TokenFieldValue<T>) => void",
+          "required": false,
+          "description": "Called when the value changes"
+        },
+        {
+          "name": "renderToken",
+          "type": "(token: TokenSegment<T>) => ReactNode",
+          "required": false,
+          "description": "Customise a token's content; defaults to token.text"
+        },
+        {
+          "name": "isDisabled",
+          "type": "boolean",
+          "required": false,
+          "description": "Disable the field"
+        },
+        {
+          "name": "isReadOnly",
+          "type": "boolean",
+          "required": false,
+          "description": "Make the field read only"
+        }
+      ],
+      "notes": "Alpha: the underlying React Aria TokenField API is alpha and may change. Build values with `new TokenFieldValue([{ type: \"text\", text }, { type: \"token\", text, value? }])`. Tokens are keyboard-selectable and deletable via RAC behaviour — do not add custom key handling.",
+      "example": "import { TokenField, TokenFieldValue } from '@dangbt/pro-ui'\nimport { useState } from 'react'\n\nfunction MentionInput() {\n  const [value, setValue] = useState(\n    () =>\n      new TokenFieldValue<{ id: string }>([\n        { type: 'text', text: 'Ping ' },\n        { type: 'token', text: '@ada', value: { id: 'u1' } },\n        { type: 'text', text: ' about the release.' },\n      ]),\n  )\n\n  return (\n    <TokenField<{ id: string }>\n      label=\"Message\"\n      placeholder=\"Mention someone with @…\"\n      value={value}\n      onChange={setValue}\n    />\n  )\n}"
+    },
+    {
       "name": "ToggleButton",
       "import": "ToggleButton, ToggleButtonGroup",
       "package": "@dangbt/pro-ui",
