@@ -1,6 +1,6 @@
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useFieldArray, useWatch } from 'react-hook-form'
 import { parseDate, today, getLocalTimeZone, type CalendarDate } from '@internationalized/date'
-import { useState, useEffect, useRef, memo } from 'react'
+import { useState, useEffect, useRef, memo, type ReactNode } from 'react'
 import { Input } from '../input'
 import { Textarea } from '../textarea'
 import { NumberField } from '../number-field'
@@ -8,14 +8,18 @@ import { Select } from '../select'
 import { AsyncSelect } from '../async-select'
 import { ComboBox } from '../combo-box'
 import { RadioGroup } from '../radio-group'
-import { Checkbox } from '../checkbox'
+import { Checkbox, CheckboxGroup } from '../checkbox'
 import { Switch } from '../switch'
-import { DatePicker } from '../date-picker'
+import { DatePicker, DateRangePicker, type DateRange } from '../date-picker'
+import { Slider } from '../slider'
+import { TokenField, TagFieldValue, TokenFieldValue } from '../token-field'
+import { Button } from '../button'
 import { ProFormItem, useSize, useFieldA11y } from './pro-form'
 import type { SelectOption } from '../select'
 import type { AsyncSelectOption, AsyncSelectFetchResult } from '../async-select'
 import type { ComboBoxOption } from '../combo-box'
 import type { DateValue } from '../date-picker'
+import type { TokenSegment } from '../token-field'
 import type { Size } from '../../lib/size'
 
 /* ── shared base props ─────────────────────────────────────── */
@@ -586,4 +590,540 @@ export function ProFormDatePicker({ name, label, required, description, placehol
       />
     </ProFormItem>
   )
+}
+
+/* ── ProFormDateRangePicker ─────────────────────────────────── */
+
+interface DateRangeValue {
+  start: string
+  end: string
+}
+
+interface ProFormDateRangePickerProps extends BaseProps {
+  minValue?: DateValue
+  maxValue?: DateValue
+  isDateUnavailable?: (date: DateValue) => boolean
+  showMonthYearPicker?: boolean
+}
+
+export function ProFormDateRangePicker({
+  name,
+  label,
+  required,
+  description,
+  size,
+  className,
+  isDisabled,
+  minValue,
+  maxValue,
+  isDateUnavailable,
+  showMonthYearPicker,
+}: ProFormDateRangePickerProps) {
+  const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
+
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={undefined}
+        render={({ field, fieldState }) => {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const a11yProps = useA11yProps()
+          
+          // Convert {start, end} string format to DateRange
+          const dateRangeValue: DateRange | null = (() => {
+            if (!field.value) return null
+            const val = field.value as DateRangeValue
+            try {
+              if (val.start && val.end) {
+                return {
+                  start: parseDate(val.start.slice(0, 10)),
+                  end: parseDate(val.end.slice(0, 10)),
+                }
+              }
+            } catch {
+              // Invalid date format
+            }
+            return null
+          })()
+
+          return (
+            <DateRangePicker
+              value={dateRangeValue}
+              onChange={(range: DateRange | null) => {
+                if (range) {
+                  field.onChange({
+                    start: range.start.toString(),
+                    end: range.end.toString(),
+                  })
+                } else {
+                  field.onChange(undefined)
+                }
+              }}
+              onBlur={field.onBlur}
+              isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
+              size={effectiveSize}
+              minValue={minValue}
+              maxValue={maxValue}
+              isDateUnavailable={isDateUnavailable}
+              showMonthYearPicker={showMonthYearPicker}
+              className="w-full"
+              {...a11yProps}
+            />
+          )
+        }}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormCheckboxGroup ───────────────────────────────────── */
+
+interface CheckboxGroupOption {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+interface ProFormCheckboxGroupProps {
+  name: string
+  label?: string
+  required?: boolean
+  description?: string
+  options: CheckboxGroupOption[]
+  orientation?: 'horizontal' | 'vertical'
+  size?: Size
+  className?: string
+  isDisabled?: boolean
+}
+
+export function ProFormCheckboxGroup({
+  name,
+  label,
+  required,
+  description,
+  options,
+  orientation = 'vertical',
+  size,
+  className,
+  isDisabled,
+}: ProFormCheckboxGroupProps) {
+  const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
+
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={[]}
+        render={({ field, fieldState }) => {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const a11yProps = useA11yProps()
+          return (
+            <CheckboxGroup
+              value={field.value ?? []}
+              onChange={field.onChange}
+              isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
+              options={options}
+              orientation={orientation}
+              size={effectiveSize}
+              {...a11yProps}
+            />
+          )
+        }}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormSlider ──────────────────────────────────────────── */
+
+interface ProFormSliderProps {
+  name: string
+  label?: string
+  required?: boolean
+  description?: string
+  min?: number
+  max?: number
+  step?: number
+  showOutput?: boolean
+  size?: Size
+  className?: string
+  isDisabled?: boolean
+  /** If true, value is [number, number] for range; otherwise single number */
+  isRange?: boolean
+}
+
+export function ProFormSlider({
+  name,
+  label,
+  required,
+  description,
+  min = 0,
+  max = 100,
+  step = 1,
+  showOutput = true,
+  size,
+  className,
+  isDisabled,
+  isRange = false,
+}: ProFormSliderProps) {
+  const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
+
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={isRange ? [min, max] : min}
+        render={({ field, fieldState }) => {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const a11yProps = useA11yProps()
+          
+          if (isRange) {
+            return (
+              <Slider<number[]>
+                value={field.value ?? [min, max]}
+                onChange={field.onChange}
+                minValue={min}
+                maxValue={max}
+                step={step}
+                showOutput={showOutput}
+                isDisabled={isDisabled}
+                isInvalid={!!fieldState.error}
+                size={effectiveSize}
+                className="w-full"
+                {...a11yProps}
+              />
+            )
+          }
+          
+          return (
+            <Slider<number>
+              value={field.value ?? min}
+              onChange={field.onChange}
+              minValue={min}
+              maxValue={max}
+              step={step}
+              showOutput={showOutput}
+              isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
+              size={effectiveSize}
+              className="w-full"
+              {...a11yProps}
+            />
+          )
+        }}
+      />
+    </ProFormItem>
+  )
+}
+
+/* ── ProFormTokenField ──────────────────────────────────────── */
+
+interface ProFormTokenFieldProps extends BaseProps {
+  /** Customise how a token's content is rendered */
+  renderToken?: (token: TokenSegment) => React.ReactNode
+}
+
+/**
+ * Inner component that manages local TagFieldValue state so uncommitted text
+ * (the text segment being typed before a delimiter) is preserved while typing.
+ * The form only stores committed tokens as string[].
+ */
+interface TokenFieldInnerProps {
+  value: string[]
+  onChange: (tokens: string[]) => void
+  placeholder?: string
+  isDisabled?: boolean
+  isInvalid?: boolean
+  size?: Size
+  renderToken?: (token: TokenSegment) => React.ReactNode
+  a11yProps: Record<string, unknown>
+}
+
+function TokenFieldInner({
+  value: formValue,
+  onChange: onFormChange,
+  placeholder,
+  isDisabled,
+  isInvalid,
+  size,
+  renderToken,
+  a11yProps,
+}: TokenFieldInnerProps) {
+  // Local state holds the full TagFieldValue including uncommitted text segment
+  const [localValue, setLocalValue] = useState<TagFieldValue>(() => {
+    const segments = (formValue ?? []).map(text => ({ type: 'token' as const, text }))
+    return new TagFieldValue(segments)
+  })
+
+  // Track external form value to detect resets or external changes
+  const prevFormValueRef = useRef<string[]>(formValue)
+
+  // Sync local state when form value changes externally (e.g., reset, setValue)
+  useEffect(() => {
+    const prev = prevFormValueRef.current
+    const curr = formValue ?? []
+
+    // Check if form value actually changed from outside
+    const changed = prev.length !== curr.length || prev.some((v, i) => v !== curr[i])
+
+    if (changed) {
+      // Extract current tokens from local state
+      const localTokens = localValue.segments
+        .filter((seg): seg is TokenSegment => seg.type === 'token')
+        .map(seg => seg.text)
+
+      // Only reset if the change came from outside (not from our own onChange)
+      const localChanged = localTokens.length !== curr.length || localTokens.some((v, i) => v !== curr[i])
+      if (localChanged) {
+        const segments = curr.map(text => ({ type: 'token' as const, text }))
+        setLocalValue(new TagFieldValue(segments))
+      }
+    }
+
+    prevFormValueRef.current = curr
+  }, [formValue, localValue.segments])
+
+  const handleChange = (val: TokenFieldValue) => {
+    // Update local state with full value (including text segment)
+    // TagFieldValue extends TokenFieldValue, so we cast safely
+    setLocalValue(val as TagFieldValue)
+
+    // Extract only committed tokens for form state
+    const tokens = val.segments
+      .filter((seg): seg is TokenSegment => seg.type === 'token')
+      .map(seg => seg.text)
+    onFormChange(tokens)
+  }
+
+  return (
+    <TokenField
+      value={localValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      isDisabled={isDisabled}
+      isInvalid={isInvalid}
+      size={size}
+      renderToken={renderToken}
+      className="w-full"
+      {...a11yProps}
+    />
+  )
+}
+
+export function ProFormTokenField({
+  name,
+  label,
+  required,
+  description,
+  placeholder,
+  size,
+  className,
+  isDisabled,
+  renderToken,
+}: ProFormTokenFieldProps) {
+  const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
+
+  return (
+    <ProFormItem name={name} label={label} required={required} description={description} className={className}>
+      <Controller
+        name={name}
+        control={control}
+        defaultValue={[]}
+        render={({ field, fieldState }) => {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const a11yProps = useA11yProps()
+
+          return (
+            <TokenFieldInner
+              value={field.value as string[] ?? []}
+              onChange={field.onChange}
+              placeholder={placeholder}
+              isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
+              size={effectiveSize}
+              renderToken={renderToken}
+              a11yProps={a11yProps}
+            />
+          )
+        }}
+      />
+    </ProFormItem>
+  )
+}
+
+
+/* ── ProFormList ────────────────────────────────────────────── */
+
+interface ProFormListProps {
+  /** Field name for the array */
+  name: string
+  /** Label for the list */
+  label?: string
+  /** Description text */
+  description?: string
+  /**
+   * Render function for each list item.
+   * Receives positional arguments: (field, index, { remove })
+   * - field: Field name prefix, e.g. "items.0"
+   * - index: Index of this item in the array
+   * - remove: Function to remove this item from the list
+   */
+  children: (field: string, index: number, actions: { remove: () => void }) => ReactNode
+  /** Minimum number of items (prevents removal below this) */
+  min?: number
+  /** Maximum number of items (hides add button when reached) */
+  max?: number
+  /** Text for the add button */
+  addText?: string
+  /** Whether to show the add button */
+  showAdd?: boolean
+  /** Custom add button renderer */
+  addRender?: (props: { onAdd: () => void; disabled: boolean }) => ReactNode
+  /** Class name for the list container */
+  className?: string
+  /** Initial value for new items (defaults to {}) */
+  initialValue?: Record<string, unknown>
+}
+
+/** Helper to resolve nested error path like "order.items" from formState.errors */
+function getNestedError(errors: Record<string, unknown>, path: string): unknown {
+  const parts = path.split('.')
+  let current: unknown = errors
+  for (const part of parts) {
+    if (current == null || typeof current !== 'object') return undefined
+    current = (current as Record<string, unknown>)[part]
+  }
+  return current
+}
+
+export function ProFormList({
+  name,
+  label,
+  description,
+  children,
+  min = 0,
+  max,
+  addText = '+ Add item',
+  showAdd = true,
+  addRender,
+  className,
+  initialValue = {},
+}: ProFormListProps) {
+  const { control, formState: { errors } } = useFormContext()
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name,
+  })
+  const size = useSize()
+
+  const canRemove = fields.length > min
+  const canAdd = max === undefined || fields.length < max
+
+  // Get array-level error (e.g., "Must have at least 1 item")
+  // Support nested paths like "order.items"
+  const arrayErrorObj = getNestedError(errors, name) as
+    | { message?: string; root?: { message?: string } }
+    | undefined
+  const arrayError = arrayErrorObj?.message || arrayErrorObj?.root?.message
+
+  const handleAdd = () => {
+    if (canAdd) {
+      append(initialValue)
+    }
+  }
+
+  const handleRemove = (index: number) => {
+    if (canRemove) {
+      remove(index)
+    }
+  }
+
+  return (
+    <div className={className}>
+      {label && (
+        <span className="block font-medium text-fg-muted text-sm mb-2">
+          {label}
+        </span>
+      )}
+      {description && (
+        <span className="block text-xs text-fg-disabled mb-2">{description}</span>
+      )}
+      <div className="flex flex-col gap-3">
+        {fields.map((field, index) => (
+          <div key={field.id} className="relative">
+            {children(`${name}.${index}`, index, { remove: () => handleRemove(index) })}
+          </div>
+        ))}
+      </div>
+      {typeof arrayError === 'string' && (
+        <span className="text-xs text-danger mt-1 block" role="alert">
+          {arrayError}
+        </span>
+      )}
+      {showAdd && (
+        <div className="mt-2">
+          {addRender ? (
+            addRender({ onAdd: handleAdd, disabled: !canAdd })
+          ) : (
+            <Button
+              type="button"
+              variant="secondary"
+              size={size}
+              onPress={handleAdd}
+              isDisabled={!canAdd}
+            >
+              {addText}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── ProFormDependency ──────────────────────────────────────── */
+
+interface ProFormDependencyProps<T extends string[]> {
+  /** Field names to watch */
+  name: T
+  /** Render function that receives the watched values */
+  children: (values: { [K in T[number]]?: unknown }) => ReactNode
+}
+
+export function ProFormDependency<T extends string[]>({
+  name: watchNames,
+  children,
+}: ProFormDependencyProps<T>) {
+  const { control } = useFormContext()
+  
+  // Watch all specified fields
+  const watchedValues = useWatch({
+    control,
+    name: watchNames,
+  })
+
+  // Build an object mapping field names to their values
+  const values = watchNames.reduce(
+    (acc, fieldName, index) => {
+      acc[fieldName as T[number]] = watchedValues[index]
+      return acc
+    },
+    {} as { [K in T[number]]?: unknown }
+  )
+
+  return <>{children(values)}</>
 }
