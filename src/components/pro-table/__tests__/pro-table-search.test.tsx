@@ -451,3 +451,45 @@ describe('SearchForm — NumberField clear and Reset', () => {
     expect(resetParams.price).toBeUndefined()
   })
 })
+
+
+// ─── Option column without key/dataIndex hidden from toggle ───
+
+describe('ProTable — option column without key/dataIndex hidden from toggle', () => {
+  it('hides option column that only has title (no key, no dataIndex) from Columns toggle', async () => {
+    const columns: ProColumnType<Row>[] = [
+      { title: 'Name', dataIndex: 'name' },
+      // Option column with only title - no key, no dataIndex
+      { title: 'Actions', valueType: 'option', render: () => <button>Edit</button> },
+    ]
+
+    render(
+      <ProTable<Row>
+        columns={columns}
+        dataSource={[{ id: '1', name: 'Alice', status: 'active', createdAt: '2024-01-01' }]}
+        rowKey="id"
+        search={false}
+        headerTitle="Test Table"
+      />,
+    )
+
+    // Click the Columns button to open the popover
+    const columnsButton = screen.getByLabelText('Columns')
+    fireEvent.click(columnsButton)
+
+    // Wait for menu to open
+    await waitFor(() => {
+      expect(screen.getByText('Columns')).toBeTruthy()
+    })
+
+    // Check the labels in the menu
+    const labels = document.querySelectorAll('label')
+    const labelTexts = Array.from(labels).map(l => l.textContent?.trim())
+    
+    // Name should be in toggle menu
+    expect(labelTexts.some(t => t === 'Name')).toBe(true)
+    
+    // Actions should NOT be in the toggle menu (option column with title-only key)
+    expect(labelTexts.some(t => t === 'Actions')).toBe(false)
+  })
+})

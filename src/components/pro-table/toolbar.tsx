@@ -101,11 +101,12 @@ export function buildColumnToggles<T>(
   columnDefs?: ProColumnType<unknown>[],
 ): ColumnToggleItem[] {
   // Build a set of column keys that are 'option' type
+  // Must use same key logic as build-columns.tsx: key ?? dataIndex ?? title
   const optionColumnKeys = new Set<string>()
   if (columnDefs) {
     for (const def of columnDefs) {
       if (def.valueType === 'option') {
-        const key = def.key ?? def.dataIndex
+        const key = def.key ?? def.dataIndex ?? def.title
         if (key) optionColumnKeys.add(key as string)
       }
     }
