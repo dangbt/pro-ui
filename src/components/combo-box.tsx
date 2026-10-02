@@ -24,6 +24,13 @@ interface ComboBoxProps_<T extends ComboBoxOption> extends Omit<ComboBoxProps<T>
   size?: Size
   isInvalid?: boolean
   className?: string
+  /** Props to spread onto the input element (useful for a11y attributes) */
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement> & {
+    'aria-label'?: string
+    'aria-labelledby'?: string
+    'aria-describedby'?: string
+    'aria-invalid'?: boolean
+  }
 }
 
 export function ComboBox<T extends ComboBoxOption>({
@@ -33,6 +40,7 @@ export function ComboBox<T extends ComboBoxOption>({
   size = 'md',
   isInvalid,
   className,
+  inputProps,
   ...props
 }: ComboBoxProps_<T>) {
   return (
@@ -55,6 +63,7 @@ export function ComboBox<T extends ComboBoxOption>({
             'focus:outline-2 focus:outline-primary focus:outline-offset-0 focus:border-transparent',
             isInvalid ? 'border-danger focus:outline-danger' : 'border-border',
           )}
+          {...inputProps}
         />
         <Button className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-fg-disabled hover:text-fg-2">
           <ChevronDown className="w-4 h-4" />

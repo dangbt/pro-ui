@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form'
-import { parseDate, type CalendarDate } from '@internationalized/date'
-import { useState, useEffect } from 'react'
+import { parseDate, today, getLocalTimeZone, type CalendarDate } from '@internationalized/date'
+import { useState, useEffect, useRef, memo } from 'react'
 import { Input } from '../input'
 import { Textarea } from '../textarea'
 import { NumberField } from '../number-field'
@@ -262,6 +262,84 @@ interface ProFormComboBoxProps extends BaseProps {
   options: ComboBoxOption[]
 }
 
+/** Inner component for ComboBox to properly use hooks outside Controller render */
+interface ComboBoxInnerProps {
+  field: {
+    value: string
+    onChange: (value: string) => void
+    onBlur: () => void
+  }
+  fieldState: { error?: { message?: string } }
+  options: ComboBoxOption[]
+  placeholder?: string
+  isDisabled?: boolean
+  size: Size
+}
+
+const ComboBoxInner = memo(function ComboBoxInner({
+  field,
+  fieldState,
+  options,
+  placeholder,
+  isDisabled,
+  size,
+}: ComboBoxInnerProps) {
+  const { descriptionId, errorId, hasError, label, labelId } = useFieldA11y()
+  
+  // Local inputValue state - separate from field.value (which stores the key)
+  const [inputValue, setInputValue] = useState(() => {
+    // Initialize with label of selected option if value exists
+    const selected = options.find(opt => opt.value === field.value)
+    return selected?.label ?? ''
+  })
+
+  // Track the previous field.value to detect external changes (e.g., reset)
+  const prevFieldValueRef = useRef(field.value)
+
+  // Sync inputValue when field.value changes externally (e.g., reset)
+  // Compare by value to avoid resetting while user types
+  useEffect(() => {
+    if (prevFieldValueRef.current !== field.value) {
+      const selected = options.find(opt => opt.value === field.value)
+      setInputValue(selected?.label ?? '')
+      prevFieldValueRef.current = field.value
+    }
+  }, [field.value, options])
+
+  // Build aria props for the input only (not the whole ComboBox)
+  const describedBy = [descriptionId, errorId].filter(Boolean).join(' ') || undefined
+  const inputA11yProps = {
+    'aria-label': !labelId ? label : undefined,
+    'aria-labelledby': labelId,
+    'aria-describedby': describedBy,
+    'aria-invalid': hasError ? true : undefined,
+  }
+
+  return (
+    <ComboBox
+      selectedKey={field.value ?? null}
+      onSelectionChange={key => {
+        const newKey = key ? String(key) : ''
+        field.onChange(newKey)
+        // Update input to show label of selected option
+        const selected = options.find(opt => opt.value === newKey)
+        setInputValue(selected?.label ?? '')
+        prevFieldValueRef.current = newKey
+      }}
+      inputValue={inputValue}
+      onInputChange={setInputValue}
+      onBlur={field.onBlur}
+      placeholder={placeholder ?? 'Type to search…'}
+      isDisabled={isDisabled}
+      isInvalid={!!fieldState.error}
+      size={size}
+      options={options}
+      className="w-full"
+      inputProps={inputA11yProps}
+    />
+  )
+})
+
 export function ProFormComboBox({ name, label, required, description, placeholder, size, className, isDisabled, options }: ProFormComboBoxProps) {
   const { control } = useFormContext()
   const ctxSize = useSize()
@@ -272,47 +350,16 @@ export function ProFormComboBox({ name, label, required, description, placeholde
         name={name}
         control={control}
         defaultValue=""
-        render={({ field, fieldState }) => {
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          const a11yProps = useA11yProps()
-          // Local inputValue state - separate from field.value (which stores the key)
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          const [inputValue, setInputValue] = useState(() => {
-            // Initialize with label of selected option if value exists
-            const selected = options.find(opt => opt.value === field.value)
-            return selected?.label ?? ''
-          })
-
-          // Sync inputValue when field.value changes externally (e.g., reset)
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          useEffect(() => {
-            const selected = options.find(opt => opt.value === field.value)
-            setInputValue(selected?.label ?? '')
-          }, [field.value, options])
-
-          return (
-            <ComboBox
-              selectedKey={field.value ?? null}
-              onSelectionChange={key => {
-                const newKey = key ? String(key) : ''
-                field.onChange(newKey)
-                // Update input to show label of selected option
-                const selected = options.find(opt => opt.value === newKey)
-                setInputValue(selected?.label ?? '')
-              }}
-              inputValue={inputValue}
-              onInputChange={setInputValue}
-              onBlur={field.onBlur}
-              placeholder={placeholder ?? 'Type to search…'}
-              isDisabled={isDisabled}
-              isInvalid={!!fieldState.error}
-              size={effectiveSize}
-              options={options}
-              className="w-full"
-              {...a11yProps}
-            />
-          )
-        }}
+        render={({ field, fieldState }) => (
+          <ComboBoxInner
+            field={field}
+            fieldState={fieldState}
+            options={options}
+            placeholder={placeholder}
+            isDisabled={isDisabled}
+            size={effectiveSize}
+          />
+        )}
       />
     </ProFormItem>
   )
@@ -333,9 +380,10 @@ interface ProFormRadioGroupProps {
   isDisabled?: boolean
 }
 
-export function ProFormRadioGroup({ name, label, required, description, options, orientation = 'vertical', size: _size, className, isDisabled }: ProFormRadioGroupProps) {
+export function ProFormRadioGroup({ name, label, required, description, options, orientation = 'vertical', size, className, isDisabled }: ProFormRadioGroupProps) {
   const { control } = useFormContext()
-  // RadioGroup component doesn't have a size prop, but we accept it for API consistency
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -353,7 +401,7 @@ export function ProFormRadioGroup({ name, label, required, description, options,
               isInvalid={!!fieldState.error}
               orientation={orientation}
               options={options}
-              // RadioGroup doesn't accept size prop directly, but we keep effectiveSize available
+              size={effectiveSize}
               {...a11yProps}
             />
           )
@@ -490,6 +538,24 @@ export function ProFormDatePicker({ name, label, required, description, placehol
   const { control } = useFormContext()
   const ctxSize = useSize()
   const effectiveSize = size ?? ctxSize
+  
+  // Parse placeholder string to CalendarDate for placeholderValue
+  // If placeholder is a valid date string (YYYY-MM-DD), use it; otherwise use today
+  const placeholderValue = (() => {
+    if (placeholder) {
+      try {
+        const match = placeholder.match(/^(\d{4}-\d{2}-\d{2})/)
+        if (match) {
+          return parseDate(match[1])
+        }
+      } catch {
+        // Invalid date, fall through to default
+      }
+    }
+    // Default: use today's date as placeholder
+    return today(getLocalTimeZone())
+  })()
+
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
       <Controller
@@ -511,7 +577,7 @@ export function ProFormDatePicker({ name, label, required, description, placehol
               minValue={minValue}
               maxValue={maxValue}
               isDateUnavailable={isDateUnavailable}
-              placeholderValue={placeholder ? undefined : undefined}
+              placeholderValue={placeholderValue}
               className="w-full"
               {...a11yProps}
             />

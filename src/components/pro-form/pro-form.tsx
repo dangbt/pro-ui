@@ -136,38 +136,11 @@ export function ProForm<T extends FieldValues>({
   })
   const { handleSubmit, reset, formState: { isSubmitting, isDirty } } = methods
   const [submitError, setSubmitError] = useState<string | null>(null)
+  // Track whether we've done the first mount with defined defaultValues
+  const hasInitializedRef = useRef(false)
   const prevDefaultValuesRef = useRef<string | undefined>(undefined)
 
-  // Reset form when defaultValues change
-  useEffect(() => {
-    if (!defaultValues) return
-    const serialized = JSON.stringify(defaultValues)
-    if (prevDefaultValuesRef.current === undefined) {
-      // First mount
-      prevDefaultValuesRef.current = serialized
-      return
-    }
-    if (serialized !== prevDefaultValuesRef.current) {
-      prevDefaultValuesRef.current = serialized
-      // Reset only if not dirty or resetOnDefaultValuesChange is true
-      if (!isDirty || resetOnDefaultValuesChange) {
-        reset(defaultValues)
-      }
-    }
-  }, [defaultValues, reset, isDirty, resetOnDefaultValuesChange])
-
-  // Expose form methods via formRef
-  useImperativeHandle(formRef, () => ({
-    getFormInstance: () => methods,
-    reset: (values) => {
-      reset(values ?? defaultValues)
-      setSubmitError(null)
-    },
-    submit: () => handleSubmit(onSubmit)(),
-    getValues: () => methods.getValues(),
-    setValue: (name, value) => methods.setValue(name, value as T[FieldPath<T>]),
-  }), [methods, reset, defaultValues, handleSubmit])
-
+  // Define callbacks first (used in useImperativeHandle and renderSubmitter)
   const onSubmit = async (values: T) => {
     setSubmitError(null)
     try {
@@ -188,6 +161,51 @@ export function ProForm<T extends FieldValues>({
     setSubmitError(null)
   }
 
+  // Reset form when defaultValues change
+  useEffect(() => {
+    // Skip if still undefined (waiting for async load)
+    if (defaultValues === undefined) return
+    
+    const serialized = JSON.stringify(defaultValues)
+    
+    // First time we get defined defaultValues
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true
+      prevDefaultValuesRef.current = serialized
+      // If this is truly the first mount and useForm already has the values, no need to reset
+      // But if defaultValues was undefined initially and now has a value (async load), we must reset
+      // Check: if form values match defaultValues, no need to reset (sync mount)
+      // Otherwise reset (async load scenario)
+      const currentValues = methods.getValues()
+      const currentSerialized = JSON.stringify(currentValues)
+      if (currentSerialized !== serialized) {
+        reset(defaultValues)
+      }
+      return
+    }
+    
+    // Check if values actually changed from previous
+    if (serialized !== prevDefaultValuesRef.current) {
+      prevDefaultValuesRef.current = serialized
+      // Reset only if not dirty or resetOnDefaultValuesChange is true
+      if (!isDirty || resetOnDefaultValuesChange) {
+        reset(defaultValues)
+      }
+    }
+  }, [defaultValues, reset, isDirty, resetOnDefaultValuesChange, methods])
+
+  // Expose form methods via formRef
+  useImperativeHandle(formRef, () => ({
+    getFormInstance: () => methods,
+    reset: (values) => {
+      reset(values ?? defaultValues)
+      setSubmitError(null)
+    },
+    submit: () => handleSubmit(onSubmit, onError)(),
+    getValues: () => methods.getValues(),
+    setValue: (name, value) => methods.setValue(name, value as T[FieldPath<T>]),
+  }), [methods, reset, defaultValues, handleSubmit, onSubmit, onError])
+
   // Resolve submitter config (alias props vs submitter prop)
   const resolvedSubmitter: SubmitterConfig<T> = submitter !== undefined
     ? submitter
@@ -201,7 +219,7 @@ export function ProForm<T extends FieldValues>({
       form: methods,
       isSubmitting,
       reset: handleReset,
-      submit: () => handleSubmit(onSubmit)(),
+      submit: () => handleSubmit(onSubmit, onError)(),
     }
 
     if (config.render) {

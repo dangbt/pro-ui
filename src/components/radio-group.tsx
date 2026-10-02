@@ -10,6 +10,8 @@ import {
 import { type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
+type RadioSize = 'sm' | 'md' | 'lg'
+
 interface RadioOption {
   value: string
   label: string
@@ -17,10 +19,27 @@ interface RadioOption {
   disabled?: boolean
 }
 
+const radioBoxSize: Record<RadioSize, string> = {
+  sm: 'w-3.5 h-3.5',
+  md: 'w-4   h-4',
+  lg: 'w-5   h-5',
+}
+const radioInnerSize: Record<RadioSize, string> = {
+  sm: 'w-1.5 h-1.5',
+  md: 'w-2   h-2',
+  lg: 'w-2.5 h-2.5',
+}
+const radioLabelText: Record<RadioSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+}
+
 interface RadioGroupProps extends Omit<RARadioGroupProps, 'className' | 'children'> {
   label?: string
   options: RadioOption[]
   orientation?: 'horizontal' | 'vertical'
+  size?: RadioSize
   className?: string
   /** Help text rendered below the group and linked via `aria-describedby`. */
   description?: ReactNode
@@ -32,6 +51,7 @@ export function RadioGroup({
   label,
   options,
   orientation = 'vertical',
+  size = 'md',
   className,
   description,
   errorMessage,
@@ -43,7 +63,7 @@ export function RadioGroup({
       className={cn('flex flex-col gap-1', className)}
     >
       {label && (
-        <Label className="text-xs font-medium text-fg-muted mb-0.5">{label}</Label>
+        <Label className={cn('font-medium text-fg-muted mb-0.5', radioLabelText[size])}>{label}</Label>
       )}
       <div
         className={cn(
@@ -60,7 +80,8 @@ export function RadioGroup({
             >
               <div
                 className={cn(
-                  'mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
+                  'mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
+                  radioBoxSize[size],
                   'border-border bg-surface',
                   'group-data-[selected]:border-primary',
                   'group-data-[invalid]:border-danger',
@@ -68,9 +89,9 @@ export function RadioGroup({
                   'group-hover:border-primary-400',
                 )}
               >
-                <div className="w-2 h-2 rounded-full bg-primary scale-0 group-data-[selected]:scale-100 transition-transform" />
+                <div className={cn(radioInnerSize[size], 'rounded-full bg-primary scale-0 group-data-[selected]:scale-100 transition-transform')} />
               </div>
-              <span className="text-sm text-fg-2">{opt.label}</span>
+              <span className={cn(radioLabelText[size], 'text-fg-2')}>{opt.label}</span>
             </RARadioButton>
             {opt.description && (
               <Text slot="description" className="text-xs text-fg-muted ml-6">

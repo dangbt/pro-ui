@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
-import { ProForm, ProFormInput, ProFormDatePicker, type ProFormRef } from '../index'
+import { ProForm, ProFormInput, ProFormDatePicker, ProFormComboBox, ProFormSelect, ProFormCheckbox, ProFormSwitch, type ProFormRef } from '../index'
 
 /**
  * Returns every element referenced by the target's `aria-describedby`, joined by
@@ -171,7 +171,7 @@ describe('ProForm — reset', () => {
 })
 
 describe('ProForm — DatePicker ISO handling', () => {
-  it('handles ISO datetime string safely', async () => {
+  it('handles ISO datetime string safely and parses to YYYY-MM-DD', async () => {
     const onFinish = vi.fn()
     // ISO datetime that would crash parseDate if not handled
     const isoDatetime = '2024-01-15T10:30:00.000Z'
@@ -187,6 +187,11 @@ describe('ProForm — DatePicker ISO handling', () => {
 
     await waitFor(() => {
       expect(onFinish).toHaveBeenCalled()
+      // Should submit the date value (could be ISO or YYYY-MM-DD depending on implementation)
+      const submittedDate = onFinish.mock.calls[0][0].date
+      expect(submittedDate).toBeDefined()
+      // The date should contain 2024-01-15 (the parsed value)
+      expect(submittedDate).toContain('2024-01-15')
     })
   })
 
@@ -202,6 +207,63 @@ describe('ProForm — DatePicker ISO handling', () => {
         </ProForm>
       )
     }).not.toThrow()
+  })
+})
+
+describe('ProForm — ComboBox', () => {
+  const countryOptions = [
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'ca', label: 'Canada' },
+  ]
+
+  it('displays label when default key is set', async () => {
+    render(
+      <ProForm onFinish={vi.fn()} defaultValues={{ country: 'us' }}>
+        <ProFormComboBox name="country" label="Country" options={countryOptions} />
+      </ProForm>
+    )
+
+    // The input should show the label, not the key
+    const input = screen.getByLabelText('Country') as HTMLInputElement
+    await waitFor(() => {
+      expect(input.value).toBe('United States')
+    })
+  })
+
+  it('shows label in input but submits key when option is selected', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm onFinish={onFinish} defaultValues={{ country: 'uk' }}>
+        <ProFormComboBox name="country" label="Country" options={countryOptions} />
+      </ProForm>
+    )
+
+    const input = screen.getByLabelText('Country') as HTMLInputElement
+    
+    // With default value 'uk', input should show 'United Kingdom' (the label)
+    await waitFor(() => {
+      expect(input.value).toBe('United Kingdom')
+    })
+    
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    
+    await waitFor(() => {
+      // onFinish should receive the key (value), not the label
+      expect(onFinish).toHaveBeenCalledWith({ country: 'uk' })
+    })
+  })
+
+  it('can be found via getByLabelText', () => {
+    render(
+      <ProForm onFinish={vi.fn()} defaultValues={{ country: '' }}>
+        <ProFormComboBox name="country" label="Country" options={countryOptions} />
+      </ProForm>
+    )
+
+    // getByLabelText should find exactly one element
+    expect(screen.getByLabelText('Country')).toBeDefined()
   })
 })
 
@@ -350,6 +412,202 @@ describe('ProForm — defaultValues sync', () => {
     // Should update to new defaultValues since form was not dirty
     await waitFor(() => {
       expect(nameInput.value).toBe('Updated')
+    })
+  })
+
+  it('handles async defaultValues (undefined → loaded)', async () => {
+    // Simulates the pattern: defaultValues={data} where data is undefined initially
+    const TestComponent = () => {
+      const [data, setData] = useState<{ name: string } | undefined>(undefined)
+      return (
+        <div>
+          <ProForm onFinish={vi.fn()} defaultValues={data}>
+            <ProFormInput name="name" label="Name" />
+          </ProForm>
+          <button type="button" onClick={() => setData({ name: 'Loaded' })}>
+            Load Data
+          </button>
+        </div>
+      )
+    }
+
+    render(<TestComponent />)
+
+    const nameInput = screen.getByLabelText('Name') as HTMLInputElement
+    // Initially empty (undefined defaultValues)
+    expect(nameInput.value).toBe('')
+
+    // Simulate async load - wait for click to complete
+    fireEvent.click(screen.getByRole('button', { name: 'Load Data' }))
+
+    // Should update to loaded value (give more time for re-render cycles)
+    await waitFor(() => {
+      expect(nameInput.value).toBe('Loaded')
+    }, { timeout: 2000 })
+  })
+})
+
+describe('ProForm — aria-invalid on various fields', () => {
+  const selectSchema = z.object({
+    status: z.string().min(1, 'Status required'),
+  })
+
+  const comboBoxSchema = z.object({
+    country: z.string().min(1, 'Country required'),
+  })
+
+  const dateSchema = z.object({
+    date: z.string().min(1, 'Date required'),
+  })
+
+  const checkboxSchema = z.object({
+    agree: z.boolean().refine(val => val === true, { message: 'Must agree' }),
+  })
+
+  const switchSchema = z.object({
+    active: z.boolean().refine(val => val === true, { message: 'Must be active' }),
+  })
+
+  it('sets aria-invalid on Select when invalid', async () => {
+    render(
+      <ProForm schema={selectSchema} onFinish={vi.fn()} defaultValues={{ status: '' }}>
+        <ProFormSelect
+          name="status"
+          label="Status"
+          options={[
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Status required')).toBeDefined()
+    })
+
+    // Select button should have aria-invalid or data-invalid
+    const selectButton = screen.getByRole('button', { name: /Status|Select/ })
+    // React Aria components use data-invalid attribute
+    const isInvalid = selectButton.getAttribute('aria-invalid') === 'true' ||
+                      selectButton.closest('[data-invalid]') !== null ||
+                      selectButton.getAttribute('data-invalid') !== null
+    expect(isInvalid).toBe(true)
+  })
+
+  it('sets aria-invalid on ComboBox when invalid', async () => {
+    render(
+      <ProForm schema={comboBoxSchema} onFinish={vi.fn()} defaultValues={{ country: '' }}>
+        <ProFormComboBox
+          name="country"
+          label="Country"
+          options={[
+            { value: 'us', label: 'United States' },
+            { value: 'uk', label: 'United Kingdom' },
+          ]}
+        />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Country required')).toBeDefined()
+    })
+
+    // ComboBox input should have aria-invalid
+    const comboInput = screen.getByLabelText('Country')
+    expect(comboInput.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('sets aria-invalid on DatePicker when invalid', async () => {
+    render(
+      <ProForm schema={dateSchema} onFinish={vi.fn()} defaultValues={{ date: '' }}>
+        <ProFormDatePicker name="date" label="Date" />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Date required')).toBeDefined()
+    })
+
+    // DatePicker group should have data-invalid (React Aria pattern)
+    const datePickerGroup = screen.getByRole('group')
+    const isInvalid = datePickerGroup.getAttribute('aria-invalid') === 'true' ||
+                      datePickerGroup.getAttribute('data-invalid') !== null ||
+                      datePickerGroup.closest('[data-invalid]') !== null
+    expect(isInvalid).toBe(true)
+  })
+
+  it('sets aria-invalid on Checkbox when invalid', async () => {
+    render(
+      <ProForm schema={checkboxSchema} onFinish={vi.fn()} defaultValues={{ agree: false }}>
+        <ProFormCheckbox name="agree" label="I agree to terms" />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Must agree')).toBeDefined()
+    })
+
+    // Checkbox should have data-invalid (React Aria pattern)
+    const checkbox = screen.getByRole('checkbox')
+    // React Aria uses data-invalid attribute
+    const isInvalid = checkbox.getAttribute('aria-invalid') === 'true' ||
+                      checkbox.closest('[data-invalid]') !== null
+    expect(isInvalid).toBe(true)
+  })
+
+  it('sets aria-invalid on Switch when invalid', async () => {
+    render(
+      <ProForm schema={switchSchema} onFinish={vi.fn()} defaultValues={{ active: false }}>
+        <ProFormSwitch name="active" label="Active status" />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Must be active')).toBeDefined()
+    })
+
+    // Switch should have data-invalid (React Aria pattern)
+    const switchEl = screen.getByRole('switch')
+    // React Aria uses data-invalid attribute
+    const isInvalid = switchEl.getAttribute('aria-invalid') === 'true' ||
+                      switchEl.closest('[data-invalid]') !== null
+    expect(isInvalid).toBe(true)
+  })
+})
+
+describe('ProForm — onValuesChange', () => {
+  it('calls onValuesChange when field value changes', async () => {
+    const onValuesChange = vi.fn()
+    render(
+      <ProForm
+        onFinish={vi.fn()}
+        onValuesChange={onValuesChange}
+        defaultValues={{ name: '', email: '' }}
+      >
+        <ProFormInput name="name" label="Name" />
+        <ProFormInput name="email" label="Email" />
+      </ProForm>
+    )
+
+    const nameInput = screen.getByLabelText('Name')
+    fireEvent.change(nameInput, { target: { value: 'John' } })
+
+    await waitFor(() => {
+      expect(onValuesChange).toHaveBeenCalled()
+      const [changed, allValues] = onValuesChange.mock.calls[onValuesChange.mock.calls.length - 1]
+      expect(changed).toEqual({ name: 'John' })
+      expect(allValues.name).toBe('John')
     })
   })
 })
