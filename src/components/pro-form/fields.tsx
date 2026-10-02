@@ -12,7 +12,7 @@ import { Checkbox, CheckboxGroup } from '../checkbox'
 import { Switch } from '../switch'
 import { DatePicker, DateRangePicker, type DateRange } from '../date-picker'
 import { Slider } from '../slider'
-import { TokenField, TagFieldValue } from '../token-field'
+import { TokenField, TagFieldValue, TokenFieldValue } from '../token-field'
 import { Button } from '../button'
 import { ProFormItem, useSize, useFieldA11y } from './pro-form'
 import type { SelectOption } from '../select'
@@ -835,6 +835,93 @@ interface ProFormTokenFieldProps extends BaseProps {
   renderToken?: (token: TokenSegment) => React.ReactNode
 }
 
+/**
+ * Inner component that manages local TagFieldValue state so uncommitted text
+ * (the text segment being typed before a delimiter) is preserved while typing.
+ * The form only stores committed tokens as string[].
+ */
+interface TokenFieldInnerProps {
+  value: string[]
+  onChange: (tokens: string[]) => void
+  placeholder?: string
+  isDisabled?: boolean
+  isInvalid?: boolean
+  size?: Size
+  renderToken?: (token: TokenSegment) => React.ReactNode
+  a11yProps: Record<string, unknown>
+}
+
+function TokenFieldInner({
+  value: formValue,
+  onChange: onFormChange,
+  placeholder,
+  isDisabled,
+  isInvalid,
+  size,
+  renderToken,
+  a11yProps,
+}: TokenFieldInnerProps) {
+  // Local state holds the full TagFieldValue including uncommitted text segment
+  const [localValue, setLocalValue] = useState<TagFieldValue>(() => {
+    const segments = (formValue ?? []).map(text => ({ type: 'token' as const, text }))
+    return new TagFieldValue(segments)
+  })
+
+  // Track external form value to detect resets or external changes
+  const prevFormValueRef = useRef<string[]>(formValue)
+
+  // Sync local state when form value changes externally (e.g., reset, setValue)
+  useEffect(() => {
+    const prev = prevFormValueRef.current
+    const curr = formValue ?? []
+
+    // Check if form value actually changed from outside
+    const changed = prev.length !== curr.length || prev.some((v, i) => v !== curr[i])
+
+    if (changed) {
+      // Extract current tokens from local state
+      const localTokens = localValue.segments
+        .filter((seg): seg is TokenSegment => seg.type === 'token')
+        .map(seg => seg.text)
+
+      // Only reset if the change came from outside (not from our own onChange)
+      const localChanged = localTokens.length !== curr.length || localTokens.some((v, i) => v !== curr[i])
+      if (localChanged) {
+        const segments = curr.map(text => ({ type: 'token' as const, text }))
+        setLocalValue(new TagFieldValue(segments))
+      }
+    }
+
+    prevFormValueRef.current = curr
+  }, [formValue, localValue.segments])
+
+  const handleChange = (val: TokenFieldValue) => {
+    // Update local state with full value (including text segment)
+    // TagFieldValue extends TokenFieldValue, so we cast safely
+    setLocalValue(val as TagFieldValue)
+
+    // Extract only committed tokens for form state
+    const tokens = val.segments
+      .filter((seg): seg is TokenSegment => seg.type === 'token')
+      .map(seg => seg.text)
+    onFormChange(tokens)
+  }
+
+  return (
+    <TokenField
+      value={localValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      isDisabled={isDisabled}
+      isInvalid={isInvalid}
+      size={size}
+      renderToken={renderToken}
+      className="w-full"
+      {...a11yProps}
+    />
+  )
+}
+
 export function ProFormTokenField({
   name,
   label,
@@ -859,35 +946,17 @@ export function ProFormTokenField({
         render={({ field, fieldState }) => {
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const a11yProps = useA11yProps()
-          
-          // Convert string[] from form to TagFieldValue for the TokenField.
-          // We store only token text (string[]) in the form, but display the full
-          // TagFieldValue in the UI so that uncommitted text is preserved while typing.
-          const tokenValue = (() => {
-            const arr = field.value as string[] ?? []
-            const segments = arr.map(text => ({ type: 'token' as const, text }))
-            return new TagFieldValue(segments)
-          })()
 
           return (
-            <TokenField
-              value={tokenValue}
-              onChange={(val) => {
-                // Extract only committed tokens (type='token') as string[] for the form.
-                // Text segments (type='text') are uncommitted input and stay in the
-                // TokenField UI — we don't store them in form state.
-                const tokens = val.segments
-                  .filter((seg): seg is TokenSegment => seg.type === 'token')
-                  .map(seg => seg.text)
-                field.onChange(tokens)
-              }}
+            <TokenFieldInner
+              value={field.value as string[] ?? []}
+              onChange={field.onChange}
               placeholder={placeholder}
               isDisabled={isDisabled}
               isInvalid={!!fieldState.error}
               size={effectiveSize}
               renderToken={renderToken}
-              className="w-full"
-              {...a11yProps}
+              a11yProps={a11yProps}
             />
           )
         }}
