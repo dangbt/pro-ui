@@ -1,4 +1,4 @@
-export { ProForm, ProFormItem, ProFormRow, useFormContext, Controller } from './pro-form'
+export { ProForm, ProFormItem, ProFormRow, useFormContext, Controller, useFieldA11y } from './pro-form'
 export {
   ProFormInput,
   ProFormTextarea,
@@ -11,4 +11,4 @@ export {
   ProFormSwitch,
   ProFormDatePicker,
 } from './fields'
-export type { ProFormLayout, FieldPath, FieldValues } from './pro-form'
+export type { ProFormLayout, FieldPath, FieldValues, FieldErrors, ProFormRef, SubmitterProps, SubmitterConfig } from './pro-form'
