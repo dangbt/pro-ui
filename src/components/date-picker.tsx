@@ -36,11 +36,14 @@ import { Calendar as CalendarLucide, ChevronLeft as ChevronLeftIcon, ChevronRigh
 import { cn } from '../lib/cn'
 import { inputHeight, inputPx, inputText, labelText, type Size } from '../lib/size'
 
-const getInputGroupCls = (size: Size) => cn(
-  'flex items-center border border-border bg-surface gap-1',
+const getInputGroupCls = (size: Size, isInvalid?: boolean) => cn(
+  'flex items-center border bg-surface gap-1',
   inputHeight[size], inputPx[size],
   'rounded-[var(--base-radius)]',
-  'focus-within:outline focus-within:outline-2 focus-within:outline-primary focus-within:outline-offset-0 focus-within:border-transparent',
+  'focus-within:outline focus-within:outline-2 focus-within:outline-offset-0 focus-within:border-transparent',
+  isInvalid
+    ? 'border-danger focus-within:outline-danger'
+    : 'border-border focus-within:outline-primary',
 )
 
 const getSegmentCls = (size: Size) => cn(
@@ -209,16 +212,17 @@ function RangeCalendarInner({ showMonthYearPicker }: { showMonthYearPicker?: boo
 interface DatePickerProps_<T extends DateValue> extends Omit<DatePickerProps<T>, 'className'> {
   label?: string
   size?: Size
+  isInvalid?: boolean
   className?: string
   /** Show month + year dropdown pickers in the calendar header. @default false */
   showMonthYearPicker?: boolean
 }
 
-export function DatePicker<T extends DateValue>({ label, size = 'md', className, showMonthYearPicker, ...props }: DatePickerProps_<T>) {
+export function DatePicker<T extends DateValue>({ label, size = 'md', isInvalid, className, showMonthYearPicker, ...props }: DatePickerProps_<T>) {
   return (
-    <RADatePicker {...props} className={cn('flex flex-col gap-1', className)}>
+    <RADatePicker {...props} isInvalid={isInvalid} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
-      <Group className={getInputGroupCls(size)}>
+      <Group className={getInputGroupCls(size, isInvalid)}>
         <DateInput className="flex items-center gap-px flex-1">
           {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
@@ -242,6 +246,7 @@ export function DatePicker<T extends DateValue>({ label, size = 'md', className,
 interface DateRangePickerProps_<T extends DateValue> extends Omit<DateRangePickerProps<T>, 'className'> {
   label?: string
   size?: Size
+  isInvalid?: boolean
   className?: string
   /** Show month + year dropdown pickers in the calendar header. @default false */
   showMonthYearPicker?: boolean
@@ -250,14 +255,15 @@ interface DateRangePickerProps_<T extends DateValue> extends Omit<DateRangePicke
 export function DateRangePicker<T extends DateValue>({
   label,
   size = 'md',
+  isInvalid,
   className,
   showMonthYearPicker,
   ...props
 }: DateRangePickerProps_<T>) {
   return (
-    <RADateRangePicker {...props} className={cn('flex flex-col gap-1', className)}>
+    <RADateRangePicker {...props} isInvalid={isInvalid} className={cn('flex flex-col gap-1', className)}>
       {label && <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>}
-      <Group className={getInputGroupCls(size)}>
+      <Group className={getInputGroupCls(size, isInvalid)}>
         <DateInput slot="start" className="flex items-center gap-px">
           {segment => <DateSegment segment={segment} className={getSegmentCls(size)} />}
         </DateInput>
