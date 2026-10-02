@@ -14,6 +14,7 @@ export default defineConfig({
       external: [
         'react',
         'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'react-dom',
         'react-aria-components',
         'lucide-react',
@@ -35,6 +36,7 @@ export default defineConfig({
             react: 'React',
             'react-dom': 'ReactDOM',
             'react/jsx-runtime': 'ReactJSXRuntime',
+            'react/jsx-dev-runtime': 'ReactJSXDevRuntime',
           },
         },
         {
@@ -44,6 +46,7 @@ export default defineConfig({
             react: 'React',
             'react-dom': 'ReactDOM',
             'react/jsx-runtime': 'ReactJSXRuntime',
+            'react/jsx-dev-runtime': 'ReactJSXDevRuntime',
           },
         },
       ],
