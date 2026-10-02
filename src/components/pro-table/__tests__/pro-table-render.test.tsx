@@ -209,3 +209,155 @@ describe('ProTable render — server mode does not re-sort data', () => {
     await waitFor(() => expect(getCellOrder()).toEqual(['Alice', 'Bob']))
   })
 })
+
+
+// ─── Refresh button preserves sort + params ───
+
+describe('ProTable render — Refresh button preserves sort + params', () => {
+  it('clicking Refresh re-fetches with sort and params preserved', async () => {
+    const request = vi.fn().mockResolvedValue({
+      data: [{ id: '1', name: 'Alice', age: 30 }],
+      total: 1,
+      success: true,
+    })
+
+    render(
+      <ProTable<Row>
+        columns={columns}
+        request={request}
+        params={{ filter: 'active' }}
+        rowKey="id"
+        search={false}
+      />,
+    )
+
+    // Wait for initial load
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 1, filter: 'active' }),
+    )
+
+    // Click the sortable Name header to set sort
+    const nameHeader = screen.getByText('Name')
+    await act(async () => { fireEvent.click(nameHeader) })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 1, sort: 'name', order: 'asc', filter: 'active' }),
+    )
+
+    // Click Refresh button
+    const refreshBtn = screen.getByRole('button', { name: 'Refresh' })
+    await act(async () => { fireEvent.click(refreshBtn) })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+
+    // Refresh should preserve sort AND params
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 1, sort: 'name', order: 'asc', filter: 'active' }),
+    )
+  })
+
+  it('Refresh on page 2 with desc sort preserves all state', async () => {
+    const request = vi.fn().mockResolvedValue({
+      data: [{ id: '1', name: 'Alice', age: 30 }],
+      total: 50,
+      success: true,
+    })
+
+    render(
+      <ProTable<Row>
+        columns={columns}
+        request={request}
+        params={{ status: 'pending' }}
+        rowKey="id"
+        search={false}
+      />,
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Click sort twice to get desc
+    const nameHeader = screen.getByText('Name')
+    await act(async () => { fireEvent.click(nameHeader) })
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+    await act(async () => { fireEvent.click(nameHeader) })
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+
+    // Navigate to page 2 (click page 2 button)
+    const page2Btn = screen.getByRole('button', { name: '2' })
+    await act(async () => { fireEvent.click(page2Btn) })
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(4))
+
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 2, sort: 'name', order: 'desc', status: 'pending' }),
+    )
+
+    // Click Refresh
+    const refreshBtn = screen.getByRole('button', { name: 'Refresh' })
+    await act(async () => { fireEvent.click(refreshBtn) })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(5))
+
+    // Should preserve page 2, desc sort, and params
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 2, sort: 'name', order: 'desc', status: 'pending' }),
+    )
+  })
+})
+
+// ─── Retry button preserves sort + params ───
+
+describe('ProTable render — Retry button preserves sort + params', () => {
+  it('clicking Retry after error re-fetches with sort and params preserved', async () => {
+    let callCount = 0
+    const request = vi.fn().mockImplementation(async () => {
+      callCount++
+      // First call succeeds, second fails, third succeeds
+      if (callCount === 1) {
+        return { data: [{ id: '1', name: 'Alice', age: 30 }], total: 1, success: true }
+      }
+      if (callCount === 2 || callCount === 3) {
+        throw new Error('Network error')
+      }
+      return { data: [{ id: '1', name: 'Alice', age: 30 }], total: 1, success: true }
+    })
+
+    render(
+      <ProTable<Row>
+        columns={columns}
+        request={request}
+        params={{ filter: 'active' }}
+        rowKey="id"
+        search={false}
+      />,
+    )
+
+    // Wait for initial load
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Click sort to add sort params
+    const nameHeader = screen.getByText('Name')
+    await act(async () => { fireEvent.click(nameHeader) })
+
+    // This triggers call 2 which fails
+    await waitFor(() => expect(screen.getByText('Failed to load')).toBeTruthy())
+    expect(request).toHaveBeenCalledTimes(2)
+
+    // Verify the failed request had sort + params
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sort: 'name', order: 'asc', filter: 'active' }),
+    )
+
+    // Click Retry
+    const retryBtn = screen.getByRole('button', { name: 'Retry' })
+    await act(async () => { fireEvent.click(retryBtn) })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+
+    // Retry should preserve sort AND params
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sort: 'name', order: 'asc', filter: 'active' }),
+    )
+  })
+})

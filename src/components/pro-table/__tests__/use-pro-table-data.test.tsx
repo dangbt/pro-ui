@@ -1,17 +1,18 @@
 import { renderHook, waitFor, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import { useProTableData } from '../use-pro-table-data'
+import type { QueryParams, RequestResult } from '../types'
 
 interface Row {
   id: string
 }
 
-type RequestResultRow = { data: Row[]; total: number; success: boolean }
+type RequestFn = (params: QueryParams) => Promise<RequestResult<Row>>
 
 const result = (data: Row[] = [{ id: '1' }]) => ({ data, total: data.length, success: true })
 
 /** Options with the two fields every server-mode test needs. */
-const options = (request: ReturnType<typeof vi.fn>, params?: Record<string, unknown>) => ({
+const options = (request: Mock<RequestFn>, params?: Record<string, unknown>) => ({
   request,
   params,
   rowKey: 'id' as const,
@@ -343,9 +344,9 @@ describe('useProTableData — out-of-order responses', () => {
     // A request whose resolution we control per call. Call 1 (mount) resolves
     // immediately; then we issue two more explicit fetches and resolve the slower
     // (first-issued) one LAST to prove it does not clobber the faster one's data.
-    const deferred: Array<(v: RequestResultRow) => void> = []
+    const deferred: Array<(v: RequestResult<Row>) => void> = []
     const request = vi.fn().mockImplementation(
-      () => new Promise<RequestResultRow>(res => { deferred.push(res) }),
+      () => new Promise<RequestResult<Row>>(res => { deferred.push(res) }),
     )
 
     const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
@@ -373,10 +374,10 @@ describe('useProTableData — out-of-order responses', () => {
   })
 
   it('does not let a superseded failing request clear the winner error state or stick loading', async () => {
-    const resolvers: Array<(v: RequestResultRow) => void> = []
+    const resolvers: Array<(v: RequestResult<Row>) => void> = []
     const rejecters: Array<(e: Error) => void> = []
     const request = vi.fn().mockImplementation(
-      () => new Promise<RequestResultRow>((res, rej) => {
+      () => new Promise<RequestResult<Row>>((res, rej) => {
         resolvers.push(res)
         rejecters.push(rej)
       }),
