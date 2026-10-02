@@ -909,36 +909,34 @@ describe('ProFormTokenField', () => {
     })
   })
 
-  it('preserves uncommitted text while typing and commits on delimiter', async () => {
-    // Test that the internal state management works correctly.
-    // RAC TokenField uses contenteditable which is hard to test with fireEvent,
-    // so we test by verifying that:
-    // 1. The component renders correctly with tokens
-    // 2. Form submits only committed tokens (string[])
-    
+  it('extracts only committed tokens when submitting', async () => {
+    // Test that ProFormTokenField correctly extracts only committed tokens
+    // from TagFieldValue and submits string[].
+    // This verifies the TokenFieldInner logic that filters out text segments.
     const onFinish = vi.fn()
     render(
       <ProForm
         onFinish={onFinish}
-        defaultValues={{ tags: ['existing'] }}
+        defaultValues={{ tags: ['committed1', 'committed2'] }}
       >
         <ProFormTokenField name="tags" label="Tags" placeholder="Add tags..." />
       </ProForm>
     )
 
-    // Verify existing token is rendered
-    expect(screen.getByText('existing')).toBeDefined()
+    // Verify tokens are rendered
+    expect(screen.getByText('committed1')).toBeDefined()
+    expect(screen.getByText('committed2')).toBeDefined()
 
-    // RAC TokenInput uses contenteditable, verify it exists
+    // Verify contenteditable input exists for typing new tokens
     const tokenInput = document.querySelector('[contenteditable="true"]')
     expect(tokenInput).not.toBeNull()
     expect(tokenInput?.getAttribute('role')).toBe('textbox')
 
-    // Submit and verify form value is string[]
+    // Submit and verify form value is string[] (only committed tokens)
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
     await waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith({ tags: ['existing'] })
+      expect(onFinish).toHaveBeenCalledWith({ tags: ['committed1', 'committed2'] })
     })
   })
 
