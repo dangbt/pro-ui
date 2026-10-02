@@ -1,6 +1,19 @@
+import type { ReactNode } from 'react'
 import { type ColumnDef, type AccessorFnColumnDef, type DisplayColumnDef } from '@tanstack/react-table'
 import { renderValue } from './render-value'
 import type { ProColumnType } from './types'
+
+/**
+ * Column metadata passed through TanStack Table's meta field.
+ * Used by table-header.tsx and table-body.tsx for rendering.
+ */
+export interface ColumnMeta {
+  align?: 'left' | 'center' | 'right'
+  ellipsis?: boolean
+  tooltip?: ReactNode
+  /** String representation of title for column toggle when title is ReactNode */
+  titleString?: string
+}
 
 export function buildColumns<T>(
   proColumns: ProColumnType<T>[],
@@ -9,18 +22,30 @@ export function buildColumns<T>(
   currency?: string,
 ): ColumnDef<T>[] {
   return proColumns.filter(col => !col.hideInTable).map(col => {
-    const key = (col.key ?? col.dataIndex ?? col.title) as string
+    const key = (col.key ?? col.dataIndex ?? (typeof col.title === 'string' ? col.title : '')) as string
+
+    // Derive string title for column toggle UI when title is ReactNode
+    const titleString = typeof col.title === 'string'
+      ? col.title
+      : col.key ?? col.dataIndex ?? undefined
+
+    const meta: ColumnMeta = {
+      align: col.align ?? 'left',
+      ellipsis: col.ellipsis,
+      tooltip: col.tooltip,
+      titleString: titleString as string | undefined,
+    }
 
     if (col.dataIndex) {
       const field = col.dataIndex
       const def: AccessorFnColumnDef<T, unknown> = {
         id: key,
-        header: col.title,
+        header: typeof col.title === 'string' ? col.title : () => col.title,
         enableSorting: col.sortable ?? false,
         enableHiding: !(col.disableHiding ?? false),
         enablePinning: col.pinnable ?? false,
         size: typeof col.width === 'number' ? col.width : undefined,
-        meta: { align: col.align ?? 'left' },
+        meta,
         accessorFn: (row: T) => (row as Record<string, unknown>)[field],
         cell: ({ getValue, row }) => {
           // Read from live ref so the consumer's latest closure is always used,
@@ -38,12 +63,12 @@ export function buildColumns<T>(
     // `render` later doesn't change column structure and trigger remount.
     const def: DisplayColumnDef<T, unknown> = {
       id: key,
-      header: col.title,
+      header: typeof col.title === 'string' ? col.title : () => col.title,
       enableSorting: false,
       enableHiding: !(col.disableHiding ?? false),
       enablePinning: col.pinnable ?? false,
       size: typeof col.width === 'number' ? col.width : undefined,
-      meta: { align: col.align ?? 'left' },
+      meta,
       cell: ({ row }) => {
         const live = liveRef.current.get(key) ?? col
         if (!live.render) return null

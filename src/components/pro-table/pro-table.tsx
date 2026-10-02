@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useImperativeHandle } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
@@ -47,6 +47,10 @@ export function ProTable<T extends object>({
   sticky = false,
   locale,
   currency,
+  actionRef,
+  defaultSort,
+  onSortChange,
+  emptyText,
 }: ProTableProps<T>) {
   // ─── Sticky ───
   const {
@@ -80,6 +84,7 @@ export function ProTable<T extends object>({
     handleSearch,
     handleReset,
     reload,
+    reloadAndReset,
     dataIdentity,
   } = useProTableData({
     request,
@@ -90,6 +95,8 @@ export function ProTable<T extends object>({
     defaultPageSize: paginationConfig?.defaultPageSize ?? 10,
     defaultCurrent: paginationConfig?.defaultCurrent,
     onPaginationChange: paginationConfig?.onChange,
+    defaultSort,
+    onSortChange,
   })
 
   const loading = loadingProp ?? loadingData
@@ -107,7 +114,23 @@ export function ProTable<T extends object>({
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
   // ─── Row selection ───
-  const [rowSelectionState, setRowSelectionState] = useRowSelectionState(dataIdentity)
+  const [rowSelectionState, setRowSelectionState, setInternalRowSelection] = useRowSelectionState({
+    dataIdentity,
+    selectedRowKeys: rowSelection?.selectedRowKeys,
+    preserveSelectedRowKeys: rowSelection?.preserveSelectedRowKeys,
+  })
+
+  // ─── Imperative handle (actionRef) ───
+  useImperativeHandle(actionRef, () => ({
+    reload,
+    reloadAndReset,
+    reset: handleReset,
+    clearSelected: () => {
+      // Always use internal setter to clear, regardless of controlled/uncontrolled mode.
+      // In controlled mode, parent should update selectedRowKeys via onChange callback.
+      setInternalRowSelection({})
+    },
+  }), [reload, reloadAndReset, handleReset, setInternalRowSelection])
 
   // ─── Expand ───
   const { expandedKeys, toggleExpand } = useExpandedRows()
@@ -267,6 +290,7 @@ export function ProTable<T extends object>({
               expandedRowRender={expandedRowRender}
               rowClassName={rowClassName}
               onRow={onRow}
+              emptyText={emptyText}
             />
           </table>
         </div>
@@ -288,7 +312,7 @@ export function ProTable<T extends object>({
           selectedKeys={selectedKeys}
           selectedOriginals={selectedOriginals}
           bulkActions={bulkActions}
-          onClear={() => setRowSelectionState({})}
+          onClear={() => setInternalRowSelection({})}
         />
       )}
       </div>

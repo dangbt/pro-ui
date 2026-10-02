@@ -110,7 +110,7 @@ export type { GridListOption, Selection as GridListSelection } from './grid-list
 export type { AutocompleteOption }      from './autocomplete'
 export type { TreeNode }                from './tree'
 export type { Color }                   from './color-picker'
-export type { ProTableProps, ProColumnType, QueryParams, RequestResult, ValueType, ValueEnum, BulkActionDef } from './pro-table'
+export type { ProTableProps, ProColumnType, QueryParams, RequestResult, ValueType, ValueEnum, BulkActionDef, ProTableActions, SortState } from './pro-table'
 export type { StepItem }                from './steps'
 export type { ProFormLayout, FieldPath, FieldValues } from './pro-form'
 export type { ToastVariant, ToastOptions, ToastProviderProps } from './toast'

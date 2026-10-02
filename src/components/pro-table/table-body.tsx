@@ -4,6 +4,7 @@ import { cn } from '../../lib/cn'
 import { rowPyCls, cellTextCls } from './constants'
 import { getPinnedStyle, getPinnedCls } from './pin-menu'
 import type { Size } from '../../lib/size'
+import type { ColumnMeta } from './build-columns'
 
 interface TableBodyProps<T> {
   table: Table<T>
@@ -21,6 +22,7 @@ interface TableBodyProps<T> {
     onDoubleClick?: React.MouseEventHandler<HTMLTableRowElement>
     onContextMenu?: React.MouseEventHandler<HTMLTableRowElement>
   } | undefined
+  emptyText?: React.ReactNode
 }
 
 export function TableBody<T>({
@@ -35,6 +37,7 @@ export function TableBody<T>({
   expandedRowRender,
   rowClassName,
   onRow,
+  emptyText = 'No data',
 }: TableBodyProps<T>) {
   // Computed once and reused by every full-width branch below.
   const colSpan = table.getVisibleLeafColumns().length
@@ -69,7 +72,7 @@ export function TableBody<T>({
       ) : table.getRowModel().rows.length === 0 ? (
         <tr>
           <td colSpan={colSpan} className="py-16 text-center text-fg-disabled text-sm">
-            No data
+            {emptyText}
           </td>
         </tr>
       ) : (
@@ -99,8 +102,27 @@ export function TableBody<T>({
                 className={rowCls}
               >
                 {row.getVisibleCells().map(cell => {
-                  const align = (cell.column.columnDef.meta as { align?: string } | undefined)?.align ?? 'left'
+                  const meta = cell.column.columnDef.meta as ColumnMeta | undefined
+                  const align = meta?.align ?? 'left'
+                  const ellipsis = meta?.ellipsis
                   const pinned = cell.column.getIsPinned()
+                  const cellContent = flexRender(cell.column.columnDef.cell, cell.getContext())
+
+                  // For title tooltip, try to get the raw value from the cell.
+                  // TanStack Table wraps values, so flexRender returns ReactNode.
+                  // We need the primitive value for the title attribute.
+                  let cellTitle: string | undefined
+                  if (ellipsis) {
+                    const rawValue = cell.getValue()
+                    if (rawValue !== null && rawValue !== undefined) {
+                      if (typeof rawValue === 'string') {
+                        cellTitle = rawValue
+                      } else if (typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+                        cellTitle = String(rawValue)
+                      }
+                    }
+                  }
+
                   return (
                     <td
                       key={cell.id}
@@ -113,10 +135,12 @@ export function TableBody<T>({
                         align === 'center' && 'text-center',
                         align === 'right' && 'text-right',
                         getPinnedCls(pinned, 'bg-surface'),
+                        ellipsis && 'max-w-0 truncate',
                       )}
                       style={getPinnedStyle(cell.column as Column<unknown, unknown>)}
+                      title={cellTitle}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {cellContent}
                     </td>
                   )
                 })}

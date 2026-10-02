@@ -24,8 +24,36 @@ export type ValueEnumItem =
 
 export type ValueEnum = Record<string, ValueEnumItem>
 
+/**
+ * Imperative handle exposed via `actionRef` for programmatic table control.
+ */
+export interface ProTableActions {
+  /**
+   * Re-fetch data on the current page, preserving sort, search, and params.
+   * No-op in client mode.
+   */
+  reload: () => void
+  /**
+   * Re-fetch data and reset to page 1, preserving sort, search, and params.
+   * No-op in client mode.
+   */
+  reloadAndReset: () => void
+  /**
+   * Clear search form values and reset to page 1 (re-fetches in server mode).
+   */
+  reset: () => void
+  /**
+   * Clear row selection state (calls `onChange` with empty selection).
+   */
+  clearSelected: () => void
+}
+
 export interface ProColumnType<T> {
-  title: string
+  /**
+   * Column header. Can be a string or ReactNode. For column toggle functionality,
+   * a string `key` or `dataIndex` is used as the display label when `title` is a ReactNode.
+   */
+  title: ReactNode
   dataIndex?: keyof T & string
   key?: string
   valueType?: ValueType
@@ -43,6 +71,16 @@ export interface ProColumnType<T> {
   sortable?: boolean
   width?: number | string
   align?: 'left' | 'center' | 'right'
+  /**
+   * Truncate cell content with CSS text-overflow: ellipsis.
+   * When enabled, hovering shows the full value in a native title tooltip.
+   */
+  ellipsis?: boolean
+  /**
+   * Custom tooltip content shown next to the column header title.
+   * Useful for explaining what the column means or how values are calculated.
+   */
+  tooltip?: ReactNode
 }
 
 export interface QueryParams {
@@ -57,6 +95,16 @@ export interface RequestResult<T> {
   data: T[]
   total: number
   success: boolean
+}
+
+/**
+ * Sort state for the table.
+ */
+export interface SortState {
+  /** The column's dataIndex or key to sort by. */
+  field: string
+  /** Sort direction. */
+  order: 'asc' | 'desc'
 }
 
 export interface ProTableProps<T extends object> {
@@ -133,6 +181,19 @@ export interface ProTableProps<T extends object> {
   }
   rowSelection?: {
     onChange?: (selectedKeys: string[], selectedRows: T[]) => void
+    /**
+     * Controlled selected row keys. When provided, the component becomes controlled
+     * for selection — you must update this array via `onChange` to reflect changes.
+     * When undefined, the component manages selection state internally (uncontrolled).
+     */
+    selectedRowKeys?: string[]
+    /**
+     * Preserve selected row keys even when they disappear from the current page.
+     * Useful for server-side pagination where selecting items across pages should
+     * persist until explicitly cleared. Default is false — selection resets when
+     * the underlying data changes.
+     */
+    preserveSelectedRowKeys?: boolean
   }
   bulkActions?: BulkActionDef<T>[]
   /**
@@ -187,4 +248,33 @@ export interface ProTableProps<T extends object> {
    *   wrapper.
    */
   sticky?: boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }
+  /**
+   * Imperative handle for programmatic table control. Use with `useRef<ProTableActions>()`.
+   * Provides: `reload()`, `reloadAndReset()`, `reset()`, `clearSelected()`.
+   *
+   * @example
+   * ```tsx
+   * const actionRef = useRef<ProTableActions>(null)
+   * // ...
+   * <ProTable actionRef={actionRef} ... />
+   * // ...
+   * actionRef.current?.reload()
+   * ```
+   */
+  actionRef?: React.Ref<ProTableActions>
+  /**
+   * Initial sort state. Applied on mount; subsequent sorting is controlled by the table.
+   * For controlled sorting, combine with `onSortChange` to persist/restore sort state.
+   */
+  defaultSort?: SortState
+  /**
+   * Called when the user changes the sort order. Receives the new sort state,
+   * or `undefined` when sorting is cleared.
+   */
+  onSortChange?: (sort: SortState | undefined) => void
+  /**
+   * Custom empty state content. Replaces the default "No data" message.
+   * Can be a string or any ReactNode.
+   */
+  emptyText?: ReactNode
 }
