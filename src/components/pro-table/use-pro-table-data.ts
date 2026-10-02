@@ -41,6 +41,8 @@ export interface UseProTableDataReturn<T extends object> {
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
   handleSearch: (params: Record<string, unknown>) => void
   handleReset: () => void
+  /** Monotonic counter incremented by handleReset; use as React key on SearchForm to clear its internal state. */
+  formResetKey: number
   fetchData: (params: QueryParams) => Promise<void>
   /** Re-fetch current page with sort, params, and searchParams preserved */
   reload: () => void
@@ -320,9 +322,12 @@ export function useProTableData<T extends object>({
     setSearchParams(params)
   }, [])
 
+  const [formResetKey, setFormResetKey] = useState(0)
+
   const handleReset = useCallback(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
     setSearchParams({})
+    setFormResetKey(k => k + 1)
   }, [])
 
   // In client mode: use filteredClientData; in server mode: use serverData
@@ -351,6 +356,7 @@ export function useProTableData<T extends object>({
     setPagination,
     handleSearch,
     handleReset,
+    formResetKey,
     fetchData,
     reload,
     reloadAndReset,

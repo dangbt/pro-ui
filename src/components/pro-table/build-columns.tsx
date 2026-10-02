@@ -24,6 +24,15 @@ export function buildColumns<T>(
   return proColumns.filter(col => !col.hideInTable).map(col => {
     const key = (col.key ?? col.dataIndex ?? (typeof col.title === 'string' ? col.title : '')) as string
 
+    if (!import.meta.env.PROD && !key) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[ProTable] A column has a ReactNode title but no `key` or `dataIndex`. ' +
+          'Multiple such columns will share an empty id, causing unexpected behavior. ' +
+          'Add a unique `key` to each column.',
+      )
+    }
+
     // Derive string title for column toggle UI when title is ReactNode
     const titleString = typeof col.title === 'string'
       ? col.title

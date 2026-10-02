@@ -83,6 +83,7 @@ export function ProTable<T extends object>({
     setPagination,
     handleSearch,
     handleReset,
+    formResetKey,
     reload,
     reloadAndReset,
     dataIdentity,
@@ -204,6 +205,7 @@ export function ProTable<T extends object>({
     <div className="space-y-3">
       {search && (
         <SearchForm
+          key={formResetKey}
           columns={columnDefs}
           onSearch={handleSearch}
           onReset={handleReset}

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { createRef, useState } from 'react'
 import { ProTable } from '../pro-table'
@@ -81,6 +81,60 @@ describe('ProTable — actionRef', () => {
     // Both calls should have same params (page 1)
     expect(request.mock.calls[0][0]).toMatchObject({ current: 1, pageSize: 10 })
     expect(request.mock.calls[1][0]).toMatchObject({ current: 1, pageSize: 10 })
+  })
+
+  it('actionRef.reset() clears search form inputs and re-fetches without filters', async () => {
+    const searchableColumns: ProColumnType<Row>[] = [
+      { title: 'Name', dataIndex: 'name' },
+      { title: 'Description', dataIndex: 'description' },
+    ]
+    const request = vi.fn().mockResolvedValue({
+      data: rows,
+      total: 2,
+      success: true,
+    })
+    const actionRef = createRef<ProTableActions>()
+
+    const { container } = render(
+      <ProTable<Row>
+        columns={searchableColumns}
+        request={request}
+        rowKey="id"
+        search={true}
+        actionRef={actionRef}
+      />,
+    )
+
+    // Wait for initial request
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Type "foo" into the Name search input
+    const searchForm = container.querySelector('.grid')!
+    const nameInput = within(searchForm as HTMLElement).getByPlaceholderText('Search Name')
+    fireEvent.change(nameInput, { target: { value: 'foo' } })
+
+    // Click Search button
+    const searchButton = screen.getByText('Search')
+    await act(async () => {
+      fireEvent.click(searchButton)
+    })
+
+    // Wait for request with filter
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+    expect(request.mock.calls[1][0]).toMatchObject({ name: 'foo' })
+
+    // Now call reset via actionRef
+    await act(async () => {
+      actionRef.current?.reset()
+    })
+
+    // Request should fire without filters
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    expect(request.mock.calls[2][0]).not.toHaveProperty('name')
+
+    // The search input should be cleared (form remounted)
+    const newNameInput = within(container.querySelector('.grid')! as HTMLElement).getByPlaceholderText('Search Name')
+    expect((newNameInput as HTMLInputElement).value).toBe('')
   })
 
   it('actionRef.clearSelected() clears selection in uncontrolled mode and calls onChange', async () => {

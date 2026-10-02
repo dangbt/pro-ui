@@ -186,11 +186,9 @@ export function useSelectionChange<T extends object>({
         if (cached) {
           records.push(cached)
         } else {
-          // Try to find in current page
           const row = currentPageRows.find(r => getRowKey(r.original, r.index) === key)
           if (row) {
             records.push(row.original)
-            selectedRowsCacheRef.current.set(key, row.original)
           }
         }
       }
