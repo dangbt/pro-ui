@@ -113,11 +113,25 @@ export function ProTable<T extends object>({
   })
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
+  // ─── Row key (needed early for row selection) ───
+  const getRowKey = useCallback((record: T, index: number): string => {
+    if (typeof rowKey === 'function') return rowKey(record)
+    const val = (record as Record<string, unknown>)[rowKey as string]
+    return val != null ? String(val) : String(index)
+  }, [rowKey])
+
   // ─── Row selection ───
-  const [rowSelectionState, setRowSelectionState, setInternalRowSelection] = useRowSelectionState({
+  const {
+    state: rowSelectionState,
+    handleRowSelectionChange,
+    clearSelection,
+    isControlled: isSelectionControlled,
+    selectedRowsCacheRef,
+  } = useRowSelectionState<T>({
     dataIdentity,
-    selectedRowKeys: rowSelection?.selectedRowKeys,
-    preserveSelectedRowKeys: rowSelection?.preserveSelectedRowKeys,
+    rowSelection,
+    getRowKey,
+    tableData,
   })
 
   // ─── Imperative handle (actionRef) ───
@@ -125,22 +139,11 @@ export function ProTable<T extends object>({
     reload,
     reloadAndReset,
     reset: handleReset,
-    clearSelected: () => {
-      // Always use internal setter to clear, regardless of controlled/uncontrolled mode.
-      // In controlled mode, parent should update selectedRowKeys via onChange callback.
-      setInternalRowSelection({})
-    },
-  }), [reload, reloadAndReset, handleReset, setInternalRowSelection])
+    clearSelected: clearSelection,
+  }), [reload, reloadAndReset, handleReset, clearSelection])
 
   // ─── Expand ───
   const { expandedKeys, toggleExpand } = useExpandedRows()
-
-  // ─── Row key ───
-  const getRowKey = useCallback((record: T, index: number): string => {
-    if (typeof rowKey === 'function') return rowKey(record)
-    const val = (record as Record<string, unknown>)[rowKey as string]
-    return val != null ? String(val) : String(index)
-  }, [rowKey])
 
   // ─── Leading expand / selection columns (stable identity) ───
   const hasExpand = !!expandedRowRender
@@ -165,7 +168,7 @@ export function ProTable<T extends object>({
     state: { sorting, pagination, rowSelection: rowSelectionState, columnVisibility, columnPinning },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
-    onRowSelectionChange: setRowSelectionState,
+    onRowSelectionChange: handleRowSelectionChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
@@ -189,6 +192,8 @@ export function ProTable<T extends object>({
     rowSelectionState,
     rowSelection,
     getRowKey,
+    isControlled: isSelectionControlled,
+    selectedRowsCacheRef,
   })
 
   const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
@@ -312,7 +317,7 @@ export function ProTable<T extends object>({
           selectedKeys={selectedKeys}
           selectedOriginals={selectedOriginals}
           bulkActions={bulkActions}
-          onClear={() => setInternalRowSelection({})}
+          onClear={clearSelection}
         />
       )}
       </div>

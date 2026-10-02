@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
-import { useRef } from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createRef, useState } from 'react'
 import { ProTable } from '../pro-table'
 import type { ProColumnType, ProTableActions, SortState } from '../types'
 
@@ -25,59 +25,28 @@ const columns: ProColumnType<Row>[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('ProTable — actionRef', () => {
-  it('exposes reload, reloadAndReset, reset, clearSelected methods', () => {
-    let actionRefValue: ProTableActions | null = null
+  it('exposes reload, reloadAndReset, reset, clearSelected methods', async () => {
+    const actionRef = createRef<ProTableActions>()
 
-    function TestComponent() {
-      const actionRef = useRef<ProTableActions>(null)
-      actionRefValue = actionRef.current
-
-      return (
-        <ProTable<Row>
-          columns={columns}
-          dataSource={rows}
-          rowKey="id"
-          search={false}
-          actionRef={actionRef}
-        />
-      )
-    }
-
-    render(<TestComponent />)
+    render(
+      <ProTable<Row>
+        columns={columns}
+        dataSource={rows}
+        rowKey="id"
+        search={false}
+        actionRef={actionRef}
+      />,
+    )
 
     // After render, actionRef.current should be set
-    // Need to access it after render completes
-    function TestComponentWithRef() {
-      const actionRef = useRef<ProTableActions>(null)
-
-      // Store ref in closure after render
-      setTimeout(() => {
-        actionRefValue = actionRef.current
-      }, 0)
-
-      return (
-        <ProTable<Row>
-          columns={columns}
-          dataSource={rows}
-          rowKey="id"
-          search={false}
-          actionRef={actionRef}
-        />
-      )
-    }
-
-    const { unmount } = render(<TestComponentWithRef />)
-
-    // Check that methods exist
-    waitFor(() => {
-      expect(actionRefValue).not.toBeNull()
-      expect(typeof actionRefValue?.reload).toBe('function')
-      expect(typeof actionRefValue?.reloadAndReset).toBe('function')
-      expect(typeof actionRefValue?.reset).toBe('function')
-      expect(typeof actionRefValue?.clearSelected).toBe('function')
+    await waitFor(() => {
+      expect(actionRef.current).not.toBeNull()
     })
 
-    unmount()
+    expect(typeof actionRef.current?.reload).toBe('function')
+    expect(typeof actionRef.current?.reloadAndReset).toBe('function')
+    expect(typeof actionRef.current?.reset).toBe('function')
+    expect(typeof actionRef.current?.clearSelected).toBe('function')
   })
 
   it('actionRef.reload() calls request again with same params', async () => {
@@ -86,83 +55,106 @@ describe('ProTable — actionRef', () => {
       total: 2,
       success: true,
     })
+    const actionRef = createRef<ProTableActions>()
 
-    let actionRefValue: ProTableActions | null = null
-
-    function TestComponent() {
-      const actionRef = useRef<ProTableActions>(null)
-
-      // Expose ref after mount
-      if (actionRef.current) {
-        actionRefValue = actionRef.current
-      }
-
-      return (
-        <ProTable<Row>
-          columns={columns}
-          request={request}
-          rowKey="id"
-          search={false}
-          actionRef={actionRef}
-        />
-      )
-    }
-
-    render(<TestComponent />)
+    render(
+      <ProTable<Row>
+        columns={columns}
+        request={request}
+        rowKey="id"
+        search={false}
+        actionRef={actionRef}
+      />,
+    )
 
     // Wait for initial request
     await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
 
-    // Re-render to get actionRef
+    // Call reload
     await act(async () => {
-      // Re-render happens automatically, actionRef should be populated
+      actionRef.current?.reload()
     })
 
-    // Wait a bit then call reload
-    await new Promise(r => setTimeout(r, 50))
+    // Should have been called again
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
 
-    // Now render again to access actionRef
-    render(<TestComponent />)
+    // Both calls should have same params (page 1)
+    expect(request.mock.calls[0][0]).toMatchObject({ current: 1, pageSize: 10 })
+    expect(request.mock.calls[1][0]).toMatchObject({ current: 1, pageSize: 10 })
+  })
 
+  it('actionRef.clearSelected() clears selection in uncontrolled mode and calls onChange', async () => {
+    const onChange = vi.fn()
+    const actionRef = createRef<ProTableActions>()
+
+    const { container } = render(
+      <ProTable<Row>
+        columns={columns}
+        dataSource={rows}
+        rowKey="id"
+        search={false}
+        actionRef={actionRef}
+        rowSelection={{ onChange }}
+      />,
+    )
+
+    // Wait for actionRef to be set
+    await waitFor(() => expect(actionRef.current).not.toBeNull())
+
+    // Find and click a row checkbox to select (skip header checkbox at index 0)
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+    expect(checkboxes.length).toBeGreaterThan(1)
+
+    await act(async () => {
+      fireEvent.click(checkboxes[1])
+    })
+
+    // Wait for onChange to be called with the selected row
     await waitFor(() => {
-      expect(actionRefValue).not.toBeNull()
-    }, { timeout: 100 }).catch(() => {
-      // May not populate immediately
+      expect(onChange).toHaveBeenCalledWith(['1'], [rows[0]])
+    })
+
+    // Clear call count
+    onChange.mockClear()
+
+    // Now call clearSelected
+    await act(async () => {
+      actionRef.current?.clearSelected()
+    })
+
+    // onChange should be called with empty arrays
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith([], [])
     })
   })
 
-  it('actionRef.clearSelected() clears selection in uncontrolled mode', async () => {
+  it('actionRef.clearSelected() in controlled mode calls onChange with empty selection', async () => {
     const onChange = vi.fn()
+    const actionRef = createRef<ProTableActions>()
 
-    function TestComponent() {
-      const actionRef = useRef<ProTableActions>(null)
+    render(
+      <ProTable<Row>
+        columns={columns}
+        dataSource={rows}
+        rowKey="id"
+        search={false}
+        actionRef={actionRef}
+        rowSelection={{
+          selectedRowKeys: ['1', '2'],
+          onChange,
+        }}
+      />,
+    )
 
-      return (
-        <ProTable<Row>
-          columns={columns}
-          dataSource={rows}
-          rowKey="id"
-          search={false}
-          actionRef={actionRef}
-          rowSelection={{ onChange }}
-        />
-      )
-    }
+    await waitFor(() => expect(actionRef.current).not.toBeNull())
 
-    const { container } = render(<TestComponent />)
+    // Call clearSelected in controlled mode
+    await act(async () => {
+      actionRef.current?.clearSelected()
+    })
 
-    // Find and click a row checkbox to select
-    const checkboxes = container.querySelectorAll('input[type="checkbox"]')
-    if (checkboxes.length > 1) {
-      await act(async () => {
-        fireEvent.click(checkboxes[1])
-      })
-    }
-
-    // Wait for selection callback
-    await waitFor(() => {
-      expect(onChange).toHaveBeenCalled()
-    }).catch(() => {})
+    // onChange should be called with empty arrays
+    expect(onChange).toHaveBeenCalledWith([], [])
   })
 })
 
@@ -191,51 +183,143 @@ describe('ProTable — controlled selection', () => {
     const checkboxes = container.querySelectorAll('input[type="checkbox"]')
     const rowCheckboxes = Array.from(checkboxes).slice(1) // Skip header checkbox
 
-    // First row should be checked
-    if (rowCheckboxes.length > 0) {
-      expect((rowCheckboxes[0] as HTMLInputElement).checked).toBe(true)
+    expect(rowCheckboxes.length).toBe(2)
+    expect((rowCheckboxes[0] as HTMLInputElement).checked).toBe(true)
+    expect((rowCheckboxes[1] as HTMLInputElement).checked).toBe(false)
+  })
+
+  it('clicking checkbox in controlled mode calls onChange with next state', async () => {
+    const onChange = vi.fn()
+
+    // Use a component that actually updates selectedRowKeys on change
+    function ControlledTable() {
+      const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+
+      return (
+        <ProTable<Row>
+          columns={columns}
+          dataSource={rows}
+          rowKey="id"
+          search={false}
+          rowSelection={{
+            selectedRowKeys: selectedKeys,
+            onChange: (keys, records) => {
+              setSelectedKeys(keys)
+              onChange(keys, records)
+            },
+          }}
+        />
+      )
     }
+
+    const { container } = render(<ControlledTable />)
+
+    // Find row checkboxes (skip header)
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+    expect(checkboxes.length).toBeGreaterThan(1)
+
+    // Click first row checkbox
+    await act(async () => {
+      fireEvent.click(checkboxes[1])
+    })
+
+    // onChange should be called with the selected row
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith(['1'], [rows[0]])
+    })
+
+    // The checkbox should now be checked (since we update state)
+    await waitFor(() => {
+      expect((checkboxes[1] as HTMLInputElement).checked).toBe(true)
+    })
+  })
+
+  it('clicking already selected checkbox in controlled mode deselects it', async () => {
+    const onChange = vi.fn()
+
+    function ControlledTable() {
+      const [selectedKeys, setSelectedKeys] = useState<string[]>(['1'])
+
+      return (
+        <ProTable<Row>
+          columns={columns}
+          dataSource={rows}
+          rowKey="id"
+          search={false}
+          rowSelection={{
+            selectedRowKeys: selectedKeys,
+            onChange: (keys, records) => {
+              setSelectedKeys(keys)
+              onChange(keys, records)
+            },
+          }}
+        />
+      )
+    }
+
+    const { container } = render(<ControlledTable />)
+
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+
+    // First row checkbox should be checked initially
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true)
+
+    // Click to deselect
+    await act(async () => {
+      fireEvent.click(checkboxes[1])
+    })
+
+    // onChange should be called with empty selection
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith([], [])
+    })
   })
 
   it('does not reset selection on data change when preserveSelectedRowKeys=true', async () => {
     const onChange = vi.fn()
 
-    const { rerender } = render(
-      <ProTable<Row>
-        columns={columns}
-        dataSource={rows}
-        rowKey="id"
-        search={false}
-        rowSelection={{
-          onChange,
-          preserveSelectedRowKeys: true,
-        }}
-      />,
-    )
+    function TestComponent({ data }: { data: Row[] }) {
+      return (
+        <ProTable<Row>
+          columns={columns}
+          dataSource={data}
+          rowKey="id"
+          search={false}
+          rowSelection={{
+            onChange,
+            preserveSelectedRowKeys: true,
+          }}
+        />
+      )
+    }
 
-    // This test verifies the preserveSelectedRowKeys behavior
-    // Selection should persist even when data changes
+    const { container, rerender } = render(<TestComponent data={rows} />)
 
+    // Select first row
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+    await act(async () => {
+      fireEvent.click(checkboxes[1])
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith(['1'], [rows[0]])
+    })
+
+    onChange.mockClear()
+
+    // Change data - selection should persist
     const newRows: Row[] = [
+      { id: '1', name: 'Alice Updated', description: 'Updated desc' },
       { id: '3', name: 'Charlie', description: 'New row' },
-      { id: '4', name: 'Diana', description: 'Another row' },
     ]
 
-    rerender(
-      <ProTable<Row>
-        columns={columns}
-        dataSource={newRows}
-        rowKey="id"
-        search={false}
-        rowSelection={{
-          onChange,
-          preserveSelectedRowKeys: true,
-        }}
-      />,
-    )
+    rerender(<TestComponent data={newRows} />)
 
-    // Selection behavior is preserved with preserveSelectedRowKeys
-    expect(true).toBe(true)
+    // The first row (id='1') should still be selected
+    await waitFor(() => {
+      const updatedCheckboxes = container.querySelectorAll('input[type="checkbox"]')
+      expect((updatedCheckboxes[1] as HTMLInputElement).checked).toBe(true)
+    })
   })
 })
 
@@ -304,6 +388,7 @@ describe('ProTable — defaultSort / onSortChange', () => {
 
     const [sortState] = onSortChange.mock.calls[0] as [SortState | undefined]
     expect(sortState?.field).toBe('name')
+    expect(['asc', 'desc']).toContain(sortState?.order)
   })
 })
 
@@ -327,12 +412,9 @@ describe('ProTable — column ellipsis', () => {
 
     // Description cells should have truncate class
     // Cells are: [name1, desc1, name2, desc2]
-    if (cells.length >= 2) {
-      expect(cells[1].classList.contains('truncate')).toBe(true)
-    }
-    if (cells.length >= 4) {
-      expect(cells[3].classList.contains('truncate')).toBe(true)
-    }
+    expect(cells.length).toBeGreaterThanOrEqual(4)
+    expect(cells[1].classList.contains('truncate')).toBe(true)
+    expect(cells[3].classList.contains('truncate')).toBe(true)
   })
 
   it('adds native title attribute for tooltip on ellipsis cells with string content', () => {
@@ -348,10 +430,9 @@ describe('ProTable — column ellipsis', () => {
     const cells = container.querySelectorAll('tbody td')
 
     // Description cells should have title attribute with the text content
-    if (cells.length >= 2) {
-      const descCell = cells[1] as HTMLElement
-      expect(descCell.title).toBe('A very long description that should be truncated')
-    }
+    expect(cells.length).toBeGreaterThanOrEqual(2)
+    const descCell = cells[1] as HTMLElement
+    expect(descCell.title).toBe('A very long description that should be truncated')
   })
 })
 
