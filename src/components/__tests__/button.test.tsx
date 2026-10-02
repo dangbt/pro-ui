@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
+import { useRef } from 'react'
 import { Button } from '../button'
 
 describe('Button', () => {
@@ -9,9 +10,15 @@ describe('Button', () => {
   })
 
   it('forwards ref', () => {
-    const ref = { current: null } as React.RefObject<HTMLButtonElement>
-    render(<Button ref={ref as any}>Ref test</Button>)
-    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+    let capturedRef: HTMLButtonElement | null = null
+    function TestComponent() {
+      const ref = useRef<HTMLButtonElement>(null)
+      capturedRef = ref.current
+      return <Button ref={ref}>Ref test</Button>
+    }
+    const { rerender } = render(<TestComponent />)
+    rerender(<TestComponent />)
+    expect(capturedRef).toBeInstanceOf(HTMLButtonElement)
   })
 
   it('has displayName', () => {
