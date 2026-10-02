@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/components/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/components/index.ts'),
       name: 'ProUI',
     },
     rollupOptions: {
