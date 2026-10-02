@@ -303,18 +303,17 @@ export function useProTableData<T extends object>({
   }, [isClientMode, sorting, pagination.pageIndex, pagination.pageSize, searchParams, fetchData])
 
   // Reload and reset to page 1. Used by actionRef.reloadAndReset().
+  // If already on page 0, setPagination is a no-op (same value → no re-render →
+  // the effect won't fire), so we call reload() which fetches current:1 anyway.
+  // If on another page, setPagination triggers the effect which fetches page 1.
   const reloadAndReset = useCallback(() => {
     if (isClientMode) return
-    setPagination(prev => ({ ...prev, pageIndex: 0 }))
-    const sort = sorting[0]
-    fetchData({
-      current: 1,
-      pageSize: pagination.pageSize,
-      ...(sort && { sort: sort.id, order: sort.desc ? 'desc' : 'asc' }),
-      ...paramsRef.current,
-      ...searchParams,
-    })
-  }, [isClientMode, sorting, pagination.pageSize, searchParams, fetchData])
+    if (pagination.pageIndex === 0) {
+      reload()
+    } else {
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
+    }
+  }, [isClientMode, pagination.pageIndex, reload])
 
   const handleSearch = useCallback((params: Record<string, unknown>) => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
