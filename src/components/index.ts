@@ -88,6 +88,8 @@ export {
   ProFormInput, ProFormTextarea, ProFormNumberField,
   ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup,
   ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
+  ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider,
+  ProFormTokenField, ProFormList, ProFormDependency,
   useFormContext, Controller,
 }                                       from './pro-form'
 

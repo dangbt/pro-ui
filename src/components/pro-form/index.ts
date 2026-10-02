@@ -10,5 +10,11 @@ export {
   ProFormCheckbox,
   ProFormSwitch,
   ProFormDatePicker,
+  ProFormDateRangePicker,
+  ProFormCheckboxGroup,
+  ProFormSlider,
+  ProFormTokenField,
+  ProFormList,
+  ProFormDependency,
 } from './fields'
 export type { ProFormLayout, FieldPath, FieldValues, FieldErrors, ProFormRef, SubmitterProps, SubmitterConfig } from './pro-form'

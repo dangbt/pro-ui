@@ -611,3 +611,394 @@ describe('ProForm — onValuesChange', () => {
     })
   })
 })
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Tests for new ProForm fields (PROUI-12)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+import {
+  ProFormDateRangePicker,
+  ProFormCheckboxGroup,
+  ProFormSlider,
+  ProFormTokenField,
+  ProFormList,
+  ProFormDependency,
+} from '../index'
+
+describe('ProFormDateRangePicker', () => {
+  const dateRangeSchema = z.object({
+    dateRange: z.object({
+      start: z.string().min(1, 'Start date required'),
+      end: z.string().min(1, 'End date required'),
+    }),
+  })
+
+  it('renders with default value and submits {start, end} strings', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{
+          dateRange: { start: '2024-01-15', end: '2024-01-20' },
+        }}
+      >
+        <ProFormDateRangePicker name="dateRange" label="Date Range" />
+      </ProForm>
+    )
+
+    // Should render without crashing
+    const group = screen.getByRole('group')
+    expect(group).toBeDefined()
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(onFinish).toHaveBeenCalledWith({
+        dateRange: { start: '2024-01-15', end: '2024-01-20' },
+      })
+    })
+  })
+
+  it('shows validation error when required', async () => {
+    render(
+      <ProForm
+        schema={dateRangeSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ dateRange: { start: '', end: '' } }}
+      >
+        <ProFormDateRangePicker name="dateRange" label="Date Range" required />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      // Should show validation error
+      expect(screen.getByRole('group').getAttribute('data-invalid')).not.toBeNull()
+    })
+  })
+})
+
+describe('ProFormCheckboxGroup', () => {
+  const checkboxGroupSchema = z.object({
+    skills: z.array(z.string()).min(1, 'Select at least one skill'),
+  })
+
+  it('renders options and submits string[]', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ skills: ['react'] }}
+      >
+        <ProFormCheckboxGroup
+          name="skills"
+          label="Skills"
+          options={[
+            { value: 'react', label: 'React' },
+            { value: 'vue', label: 'Vue' },
+            { value: 'angular', label: 'Angular' },
+          ]}
+        />
+      </ProForm>
+    )
+
+    // Should render checkboxes
+    expect(screen.getByRole('group')).toBeDefined()
+    const checkboxes = screen.getAllByRole('checkbox')
+    expect(checkboxes.length).toBe(3)
+
+    // Click Vue checkbox (2nd checkbox)
+    fireEvent.click(checkboxes[1])
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      const submitted = onFinish.mock.calls[0][0]
+      expect(submitted.skills).toContain('react')
+      expect(submitted.skills).toContain('vue')
+    })
+  })
+
+  it('shows validation error when no checkbox is selected', async () => {
+    render(
+      <ProForm
+        schema={checkboxGroupSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ skills: [] }}
+      >
+        <ProFormCheckboxGroup
+          name="skills"
+          label="Skills"
+          options={[
+            { value: 'react', label: 'React' },
+            { value: 'vue', label: 'Vue' },
+          ]}
+        />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Select at least one skill')).toBeDefined()
+    })
+  })
+})
+
+describe('ProFormSlider', () => {
+  it('renders single value slider and submits number', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ volume: 50 }}
+      >
+        <ProFormSlider name="volume" label="Volume" min={0} max={100} />
+      </ProForm>
+    )
+
+    // Should render slider
+    expect(screen.getByRole('slider')).toBeDefined()
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(onFinish).toHaveBeenCalledWith({ volume: 50 })
+    })
+  })
+
+  it('renders range slider and submits [number, number]', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ priceRange: [20, 80] }}
+      >
+        <ProFormSlider name="priceRange" label="Price Range" min={0} max={100} isRange />
+      </ProForm>
+    )
+
+    // Should render 2 slider thumbs for range
+    const sliders = screen.getAllByRole('slider')
+    expect(sliders.length).toBe(2)
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(onFinish).toHaveBeenCalledWith({ priceRange: [20, 80] })
+    })
+  })
+})
+
+describe('ProFormTokenField', () => {
+  it('renders with default tokens and submits string[]', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ tags: ['react', 'typescript'] }}
+      >
+        <ProFormTokenField name="tags" label="Tags" placeholder="Add tags..." />
+      </ProForm>
+    )
+
+    // Should render tokens
+    expect(screen.getByText('react')).toBeDefined()
+    expect(screen.getByText('typescript')).toBeDefined()
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(onFinish).toHaveBeenCalledWith({ tags: ['react', 'typescript'] })
+    })
+  })
+})
+
+describe('ProFormList', () => {
+  const listSchema = z.object({
+    items: z.array(z.object({
+      name: z.string().min(1, 'Name required'),
+    })).min(1, 'At least one item required'),
+  })
+
+  it('renders items and allows adding/removing', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ items: [{ name: 'Item 1' }] }}
+      >
+        <ProFormList name="items" label="Items" addText="+ Add Item">
+          {({ field, remove }) => (
+            <div data-testid="list-item">
+              <ProFormInput name={`${field}.name`} label="Name" />
+              <button type="button" onClick={remove}>Remove</button>
+            </div>
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    // Should render initial item
+    expect(screen.getAllByTestId('list-item')).toHaveLength(1)
+    expect(screen.getByDisplayValue('Item 1')).toBeDefined()
+
+    // Add item
+    fireEvent.click(screen.getByRole('button', { name: '+ Add Item' }))
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('list-item')).toHaveLength(2)
+    })
+
+    // Remove first item
+    const removeButtons = screen.getAllByRole('button', { name: 'Remove' })
+    fireEvent.click(removeButtons[0])
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('list-item')).toHaveLength(1)
+    })
+  })
+
+  it('respects min/max constraints', async () => {
+    render(
+      <ProForm
+        onFinish={vi.fn()}
+        defaultValues={{ items: [{ name: 'Item 1' }] }}
+      >
+        <ProFormList name="items" min={1} max={2} addText="+ Add">
+          {({ field, remove }) => (
+            <div data-testid="list-item">
+              <ProFormInput name={`${field}.name`} label="Name" />
+              <button type="button" onClick={remove}>Remove</button>
+            </div>
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    // Initially 1 item, min=1 so remove should not work
+    const removeBtn = screen.getByRole('button', { name: 'Remove' })
+    fireEvent.click(removeBtn)
+
+    // Still 1 item (can't go below min)
+    expect(screen.getAllByTestId('list-item')).toHaveLength(1)
+
+    // Add to reach max=2
+    fireEvent.click(screen.getByRole('button', { name: '+ Add' }))
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('list-item')).toHaveLength(2)
+    })
+
+    // Add button should be disabled at max
+    expect(screen.getByRole('button', { name: '+ Add' })).toHaveProperty('disabled', true)
+  })
+
+  it('shows array-level validation error', async () => {
+    render(
+      <ProForm
+        schema={listSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ items: [] }}
+      >
+        <ProFormList name="items" addText="+ Add">
+          {({ field }) => (
+            <ProFormInput name={`${field}.name`} label="Name" />
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('At least one item required')).toBeDefined()
+    })
+  })
+})
+
+describe('ProFormDependency', () => {
+  it('shows/hides fields based on watched values', async () => {
+    render(
+      <ProForm
+        onFinish={vi.fn()}
+        defaultValues={{ showDetails: false, details: '' }}
+      >
+        <ProFormSwitch name="showDetails" label="Show Details" />
+        <ProFormDependency name={['showDetails']}>
+          {(values) => values.showDetails ? (
+            <ProFormInput name="details" label="Details" />
+          ) : null}
+        </ProFormDependency>
+      </ProForm>
+    )
+
+    // Initially, details field should not be visible
+    expect(screen.queryByLabelText('Details')).toBeNull()
+
+    // Toggle switch
+    fireEvent.click(screen.getByRole('switch'))
+
+    // Now details field should be visible
+    await waitFor(() => {
+      expect(screen.getByLabelText('Details')).toBeDefined()
+    })
+
+    // Toggle off
+    fireEvent.click(screen.getByRole('switch'))
+
+    // Details field should be hidden again
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Details')).toBeNull()
+    })
+  })
+
+  it('watches multiple fields', async () => {
+    const onFinish = vi.fn()
+    render(
+      <ProForm
+        onFinish={onFinish}
+        defaultValues={{ type: '', category: '' }}
+      >
+        <ProFormSelect
+          name="type"
+          label="Type"
+          options={[
+            { value: 'a', label: 'Type A' },
+            { value: 'b', label: 'Type B' },
+          ]}
+        />
+        <ProFormDependency name={['type']}>
+          {(values) => values.type === 'a' ? (
+            <ProFormInput name="category" label="Category" />
+          ) : null}
+        </ProFormDependency>
+      </ProForm>
+    )
+
+    // Initially no category field
+    expect(screen.queryByLabelText('Category')).toBeNull()
+
+    // Select Type A
+    const selectButton = screen.getByRole('button', { name: /Type|Select/ })
+    fireEvent.click(selectButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeDefined()
+    })
+
+    fireEvent.click(screen.getByRole('option', { name: 'Type A' }))
+
+    // Category field should appear
+    await waitFor(() => {
+      expect(screen.getByLabelText('Category')).toBeDefined()
+    })
+  })
+})
