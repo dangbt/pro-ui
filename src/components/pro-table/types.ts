@@ -34,6 +34,10 @@ export interface SearchConfig {
   defaultCollapsed?: boolean
   /** Number of rows to show when collapsed. @default 1 */
   collapsedRows?: number
+  /** Number of fields that must exist before collapse toggle appears. @default 3 */
+  collapseThreshold?: number
+  /** Explicit number of fields to show when collapsed (overrides collapsedRows × 4). */
+  visibleFields?: number
   /** Text for the search button. @default 'Search' */
   searchText?: string
   /** Text for the reset button. @default 'Reset' */

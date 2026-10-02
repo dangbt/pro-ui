@@ -279,6 +279,7 @@ export function ProTable<T extends object>({
               expandedRowRender={expandedRowRender}
               rowClassName={rowClassName}
               onRow={onRow}
+              texts={texts ? { loading: texts.loading, failedToLoad: texts.failedToLoad, retry: texts.retry, noData: texts.noData } : undefined}
             />
           </table>
         </div>

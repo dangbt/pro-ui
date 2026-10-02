@@ -10,13 +10,15 @@ export function buildColumns<T>(
 ): ColumnDef<T>[] {
   return proColumns.filter(col => !col.hideInTable).map(col => {
     const key = (col.key ?? col.dataIndex ?? col.title) as string
+    const isOptionColumn = col.valueType === 'option'
 
     if (col.dataIndex) {
       const field = col.dataIndex
       const def: AccessorFnColumnDef<T, unknown> = {
         id: key,
         header: col.title,
-        enableSorting: col.sortable ?? false,
+        // Option columns should not be sortable
+        enableSorting: isOptionColumn ? false : (col.sortable ?? false),
         enableHiding: !(col.disableHiding ?? false),
         enablePinning: col.pinnable ?? false,
         size: typeof col.width === 'number' ? col.width : undefined,
@@ -28,6 +30,8 @@ export function buildColumns<T>(
           const live = liveRef.current.get(key) ?? col
           const value = getValue()
           if (live.render) return live.render(value, row.original, row.index)
+          // Option columns bypass renderValue entirely — return null if no custom render
+          if (live.valueType === 'option') return null
           return renderValue(value, live.valueType ?? 'text', live.valueEnum, locale, currency)
         },
       }

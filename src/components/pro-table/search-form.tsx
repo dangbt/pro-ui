@@ -77,12 +77,13 @@ export function SearchForm<T>({
 
   if (searchable.length === 0) return null
 
-  // Collapse logic: configurable rows, default 1 row
+  // Collapse logic: configurable threshold, default 3 fields (spec requirement)
   const collapsedRows = config?.collapsedRows ?? 1
-  // We use xl breakpoint (4 columns) as reference for field count threshold
-  const fieldsPerRow = GRID_COLS.xl
-  const collapsedFieldCount = collapsedRows * fieldsPerRow
-  const shouldShowCollapse = searchable.length > collapsedFieldCount
+  // visibleFields config allows explicit override; otherwise use rows * cols
+  const collapsedFieldCount = config?.visibleFields ?? (collapsedRows * GRID_COLS.xl)
+  // Collapse threshold: default 3 per spec, configurable via collapseThreshold
+  const collapseThreshold = config?.collapseThreshold ?? 3
+  const shouldShowCollapse = searchable.length > collapseThreshold
 
   // Fields to display based on collapse state
   const visibleFields = shouldShowCollapse && isCollapsed
@@ -112,12 +113,15 @@ export function SearchForm<T>({
     const key = (col.key ?? col.dataIndex) as string
     const vt = col.valueType ?? 'text'
 
-    // Select with clearable option
+    // Select with clearable option - add empty "All" option at the start
     if (vt === 'select' && col.valueEnum) {
-      const options = Object.entries(col.valueEnum).map(([value, item]) => ({
-        value,
-        label: typeof item === 'string' ? item : item.text,
-      }))
+      const options = [
+        { value: '', label: allText }, // Empty option to clear selection
+        ...Object.entries(col.valueEnum).map(([value, item]) => ({
+          value,
+          label: typeof item === 'string' ? item : item.text,
+        })),
+      ]
       return (
         <Select
           key={key}
@@ -125,7 +129,7 @@ export function SearchForm<T>({
           label={col.title}
           placeholder={`${allText} ${col.title}`}
           options={options}
-          selectedKey={(values[key] as string) ?? null}
+          selectedKey={(values[key] as string) ?? ''}
           onSelectionChange={v => set(key, v)}
         />
       )
