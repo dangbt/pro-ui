@@ -94,6 +94,8 @@ interface TokenFieldProps<T = unknown>
   placeholder?: string
   /** Extra classes for the outer wrapper. */
   className?: string
+  /** Marks the field as invalid for form validation feedback. */
+  isInvalid?: boolean
   /**
    * Customise how a token's content is rendered inside the chip. Receives the
    * RAC {@link TokenSegment} (`{ type: 'token', text, value? }`). Defaults to the
@@ -120,6 +122,7 @@ export const TokenField = forwardRef<HTMLDivElement, TokenFieldProps>(function T
     size = 'md',
     placeholder,
     className,
+    isInvalid,
     renderToken,
     ...props
   },
@@ -130,6 +133,7 @@ export const TokenField = forwardRef<HTMLDivElement, TokenFieldProps>(function T
       {...props}
       ref={ref}
       className={cn('flex flex-col gap-1', className)}
+      data-invalid={isInvalid || undefined}
     >
       {label && (
         <Label className={cn('font-medium text-fg-muted', labelText[size])}>{label}</Label>
@@ -140,11 +144,14 @@ export const TokenField = forwardRef<HTMLDivElement, TokenFieldProps>(function T
           inputPx[size],
           inputText[size],
           'min-h-[var(--sz)] py-1.5 leading-6',
-          'bg-surface border border-border text-fg',
+          'bg-surface border text-fg',
+          isInvalid ? 'border-danger' : 'border-border',
           'rounded-[var(--base-radius)]',
           'whitespace-pre-wrap break-words',
           'empty:before:content-[attr(data-placeholder)] empty:before:text-fg-disabled',
-          'data-[focused]:outline-2 data-[focused]:outline-primary data-[focused]:outline-offset-0 data-[focused]:border-transparent',
+          isInvalid
+            ? 'data-[focused]:outline-2 data-[focused]:outline-danger data-[focused]:outline-offset-0 data-[focused]:border-transparent'
+            : 'data-[focused]:outline-2 data-[focused]:outline-primary data-[focused]:outline-offset-0 data-[focused]:border-transparent',
           'data-[disabled]:bg-surface-subtle data-[disabled]:text-fg-disabled data-[disabled]:cursor-not-allowed',
           'data-[readonly]:bg-surface-subtle',
           'w-full',

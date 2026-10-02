@@ -750,6 +750,10 @@ describe('ProFormCheckboxGroup', () => {
 })
 
 describe('ProFormSlider', () => {
+  const sliderSchema = z.object({
+    volume: z.number().min(10, 'Volume must be at least 10'),
+  })
+
   it('renders single value slider and submits number', async () => {
     const onFinish = vi.fn()
     render(
@@ -794,9 +798,51 @@ describe('ProFormSlider', () => {
       expect(onFinish).toHaveBeenCalledWith({ priceRange: [20, 80] })
     })
   })
+
+  it('sets data-invalid on slider when validation fails', async () => {
+    render(
+      <ProForm
+        schema={sliderSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ volume: 5 }}
+      >
+        <ProFormSlider name="volume" label="Volume" min={0} max={100} />
+      </ProForm>
+    )
+
+    // Submit with value below min (5 < 10)
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Volume must be at least 10')).toBeDefined()
+    })
+
+    // Slider should have data-invalid
+    const slider = screen.getByRole('slider')
+    const sliderGroup = slider.closest('[data-invalid]')
+    expect(sliderGroup).not.toBeNull()
+  })
+
+  it('respects size prop', async () => {
+    render(
+      <ProForm
+        onFinish={vi.fn()}
+        defaultValues={{ volume: 50 }}
+      >
+        <ProFormSlider name="volume" label="Volume" size="lg" />
+      </ProForm>
+    )
+
+    // Should render without errors
+    expect(screen.getByRole('slider')).toBeDefined()
+  })
 })
 
 describe('ProFormTokenField', () => {
+  const tokenSchema = z.object({
+    tags: z.array(z.string()).min(1, 'At least one tag required'),
+  })
+
   it('renders with default tokens and submits string[]', async () => {
     const onFinish = vi.fn()
     render(
@@ -819,6 +865,49 @@ describe('ProFormTokenField', () => {
       expect(onFinish).toHaveBeenCalledWith({ tags: ['react', 'typescript'] })
     })
   })
+
+  it('sets isInvalid on token field when validation fails', async () => {
+    render(
+      <ProForm
+        schema={tokenSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ tags: [] }}
+      >
+        <ProFormTokenField name="tags" label="Tags" placeholder="Add tags..." />
+      </ProForm>
+    )
+
+    // Submit with empty tags
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('At least one tag required')).toBeDefined()
+    })
+
+    // TokenField should have data-invalid
+    const tokenField = document.querySelector('[data-invalid]')
+    expect(tokenField).not.toBeNull()
+  })
+
+  it('does not show duplicate error messages', async () => {
+    render(
+      <ProForm
+        schema={tokenSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ tags: [] }}
+      >
+        <ProFormTokenField name="tags" label="Tags" />
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      // Should show error message only once (from ProFormItem, not from TokenField's errorMessage)
+      const errorMessages = screen.getAllByText('At least one tag required')
+      expect(errorMessages).toHaveLength(1)
+    })
+  })
 })
 
 describe('ProFormList', () => {
@@ -836,7 +925,7 @@ describe('ProFormList', () => {
         defaultValues={{ items: [{ name: 'Item 1' }] }}
       >
         <ProFormList name="items" label="Items" addText="+ Add Item">
-          {({ field, remove }) => (
+          {(field, _index, { remove }) => (
             <div data-testid="list-item">
               <ProFormInput name={`${field}.name`} label="Name" />
               <button type="button" onClick={remove}>Remove</button>
@@ -873,7 +962,7 @@ describe('ProFormList', () => {
         defaultValues={{ items: [{ name: 'Item 1' }] }}
       >
         <ProFormList name="items" min={1} max={2} addText="+ Add">
-          {({ field, remove }) => (
+          {(field, _index, { remove }) => (
             <div data-testid="list-item">
               <ProFormInput name={`${field}.name`} label="Name" />
               <button type="button" onClick={remove}>Remove</button>
@@ -909,7 +998,7 @@ describe('ProFormList', () => {
         defaultValues={{ items: [] }}
       >
         <ProFormList name="items" addText="+ Add">
-          {({ field }) => (
+          {(field) => (
             <ProFormInput name={`${field}.name`} label="Name" />
           )}
         </ProFormList>
@@ -921,6 +1010,93 @@ describe('ProFormList', () => {
     await waitFor(() => {
       expect(screen.getByText('At least one item required')).toBeDefined()
     })
+  })
+
+  it('shows field-level error at path items.0.name', async () => {
+    render(
+      <ProForm
+        schema={listSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ items: [{ name: '' }] }}
+      >
+        <ProFormList name="items" addText="+ Add">
+          {(field, _index, { remove }) => (
+            <div data-testid="list-item">
+              <ProFormInput name={`${field}.name`} label="Item Name" />
+              <button type="button" onClick={remove}>Remove</button>
+            </div>
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    // Submit with empty name (should trigger items.0.name validation)
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      // Nested field error should be displayed
+      expect(screen.getByText('Name required')).toBeDefined()
+    })
+
+    // The input should have aria-invalid
+    const nameInput = screen.getByLabelText('Item Name')
+    expect(nameInput.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('supports nested name like order.items', async () => {
+    const nestedSchema = z.object({
+      order: z.object({
+        items: z.array(z.object({
+          name: z.string().min(1, 'Name required'),
+        })).min(1, 'Order must have items'),
+      }),
+    })
+
+    render(
+      <ProForm
+        schema={nestedSchema}
+        onFinish={vi.fn()}
+        defaultValues={{ order: { items: [] } }}
+      >
+        <ProFormList name="order.items" label="Order Items" addText="+ Add">
+          {(field) => (
+            <ProFormInput name={`${field}.name`} label="Name" />
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+
+    await waitFor(() => {
+      // Array-level error for nested path should be displayed
+      expect(screen.getByText('Order must have items')).toBeDefined()
+    })
+  })
+
+  it('provides correct index to render function', async () => {
+    render(
+      <ProForm
+        onFinish={vi.fn()}
+        defaultValues={{ items: [{ name: 'A' }, { name: 'B' }, { name: 'C' }] }}
+      >
+        <ProFormList name="items">
+          {(field, index) => (
+            <div data-testid={`item-${index}`}>
+              <ProFormInput name={`${field}.name`} label={`Item ${index + 1}`} />
+            </div>
+          )}
+        </ProFormList>
+      </ProForm>
+    )
+
+    // Verify index is passed correctly
+    expect(screen.getByTestId('item-0')).toBeDefined()
+    expect(screen.getByTestId('item-1')).toBeDefined()
+    expect(screen.getByTestId('item-2')).toBeDefined()
+    expect(screen.getByLabelText('Item 1')).toBeDefined()
+    expect(screen.getByLabelText('Item 2')).toBeDefined()
+    expect(screen.getByLabelText('Item 3')).toBeDefined()
   })
 })
 

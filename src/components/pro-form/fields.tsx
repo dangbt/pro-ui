@@ -754,6 +754,7 @@ interface ProFormSliderProps {
   max?: number
   step?: number
   showOutput?: boolean
+  size?: Size
   className?: string
   isDisabled?: boolean
   /** If true, value is [number, number] for range; otherwise single number */
@@ -769,11 +770,14 @@ export function ProFormSlider({
   max = 100,
   step = 1,
   showOutput = true,
+  size,
   className,
   isDisabled,
   isRange = false,
 }: ProFormSliderProps) {
   const { control } = useFormContext()
+  const ctxSize = useSize()
+  const effectiveSize = size ?? ctxSize
 
   return (
     <ProFormItem name={name} label={label} required={required} description={description} className={className}>
@@ -781,7 +785,7 @@ export function ProFormSlider({
         name={name}
         control={control}
         defaultValue={isRange ? [min, max] : min}
-        render={({ field }) => {
+        render={({ field, fieldState }) => {
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const a11yProps = useA11yProps()
           
@@ -795,6 +799,8 @@ export function ProFormSlider({
                 step={step}
                 showOutput={showOutput}
                 isDisabled={isDisabled}
+                isInvalid={!!fieldState.error}
+                size={effectiveSize}
                 className="w-full"
                 {...a11yProps}
               />
@@ -810,6 +816,8 @@ export function ProFormSlider({
               step={step}
               showOutput={showOutput}
               isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
+              size={effectiveSize}
               className="w-full"
               {...a11yProps}
             />
@@ -852,7 +860,9 @@ export function ProFormTokenField({
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const a11yProps = useA11yProps()
           
-          // Convert string[] to TagFieldValue for the TokenField
+          // Convert string[] from form to TagFieldValue for the TokenField.
+          // We store only token text (string[]) in the form, but display the full
+          // TagFieldValue in the UI so that uncommitted text is preserved while typing.
           const tokenValue = (() => {
             const arr = field.value as string[] ?? []
             const segments = arr.map(text => ({ type: 'token' as const, text }))
@@ -863,7 +873,9 @@ export function ProFormTokenField({
             <TokenField
               value={tokenValue}
               onChange={(val) => {
-                // Extract string[] from TagFieldValue segments
+                // Extract only committed tokens (type='token') as string[] for the form.
+                // Text segments (type='text') are uncommitted input and stay in the
+                // TokenField UI — we don't store them in form state.
                 const tokens = val.segments
                   .filter((seg): seg is TokenSegment => seg.type === 'token')
                   .map(seg => seg.text)
@@ -871,8 +883,8 @@ export function ProFormTokenField({
               }}
               placeholder={placeholder}
               isDisabled={isDisabled}
+              isInvalid={!!fieldState.error}
               size={effectiveSize}
-              errorMessage={fieldState.error?.message}
               renderToken={renderToken}
               className="w-full"
               {...a11yProps}
@@ -887,15 +899,6 @@ export function ProFormTokenField({
 
 /* ── ProFormList ────────────────────────────────────────────── */
 
-interface ProFormListChildrenProps {
-  /** Field name prefix, e.g. "items.0" */
-  field: string
-  /** Index of this item in the array */
-  index: number
-  /** Remove this item from the list */
-  remove: () => void
-}
-
 interface ProFormListProps {
   /** Field name for the array */
   name: string
@@ -903,8 +906,14 @@ interface ProFormListProps {
   label?: string
   /** Description text */
   description?: string
-  /** Render function for each list item */
-  children: (props: ProFormListChildrenProps) => ReactNode
+  /**
+   * Render function for each list item.
+   * Receives positional arguments: (field, index, { remove })
+   * - field: Field name prefix, e.g. "items.0"
+   * - index: Index of this item in the array
+   * - remove: Function to remove this item from the list
+   */
+  children: (field: string, index: number, actions: { remove: () => void }) => ReactNode
   /** Minimum number of items (prevents removal below this) */
   min?: number
   /** Maximum number of items (hides add button when reached) */
@@ -919,6 +928,17 @@ interface ProFormListProps {
   className?: string
   /** Initial value for new items (defaults to {}) */
   initialValue?: Record<string, unknown>
+}
+
+/** Helper to resolve nested error path like "order.items" from formState.errors */
+function getNestedError(errors: Record<string, unknown>, path: string): unknown {
+  const parts = path.split('.')
+  let current: unknown = errors
+  for (const part of parts) {
+    if (current == null || typeof current !== 'object') return undefined
+    current = (current as Record<string, unknown>)[part]
+  }
+  return current
 }
 
 export function ProFormList({
@@ -945,7 +965,11 @@ export function ProFormList({
   const canAdd = max === undefined || fields.length < max
 
   // Get array-level error (e.g., "Must have at least 1 item")
-  const arrayError = errors[name]?.message || errors[name]?.root?.message
+  // Support nested paths like "order.items"
+  const arrayErrorObj = getNestedError(errors, name) as
+    | { message?: string; root?: { message?: string } }
+    | undefined
+  const arrayError = arrayErrorObj?.message || arrayErrorObj?.root?.message
 
   const handleAdd = () => {
     if (canAdd) {
@@ -972,11 +996,7 @@ export function ProFormList({
       <div className="flex flex-col gap-3">
         {fields.map((field, index) => (
           <div key={field.id} className="relative">
-            {children({
-              field: `${name}.${index}`,
-              index,
-              remove: () => handleRemove(index),
-            })}
+            {children(`${name}.${index}`, index, { remove: () => handleRemove(index) })}
           </div>
         ))}
       </div>
