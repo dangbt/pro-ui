@@ -73,14 +73,13 @@ export function ProTable<T extends object>({
     serverTotal,
     loading: loadingData,
     fetchError,
-    searchParams,
     sorting,
     setSorting,
     pagination,
     setPagination,
     handleSearch,
     handleReset,
-    fetchData,
+    reload,
     dataIdentity,
   } = useProTableData({
     request,
@@ -147,11 +146,18 @@ export function ProTable<T extends object>({
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    // Server mode: manualSorting prevents client re-sorting server-ordered data.
+    // Client mode: sort in-browser.
+    ...(isClientMode
+      ? { getSortedRowModel: getSortedRowModel() }
+      : { manualSorting: true }),
     ...(isClientMode
       ? { getPaginationRowModel: getPaginationRowModel() }
       : { manualPagination: true, rowCount: serverTotal }),
     enableRowSelection: !!rowSelection,
+    // Use rowKey for row identity so selection state keys match the record's key,
+    // not the row's index in the current page.
+    getRowId: (row, index) => getRowKey(row, index),
   })
 
   // ─── Selection derived state ───
@@ -187,13 +193,7 @@ export function ProTable<T extends object>({
           title={headerTitle}
           actions={toolBarRender?.()}
           columnToggles={columnToggles}
-          onRefresh={isClientMode ? undefined : () =>
-            fetchData({
-              current: pagination.pageIndex + 1,
-              pageSize: pagination.pageSize,
-              ...searchParams,
-            })
-          }
+          onRefresh={isClientMode ? undefined : reload}
         />
 
         {/* Sentinel for window-scroll sticky detection */}
@@ -260,7 +260,7 @@ export function ProTable<T extends object>({
               size={size}
               loading={loading}
               fetchError={fetchError}
-              onRetry={() => fetchData({ current: pagination.pageIndex + 1, pageSize: pagination.pageSize, ...searchParams })}
+              onRetry={reload}
               getRowKey={getRowKey}
               expandedKeys={expandedKeys}
               toggleExpand={toggleExpand}

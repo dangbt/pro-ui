@@ -78,3 +78,97 @@ describe('ProTable — rowSelection.onChange mount behaviour', () => {
     expect(onChange.mock.calls[1][0]).toEqual(['0', '1'])
   })
 })
+
+
+// ─── (3) Selection key uses rowKey value, not row index ───
+
+describe('ProTable — selection key uses rowKey value', () => {
+  interface User {
+    userId: string
+    name: string
+  }
+
+  const usersWithIds: User[] = [
+    { userId: 'user-001', name: 'Alice' },
+    { userId: 'user-002', name: 'Bob' },
+    { userId: 'user-003', name: 'Charlie' },
+  ]
+
+  const userColumns: ProColumnType<User>[] = [{ title: 'Name', dataIndex: 'name' }]
+
+  it('selection keys are the rowKey values, not row indices', async () => {
+    const onChange = vi.fn<(keys: string[], rows: User[]) => void>()
+
+    render(
+      <ProTable<User>
+        columns={userColumns}
+        dataSource={usersWithIds}
+        rowKey="userId"
+        search={false}
+        rowSelection={{ onChange }}
+      />,
+    )
+
+    // Checkboxes: index 0 = header, 1..3 = body rows (user-001, user-002, user-003)
+    const checkboxes = screen.getAllByRole('checkbox')
+
+    // Click 2nd body row (Bob = user-002)
+    await act(async () => { fireEvent.click(checkboxes[2]) })
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    const [keys, selectedRows] = onChange.mock.calls[0]
+
+    // Key should be 'user-002', NOT '1' (the index)
+    expect(keys).toEqual(['user-002'])
+    expect(selectedRows).toEqual([usersWithIds[1]])
+  })
+
+  it('selection keys work correctly with rowKey as function', async () => {
+    const onChange = vi.fn<(keys: string[], rows: User[]) => void>()
+
+    render(
+      <ProTable<User>
+        columns={userColumns}
+        dataSource={usersWithIds}
+        rowKey={(record) => `custom-${record.userId}`}
+        search={false}
+        rowSelection={{ onChange }}
+      />,
+    )
+
+    const checkboxes = screen.getAllByRole('checkbox')
+
+    // Click first body row (Alice)
+    await act(async () => { fireEvent.click(checkboxes[1]) })
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    const [keys] = onChange.mock.calls[0]
+
+    // Key should use the function result
+    expect(keys).toEqual(['custom-user-001'])
+  })
+
+  it('select-all reports all rowKey values, not indices', async () => {
+    const onChange = vi.fn<(keys: string[], rows: User[]) => void>()
+
+    render(
+      <ProTable<User>
+        columns={userColumns}
+        dataSource={usersWithIds}
+        rowKey="userId"
+        search={false}
+        rowSelection={{ onChange }}
+      />,
+    )
+
+    const checkboxes = screen.getAllByRole('checkbox')
+    // Click header (select all)
+    await act(async () => { fireEvent.click(checkboxes[0]) })
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    const [keys] = onChange.mock.calls[0]
+
+    // All rowKey values, not ['0', '1', '2']
+    expect(keys).toEqual(['user-001', 'user-002', 'user-003'])
+  })
+})

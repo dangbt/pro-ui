@@ -543,3 +543,127 @@ describe('useProTableData — mode misconfiguration warnings', () => {
     vi.unstubAllEnvs()
   })
 })
+
+
+describe('useProTableData — reload()', () => {
+  it('re-fetches with sort, params, and searchParams preserved', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({ ...options(request, { filter: 'active' }), defaultCurrent: 1 }),
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Set sort and search params
+    act(() => hook.current.setSorting([{ id: 'name', desc: true }]))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+
+    act(() => hook.current.handleSearch({ status: 'pending' }))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+
+    // Navigate to page 2
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 1 })))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(4))
+
+    // Call reload
+    act(() => hook.current.reload())
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(5))
+
+    // Verify the last call has ALL params preserved: sort, params, searchParams, and current page
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        current: 2,
+        pageSize: 10,
+        sort: 'name',
+        order: 'desc',
+        filter: 'active',
+        status: 'pending',
+      }),
+    )
+  })
+
+  it('is a no-op in client mode', () => {
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({
+        dataSource: [{ id: '1' }],
+        rowKey: 'id',
+        defaultPageSize: 10,
+      }),
+    )
+
+    // Should not throw
+    expect(() => hook.current.reload()).not.toThrow()
+  })
+})
+
+describe('useProTableData — sorting resets to page 1 in server mode', () => {
+  it('returns to page 1 when sorting changes while on a later page', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Go to page 3
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    await waitFor(() =>
+      expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ current: 3 })),
+    )
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'name', desc: false }]))
+
+    // Should reset to page 1 AND include sort params
+    await waitFor(() =>
+      expect(request).toHaveBeenLastCalledWith(
+        expect.objectContaining({ current: 1, sort: 'name', order: 'asc' }),
+      ),
+    )
+    expect(hook.current.pagination.pageIndex).toBe(0)
+  })
+
+  it('does not fire a request for the stale page when sort changes', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Go to page 5
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 4 })))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'name', desc: true }]))
+
+    // Only one more call — page 1 with new sort, never page 5 with new sort.
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    await new Promise(r => setTimeout(r, 20))
+    expect(request).toHaveBeenCalledTimes(3)
+
+    // Verify no call was made with current: 5 AND sort: 'name'
+    expect(
+      request.mock.calls.every(
+        ([p]) => !(p.current === 5 && p.sort === 'name'),
+      ),
+    ).toBe(true)
+  })
+
+  it('does not reset page in client mode when sorting changes', () => {
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({
+        dataSource: Array.from({ length: 100 }, (_, i) => ({ id: String(i) })),
+        rowKey: 'id',
+        defaultPageSize: 10,
+      }),
+    )
+
+    // Go to page 3
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    expect(hook.current.pagination.pageIndex).toBe(2)
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'id', desc: true }]))
+
+    // Client mode keeps the page (sorting is done in-browser)
+    expect(hook.current.pagination.pageIndex).toBe(2)
+  })
+})

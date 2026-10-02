@@ -38,6 +38,8 @@ export interface UseProTableDataReturn<T extends object> {
   handleSearch: (params: Record<string, unknown>) => void
   handleReset: () => void
   fetchData: (params: QueryParams) => Promise<void>
+  /** Re-fetch current page with sort, params, and searchParams preserved */
+  reload: () => void
   dataIdentity: string
 }
 
@@ -159,6 +161,13 @@ export function useProTableData<T extends object>({
   const paramsKey = useMemo(() => serialiseParams(params), [params])
   const prevParamsKeyRef = useRef(paramsKey)
 
+  // Track previous sorting to detect changes (for server mode page reset)
+  const sortingKey = useMemo(
+    () => sorting.map(s => `${s.id}:${s.desc}`).join(','),
+    [sorting],
+  )
+  const prevSortingKeyRef = useRef(sortingKey)
+
   // Report paging outward. Held in a ref so an inline arrow doesn't re-fire the effect,
   // and skipped on mount so a consumer that feeds the values back in through
   // `defaultCurrent`/`defaultPageSize` doesn't bounce between the two.
@@ -221,6 +230,16 @@ export function useProTableData<T extends object>({
       }
     }
 
+    // Same for sorting: changing sort order in server mode should reset to page 1 —
+    // the first items in the new order aren't necessarily on the old page 5.
+    if (prevSortingKeyRef.current !== sortingKey) {
+      prevSortingKeyRef.current = sortingKey
+      if (pagination.pageIndex !== 0) {
+        setPagination(prev => ({ ...prev, pageIndex: 0 }))
+        return
+      }
+    }
+
     const sort = sorting[0]
     fetchData({
       current: pagination.pageIndex + 1,
@@ -233,12 +252,27 @@ export function useProTableData<T extends object>({
     pagination.pageIndex,
     pagination.pageSize,
     sorting,
+    sortingKey,
     searchParams,
     paramsKey,
     refreshToken,
     fetchData,
     isClientMode,
   ])
+
+  // Reload current view with all params preserved (sort + params + searchParams).
+  // Used by toolbar refresh button and retry on error.
+  const reload = useCallback(() => {
+    if (isClientMode) return
+    const sort = sorting[0]
+    fetchData({
+      current: pagination.pageIndex + 1,
+      pageSize: pagination.pageSize,
+      ...(sort && { sort: sort.id, order: sort.desc ? 'desc' : 'asc' }),
+      ...paramsRef.current,
+      ...searchParams,
+    })
+  }, [isClientMode, sorting, pagination.pageIndex, pagination.pageSize, searchParams, fetchData])
 
   const handleSearch = useCallback((params: Record<string, unknown>) => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
@@ -277,6 +311,7 @@ export function useProTableData<T extends object>({
     handleSearch,
     handleReset,
     fetchData,
+    reload,
     dataIdentity,
   }
 }
