@@ -78,12 +78,17 @@ export function SearchForm<T>({
   if (searchable.length === 0) return null
 
   // Collapse logic: configurable threshold, default 3 fields (spec requirement)
-  const collapsedRows = config?.collapsedRows ?? 1
-  // visibleFields config allows explicit override; otherwise use rows * cols
-  const collapsedFieldCount = config?.visibleFields ?? (collapsedRows * GRID_COLS.xl)
   // Collapse threshold: default 3 per spec, configurable via collapseThreshold
   const collapseThreshold = config?.collapseThreshold ?? 3
   const shouldShowCollapse = searchable.length > collapseThreshold
+
+  // Number of fields to show when collapsed:
+  // - visibleFields config allows explicit override
+  // - collapsedRows * grid columns (fallback)
+  // - Must not exceed collapseThreshold to ensure at least one field is hidden
+  const collapsedRows = config?.collapsedRows ?? 1
+  const rowBasedCount = collapsedRows * GRID_COLS.xl
+  const collapsedFieldCount = config?.visibleFields ?? Math.min(rowBasedCount, collapseThreshold)
 
   // Fields to display based on collapse state
   const visibleFields = shouldShowCollapse && isCollapsed
@@ -97,7 +102,8 @@ export function SearchForm<T>({
     e.preventDefault()
     const cleaned: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(values)) {
-      if (v !== '' && v !== undefined && v !== null) {
+      // Filter empty values and NaN (from cleared NumberField)
+      if (v !== '' && v !== undefined && v !== null && !(typeof v === 'number' && Number.isNaN(v))) {
         cleaned[k] = v
       }
     }
@@ -159,14 +165,16 @@ export function SearchForm<T>({
     }
 
     // Number/Money using NumberField - emit number, not string
+    // Use NaN when empty to keep controlled state (react-aria convention)
     if (vt === 'number' || vt === 'money') {
+      const numValue = values[key] as number | undefined
       return (
         <NumberField
           key={key}
           size={size}
           label={col.title}
           placeholder="0"
-          value={values[key] as number | undefined}
+          value={numValue === undefined ? NaN : numValue}
           onChange={v => set(key, v)}
         />
       )

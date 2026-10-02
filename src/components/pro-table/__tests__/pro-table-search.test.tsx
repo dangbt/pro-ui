@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { ProTable } from '../pro-table'
 import type { ProColumnType } from '../types'
@@ -8,12 +9,14 @@ interface Row {
   name: string
   status: string
   createdAt: string
+  price?: number
 }
 
 // ─── Search form: Enter key submits ───
 
 describe('SearchForm — Enter key submits', () => {
   it('triggers search when Enter is pressed in any input field', async () => {
+    const user = userEvent.setup()
     const request = vi.fn().mockResolvedValue({ data: [], total: 0, success: true })
 
     const columns: ProColumnType<Row>[] = [
@@ -21,7 +24,7 @@ describe('SearchForm — Enter key submits', () => {
       { title: 'Status', dataIndex: 'status' },
     ]
 
-    const { container } = render(<ProTable<Row> columns={columns} request={request} rowKey="id" />)
+    render(<ProTable<Row> columns={columns} request={request} rowKey="id" />)
 
     // Wait for initial request
     await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
@@ -29,13 +32,8 @@ describe('SearchForm — Enter key submits', () => {
     // Find the Name input field
     const nameInput = screen.getByPlaceholderText('Search Name')
     
-    // Type value
-    fireEvent.change(nameInput, { target: { value: 'Alice' } })
-    
-    // Simulate Enter key by submitting the form that wraps the input
-    // This is how the browser handles Enter in form fields with a submit button
-    const form = container.querySelector('form')!
-    fireEvent.submit(form)
+    // Type value and press Enter using userEvent
+    await user.type(nameInput, 'Alice{enter}')
 
     // Submit via Enter should trigger another request
     await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
@@ -85,7 +83,7 @@ describe('SearchForm — Collapse behavior', () => {
     { title: 'Field 6', dataIndex: 'name', key: 'field6' },
   ]
 
-  it('shows Expand button when fields > 3 (default threshold) and defaultCollapsed', () => {
+  it('shows Expand button when fields > 3 and hides fields beyond threshold', () => {
     render(
       <ProTable<Row>
         columns={fourColumns}
@@ -97,6 +95,13 @@ describe('SearchForm — Collapse behavior', () => {
 
     // Should show Expand button (4 > 3)
     expect(screen.getByText('Expand')).toBeTruthy()
+    
+    // With 4 fields and threshold 3, only 3 fields should be visible when collapsed
+    expect(screen.getByPlaceholderText('Search Field 1')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Search Field 2')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Search Field 3')).toBeTruthy()
+    // Field 4 should be hidden
+    expect(screen.queryByPlaceholderText('Search Field 4')).toBeNull()
   })
 
   it('shows all fields when expanded', async () => {
@@ -105,9 +110,12 @@ describe('SearchForm — Collapse behavior', () => {
         columns={manyColumns}
         dataSource={[]}
         rowKey="id"
-        search={{ defaultCollapsed: true, collapsedRows: 1 }}
+        search={{ defaultCollapsed: true }}
       />,
     )
+
+    // Initially, some fields should be hidden (threshold = 3)
+    expect(screen.queryByPlaceholderText('Search Field 4')).toBeNull()
 
     // Click Expand
     const expandBtn = screen.getByText('Expand')
@@ -118,6 +126,7 @@ describe('SearchForm — Collapse behavior', () => {
 
     // All 6 fields should be visible
     expect(screen.getByPlaceholderText('Search Field 1')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Search Field 4')).toBeTruthy()
     expect(screen.getByPlaceholderText('Search Field 6')).toBeTruthy()
   })
 
@@ -155,25 +164,28 @@ describe('SearchForm — Collapse behavior', () => {
 
     // Should NOT show Expand button since 4 is not > 5
     expect(screen.queryByText('Expand')).toBeNull()
+    // All 4 fields should be visible
+    expect(screen.getByPlaceholderText('Search Field 4')).toBeTruthy()
   })
 
-  it('respects custom collapsedRows config', () => {
-    // With collapsedRows: 2 and 4 cols per row, visibleFields = 8
-    // 6 fields all visible when collapsed with collapsedRows: 2
+  it('respects custom collapsedRows config with visibleFields override', () => {
+    // With visibleFields: 5 and 6 columns, only field 6 should be hidden when collapsed
     render(
       <ProTable<Row>
         columns={manyColumns}
         dataSource={[]}
         rowKey="id"
-        search={{ defaultCollapsed: true, collapsedRows: 2 }}
+        search={{ defaultCollapsed: true, visibleFields: 5 }}
       />,
     )
 
     // Should show Expand (6 > 3 threshold)
     expect(screen.getByText('Expand')).toBeTruthy()
-    // But all 6 fields should be visible because 2 rows × 4 cols = 8 > 6
+    // Fields 1-5 should be visible
     expect(screen.getByPlaceholderText('Search Field 1')).toBeTruthy()
-    expect(screen.getByPlaceholderText('Search Field 6')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Search Field 5')).toBeTruthy()
+    // Field 6 should be hidden
+    expect(screen.queryByPlaceholderText('Search Field 6')).toBeNull()
   })
 })
 
@@ -355,5 +367,87 @@ describe('ProTable — i18n texts', () => {
     )
 
     expect(screen.getByText('Mở rộng')).toBeTruthy()
+  })
+})
+
+// ─── NumberField: clear emits NaN → filtered out ───
+
+describe('SearchForm — NumberField clear and Reset', () => {
+  it('clearing NumberField does not emit NaN in search params', async () => {
+    const user = userEvent.setup()
+    const request = vi.fn().mockResolvedValue({ data: [], total: 0, success: true })
+
+    const columns: ProColumnType<Row>[] = [
+      { title: 'Name', dataIndex: 'name' },
+      { title: 'Price', dataIndex: 'price', valueType: 'number' },
+    ]
+
+    render(<ProTable<Row> columns={columns} request={request} rowKey="id" />)
+
+    // Wait for initial request
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Find the Price NumberField input
+    const priceInput = screen.getByPlaceholderText('0')
+    
+    // Type a number
+    await user.type(priceInput, '123')
+    
+    // Search - should include price=123
+    const searchBtn = screen.getByText('Search')
+    await user.click(searchBtn)
+    
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+    expect(request.mock.calls[1][0].price).toBe(123)
+    
+    // Clear the field
+    await user.clear(priceInput)
+    
+    // Search again - price should NOT be in params (not NaN)
+    await user.click(searchBtn)
+    
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    const lastParams = request.mock.calls[2][0]
+    expect(lastParams.price).toBeUndefined()
+    expect(Number.isNaN(lastParams.price)).toBe(false)
+  })
+
+  it('Reset clears NumberField UI and state', async () => {
+    const user = userEvent.setup()
+    const request = vi.fn().mockResolvedValue({ data: [], total: 0, success: true })
+
+    const columns: ProColumnType<Row>[] = [
+      { title: 'Name', dataIndex: 'name' },
+      { title: 'Price', dataIndex: 'price', valueType: 'number' },
+    ]
+
+    render(<ProTable<Row> columns={columns} request={request} rowKey="id" />)
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Find the Price NumberField input
+    const priceInput = screen.getByPlaceholderText('0') as HTMLInputElement
+    
+    // Type a number
+    await user.type(priceInput, '456')
+    
+    // Verify it shows the value
+    expect(priceInput.value).toBe('456')
+    
+    // Click Reset
+    const resetBtn = screen.getByText('Reset')
+    await user.click(resetBtn)
+    
+    // Reset triggers onReset which re-fetches data (request count goes to 2)
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+    
+    // UI should be cleared - input should be empty
+    await waitFor(() => {
+      expect(priceInput.value).toBe('')
+    })
+    
+    // The reset request should not include price
+    const resetParams = request.mock.calls[1][0]
+    expect(resetParams.price).toBeUndefined()
   })
 })
