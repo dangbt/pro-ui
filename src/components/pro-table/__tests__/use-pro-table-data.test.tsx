@@ -1,17 +1,18 @@
 import { renderHook, waitFor, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import { useProTableData } from '../use-pro-table-data'
+import type { QueryParams, RequestResult } from '../types'
 
 interface Row {
   id: string
 }
 
-type RequestResultRow = { data: Row[]; total: number; success: boolean }
+type RequestFn = (params: QueryParams) => Promise<RequestResult<Row>>
 
 const result = (data: Row[] = [{ id: '1' }]) => ({ data, total: data.length, success: true })
 
 /** Options with the two fields every server-mode test needs. */
-const options = (request: ReturnType<typeof vi.fn>, params?: Record<string, unknown>) => ({
+const options = (request: Mock<RequestFn>, params?: Record<string, unknown>) => ({
   request,
   params,
   rowKey: 'id' as const,
@@ -343,9 +344,9 @@ describe('useProTableData — out-of-order responses', () => {
     // A request whose resolution we control per call. Call 1 (mount) resolves
     // immediately; then we issue two more explicit fetches and resolve the slower
     // (first-issued) one LAST to prove it does not clobber the faster one's data.
-    const deferred: Array<(v: RequestResultRow) => void> = []
+    const deferred: Array<(v: RequestResult<Row>) => void> = []
     const request = vi.fn().mockImplementation(
-      () => new Promise<RequestResultRow>(res => { deferred.push(res) }),
+      () => new Promise<RequestResult<Row>>(res => { deferred.push(res) }),
     )
 
     const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
@@ -373,10 +374,10 @@ describe('useProTableData — out-of-order responses', () => {
   })
 
   it('does not let a superseded failing request clear the winner error state or stick loading', async () => {
-    const resolvers: Array<(v: RequestResultRow) => void> = []
+    const resolvers: Array<(v: RequestResult<Row>) => void> = []
     const rejecters: Array<(e: Error) => void> = []
     const request = vi.fn().mockImplementation(
-      () => new Promise<RequestResultRow>((res, rej) => {
+      () => new Promise<RequestResult<Row>>((res, rej) => {
         resolvers.push(res)
         rejecters.push(rej)
       }),
@@ -541,5 +542,129 @@ describe('useProTableData — mode misconfiguration warnings', () => {
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
     vi.unstubAllEnvs()
+  })
+})
+
+
+describe('useProTableData — reload()', () => {
+  it('re-fetches with sort, params, and searchParams preserved', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({ ...options(request, { filter: 'active' }), defaultCurrent: 1 }),
+    )
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Set sort and search params
+    act(() => hook.current.setSorting([{ id: 'name', desc: true }]))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+
+    act(() => hook.current.handleSearch({ status: 'pending' }))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+
+    // Navigate to page 2
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 1 })))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(4))
+
+    // Call reload
+    act(() => hook.current.reload())
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(5))
+
+    // Verify the last call has ALL params preserved: sort, params, searchParams, and current page
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        current: 2,
+        pageSize: 10,
+        sort: 'name',
+        order: 'desc',
+        filter: 'active',
+        status: 'pending',
+      }),
+    )
+  })
+
+  it('is a no-op in client mode', () => {
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({
+        dataSource: [{ id: '1' }],
+        rowKey: 'id',
+        defaultPageSize: 10,
+      }),
+    )
+
+    // Should not throw
+    expect(() => hook.current.reload()).not.toThrow()
+  })
+})
+
+describe('useProTableData — sorting resets to page 1 in server mode', () => {
+  it('returns to page 1 when sorting changes while on a later page', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Go to page 3
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    await waitFor(() =>
+      expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ current: 3 })),
+    )
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'name', desc: false }]))
+
+    // Should reset to page 1 AND include sort params
+    await waitFor(() =>
+      expect(request).toHaveBeenLastCalledWith(
+        expect.objectContaining({ current: 1, sort: 'name', order: 'asc' }),
+      ),
+    )
+    expect(hook.current.pagination.pageIndex).toBe(0)
+  })
+
+  it('does not fire a request for the stale page when sort changes', async () => {
+    const request = vi.fn().mockResolvedValue({ data: [{ id: '1' }], total: 100, success: true })
+    const { result: hook } = renderHook(() => useProTableData<Row>(options(request)))
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+
+    // Go to page 5
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 4 })))
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'name', desc: true }]))
+
+    // Only one more call — page 1 with new sort, never page 5 with new sort.
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(3))
+    await new Promise(r => setTimeout(r, 20))
+    expect(request).toHaveBeenCalledTimes(3)
+
+    // Verify no call was made with current: 5 AND sort: 'name'
+    expect(
+      request.mock.calls.every(
+        ([p]) => !(p.current === 5 && p.sort === 'name'),
+      ),
+    ).toBe(true)
+  })
+
+  it('does not reset page in client mode when sorting changes', () => {
+    const { result: hook } = renderHook(() =>
+      useProTableData<Row>({
+        dataSource: Array.from({ length: 100 }, (_, i) => ({ id: String(i) })),
+        rowKey: 'id',
+        defaultPageSize: 10,
+      }),
+    )
+
+    // Go to page 3
+    act(() => hook.current.setPagination(prev => ({ ...prev, pageIndex: 2 })))
+    expect(hook.current.pagination.pageIndex).toBe(2)
+
+    // Change sort
+    act(() => hook.current.setSorting([{ id: 'id', desc: true }]))
+
+    // Client mode keeps the page (sorting is done in-browser)
+    expect(hook.current.pagination.pageIndex).toBe(2)
   })
 })

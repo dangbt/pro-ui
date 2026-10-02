@@ -92,6 +92,7 @@ export function TableBody<T>({
           return (
             <Fragment key={key}>
               <tr
+                data-row-id={row.id}
                 onClick={expandedRowRender || rowHandlers?.onClick ? handleRowClick : undefined}
                 onDoubleClick={rowHandlers?.onDoubleClick}
                 onContextMenu={rowHandlers?.onContextMenu}
