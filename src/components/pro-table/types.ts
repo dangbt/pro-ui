@@ -17,6 +17,8 @@ export type ValueType =
   | 'select'
   | 'money'
   | 'custom'
+  /** Action column — auto-hidden from search form and column toggle, render bypasses renderValue */
+  | 'option'
 
 export type ValueEnumItem =
   | string
@@ -46,6 +48,59 @@ export interface ProTableActions {
    * Clear row selection state (calls `onChange` with empty selection).
    */
   clearSelected: () => void
+}
+
+/**
+ * Configuration for the search form behavior and text.
+ */
+export interface SearchConfig {
+  /** Start collapsed when more than `collapsedRows` rows. @default true */
+  defaultCollapsed?: boolean
+  /** Number of rows to show when collapsed. @default 1 */
+  collapsedRows?: number
+  /** Number of fields that must exist before collapse toggle appears. @default 3 */
+  collapseThreshold?: number
+  /** Explicit number of fields to show when collapsed (overrides collapsedRows × 4). */
+  visibleFields?: number
+  /** Text for the search button. @default 'Search' */
+  searchText?: string
+  /** Text for the reset button. @default 'Reset' */
+  resetText?: string
+  /** Text for "expand" link when collapsed. @default 'Expand' */
+  expandText?: string
+  /** Text for "collapse" link when expanded. @default 'Collapse' */
+  collapseText?: string
+}
+
+/**
+ * Customizable text strings for i18n support across ProTable.
+ * All keys are optional — defaults are English strings.
+ */
+export interface ProTableTexts {
+  // Search form
+  search?: string
+  reset?: string
+  expand?: string
+  collapse?: string
+  /** Placeholder prefix for select fields, e.g. "All" → "All Status". @default 'All' */
+  all?: string
+  // Toolbar
+  columns?: string
+  refresh?: string
+  // Pagination
+  /** Template for total, use {total} as placeholder. @default 'Total {total} records' */
+  total?: string
+  /** Template for page size selector. @default '{size} / page' */
+  pageSize?: string
+  // Empty state
+  noData?: string
+  loading?: string
+  failedToLoad?: string
+  retry?: string
+  // Bulk actions
+  /** Template for selection count, use {count} as placeholder. @default '{count} selected' */
+  selected?: string
+  clear?: string
 }
 
 export interface ProColumnType<T> {
@@ -158,8 +213,13 @@ export interface ProTableProps<T extends object> {
   rowKey: keyof T | ((record: T) => string)
   headerTitle?: string
   toolBarRender?: () => ReactNode[]
-  /** set false to hide search form entirely */
-  search?: boolean
+  /**
+   * Configure or disable the search form.
+   * - `false`: hide search form entirely
+   * - `true`: show search form with defaults (backward-compatible)
+   * - `object`: customize collapse behavior and button text
+   */
+  search?: boolean | SearchConfig
   /** override loading state (applies to request mode) */
   loading?: boolean
   pagination?: {
@@ -277,4 +337,9 @@ export interface ProTableProps<T extends object> {
    * Can be a string or any ReactNode.
    */
   emptyText?: ReactNode
+  /**
+   * Customizable text strings for i18n support across the table UI.
+   * All keys are optional — defaults are English strings.
+   */
+  texts?: ProTableTexts
 }

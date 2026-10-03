@@ -23,7 +23,7 @@ import { useRowSelectionState, useSelectionChange } from './use-row-selection'
 import { useSticky } from './use-sticky'
 import { useProTableData } from './use-pro-table-data'
 import { PAGE_SIZE_OPTIONS } from './constants'
-import type { ProTableProps } from './types'
+import type { ProTableProps, SearchConfig, ProColumnType } from './types'
 
 export function ProTable<T extends object>({
   columns: columnDefs,
@@ -51,7 +51,12 @@ export function ProTable<T extends object>({
   defaultSort,
   onSortChange,
   emptyText,
+  texts,
 }: ProTableProps<T>) {
+  // ─── Search config parsing ───
+  const showSearch = search !== false
+  const searchConfig: SearchConfig | undefined =
+    typeof search === 'object' ? search : undefined
   // ─── Sticky ───
   const {
     stickyEnabled,
@@ -197,19 +202,25 @@ export function ProTable<T extends object>({
     selectedRowsCacheRef,
   })
 
-  const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
+  const columnToggles = buildColumnToggles(
+    table.getAllLeafColumns() as Column<unknown, unknown>[],
+    // Filter out 'option' columns from toggle menu
+    columnDefs as ProColumnType<unknown>[],
+  )
   const pageSizeOptions = paginationConfig?.pageSizeOptions ?? PAGE_SIZE_OPTIONS
 
   // ─── Render ───
   return (
     <div className="space-y-3">
-      {search && (
+      {showSearch && (
         <SearchForm
           key={formResetKey}
           columns={columnDefs}
           onSearch={handleSearch}
           onReset={handleReset}
           size={size}
+          config={searchConfig}
+          texts={texts}
         />
       )}
 
@@ -224,6 +235,7 @@ export function ProTable<T extends object>({
           actions={toolBarRender?.()}
           columnToggles={columnToggles}
           onRefresh={isClientMode ? undefined : reload}
+          texts={texts ? { columns: texts.columns, refresh: texts.refresh } : undefined}
         />
 
         {/* Sentinel for window-scroll sticky detection */}
@@ -298,6 +310,7 @@ export function ProTable<T extends object>({
               rowClassName={rowClassName}
               onRow={onRow}
               emptyText={emptyText}
+              texts={texts ? { loading: texts.loading, failedToLoad: texts.failedToLoad, retry: texts.retry, noData: texts.noData } : undefined}
             />
           </table>
         </div>
@@ -310,6 +323,7 @@ export function ProTable<T extends object>({
           serverTotal={serverTotal}
           size={size}
           pageSizeOptions={pageSizeOptions}
+          texts={texts ? { total: texts.total, pageSize: texts.pageSize } : undefined}
         />
       </div>
 
@@ -320,6 +334,7 @@ export function ProTable<T extends object>({
           selectedOriginals={selectedOriginals}
           bulkActions={bulkActions}
           onClear={clearSelection}
+          texts={texts ? { selected: texts.selected, clear: texts.clear } : undefined}
         />
       )}
       </div>

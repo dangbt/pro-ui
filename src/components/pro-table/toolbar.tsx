@@ -3,6 +3,7 @@ import { RefreshCw, Columns3 } from 'lucide-react'
 import { Button } from '../button'
 import { PortalMenu } from './portal-menu'
 import type { Column } from '@tanstack/react-table'
+import type { ProColumnType } from './types'
 
 interface ColumnToggleItem {
   id: string
@@ -17,9 +18,13 @@ interface ToolbarProps {
   actions?: ReactNode[]
   onRefresh?: () => void
   columnToggles?: ColumnToggleItem[]
+  texts?: {
+    columns?: string
+    refresh?: string
+  }
 }
 
-function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
+function ColumnsPopover({ columns, columnsText }: { columns: ColumnToggleItem[]; columnsText: string }) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
@@ -33,7 +38,7 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
         variant="ghost"
         size="sm"
         onPress={() => setOpen(v => !v)}
-        aria-label="Toggle columns"
+        aria-label={columnsText}
       >
         <Columns3 className="w-4 h-4" />
       </Button>
@@ -44,7 +49,7 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
         anchor="right"
         className="min-w-[160px] rounded-[var(--base-radius)] border border-border bg-surface shadow-lg py-1"
       >
-        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">Columns</p>
+        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled">{columnsText}</p>
         {hideable.map(col => (
           <label
             key={col.id}
@@ -64,9 +69,12 @@ function ColumnsPopover({ columns }: { columns: ColumnToggleItem[] }) {
   )
 }
 
-export function Toolbar({ title, actions, onRefresh, columnToggles }: ToolbarProps) {
+export function Toolbar({ title, actions, onRefresh, columnToggles, texts }: ToolbarProps) {
   const hasContent = title || actions?.length || onRefresh || columnToggles?.length
   if (!hasContent) return null
+
+  const columnsText = texts?.columns ?? 'Columns'
+  const refreshText = texts?.refresh ?? 'Refresh'
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-y-2 px-4 py-3 border-b border-border">
@@ -75,9 +83,9 @@ export function Toolbar({ title, actions, onRefresh, columnToggles }: ToolbarPro
         {actions?.map((action, i) => (
           <span key={i}>{action}</span>
         ))}
-        {columnToggles && <ColumnsPopover columns={columnToggles} />}
+        {columnToggles && <ColumnsPopover columns={columnToggles} columnsText={columnsText} />}
         {onRefresh && (
-          <Button variant="ghost" size="sm" onPress={onRefresh} aria-label="Refresh">
+          <Button variant="ghost" size="sm" onPress={onRefresh} aria-label={refreshText}>
             <RefreshCw className="w-4 h-4" />
           </Button>
         )}
@@ -87,11 +95,25 @@ export function Toolbar({ title, actions, onRefresh, columnToggles }: ToolbarPro
 }
 
 // Utility to build column toggles from tanstack table columns
+// Excludes 'option' valueType columns from the toggle menu
 export function buildColumnToggles<T>(
   columns: Column<T, unknown>[],
+  columnDefs?: ProColumnType<unknown>[],
 ): ColumnToggleItem[] {
+  // Build a set of column keys that are 'option' type
+  // Must use same key logic as build-columns.tsx: key ?? dataIndex ?? title
+  const optionColumnKeys = new Set<string>()
+  if (columnDefs) {
+    for (const def of columnDefs) {
+      if (def.valueType === 'option') {
+        const key = def.key ?? def.dataIndex ?? def.title
+        if (key) optionColumnKeys.add(key as string)
+      }
+    }
+  }
+
   return columns
-    .filter(col => col.id !== 'select')
+    .filter(col => col.id !== 'select' && !optionColumnKeys.has(col.id))
     .map(col => ({
       id: col.id,
       label: typeof col.columnDef.header === 'string' ? col.columnDef.header : col.id,

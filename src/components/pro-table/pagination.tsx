@@ -10,6 +10,12 @@ interface PaginationProps<T> {
   serverTotal: number
   size: Size
   pageSizeOptions?: number[]
+  texts?: {
+    /** Template for total, use {total} as placeholder. @default 'Total {total} records' */
+    total?: string
+    /** Template for page size selector. @default '{size} / page' */
+    pageSize?: string
+  }
 }
 
 export function Pagination<T>({
@@ -19,12 +25,19 @@ export function Pagination<T>({
   serverTotal,
   size,
   pageSizeOptions = PAGE_SIZE_OPTIONS,
+  texts,
 }: PaginationProps<T>) {
   const pageCount = table.getPageCount()
   const canPrev = table.getCanPreviousPage()
   const canNext = table.getCanNextPage()
 
   const sizeCls = inputCls(size)
+
+  // Text templates with defaults
+  const totalTemplate = texts?.total ?? 'Total {total} records'
+  const pageSizeTemplate = texts?.pageSize ?? '{size} / page'
+
+  const totalText = totalTemplate.replace('{total}', serverTotal.toLocaleString())
 
   const paginationBtnCls = cn(
     'inline-flex items-center justify-center min-w-8 px-2 border border-border bg-surface text-fg-muted',
@@ -36,14 +49,14 @@ export function Pagination<T>({
   return (
     <div className="flex flex-wrap items-center justify-center sm:justify-between px-4 py-2.5 border-t border-border gap-2">
       <div className="flex items-center gap-2 text-sm text-fg-muted">
-        <span>Total {serverTotal.toLocaleString()} records</span>
+        <span>{totalText}</span>
         <select
           value={pagination.pageSize}
           onChange={e => setPagination(prev => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))}
           className={cn(sizeCls, 'border border-border rounded-[var(--base-radius)] bg-surface text-fg cursor-pointer')}
         >
           {pageSizeOptions.map(s => (
-            <option key={s} value={s}>{s} / page</option>
+            <option key={s} value={s}>{pageSizeTemplate.replace('{size}', String(s))}</option>
           ))}
         </select>
       </div>

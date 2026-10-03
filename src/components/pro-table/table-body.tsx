@@ -6,6 +6,13 @@ import { getPinnedStyle, getPinnedCls } from './pin-menu'
 import type { Size } from '../../lib/size'
 import type { ColumnMeta } from './build-columns'
 
+interface TableBodyTexts {
+  loading?: string
+  failedToLoad?: string
+  retry?: string
+  noData?: string
+}
+
 interface TableBodyProps<T> {
   table: Table<T>
   size: Size
@@ -23,6 +30,7 @@ interface TableBodyProps<T> {
     onContextMenu?: React.MouseEventHandler<HTMLTableRowElement>
   } | undefined
   emptyText?: React.ReactNode
+  texts?: TableBodyTexts
 }
 
 export function TableBody<T>({
@@ -37,8 +45,15 @@ export function TableBody<T>({
   expandedRowRender,
   rowClassName,
   onRow,
-  emptyText = 'No data',
+  emptyText,
+  texts,
 }: TableBodyProps<T>) {
+  // i18n text with English defaults
+  const loadingText = texts?.loading ?? 'Loading...'
+  const failedToLoadText = texts?.failedToLoad ?? 'Failed to load'
+  const retryText = texts?.retry ?? 'Retry'
+  const noDataText = texts?.noData ?? 'No data'
+
   // Computed once and reused by every full-width branch below.
   const colSpan = table.getVisibleLeafColumns().length
 
@@ -49,7 +64,7 @@ export function TableBody<T>({
           <td colSpan={colSpan} className="py-16 text-center text-fg-disabled text-sm">
             <div className="flex items-center justify-center gap-2">
               <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-              Loading...
+              {loadingText}
             </div>
           </td>
         </tr>
@@ -57,14 +72,14 @@ export function TableBody<T>({
         <tr>
           <td colSpan={colSpan} className="py-16 text-center text-sm">
             <div className="flex flex-col items-center gap-2">
-              <p className="text-danger font-medium">Failed to load</p>
+              <p className="text-danger font-medium">{failedToLoadText}</p>
               <p className="text-fg-disabled text-xs max-w-xs">{fetchError}</p>
               <button
                 type="button"
                 onClick={onRetry}
                 className="mt-1 px-3 py-1.5 text-xs font-medium rounded-[var(--base-radius)] bg-primary text-white hover:bg-primary-600 transition-colors"
               >
-                Retry
+                {retryText}
               </button>
             </div>
           </td>
@@ -72,7 +87,7 @@ export function TableBody<T>({
       ) : table.getRowModel().rows.length === 0 ? (
         <tr>
           <td colSpan={colSpan} className="py-16 text-center text-fg-disabled text-sm">
-            {emptyText}
+            {emptyText ?? noDataText}
           </td>
         </tr>
       ) : (
