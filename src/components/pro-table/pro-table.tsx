@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useImperativeHandle } from 'react'
 import { createPortal } from 'react-dom'
 import {
   useReactTable,
@@ -47,6 +47,10 @@ export function ProTable<T extends object>({
   sticky = false,
   locale,
   currency,
+  actionRef,
+  defaultSort,
+  onSortChange,
+  emptyText,
 }: ProTableProps<T>) {
   // ─── Sticky ───
   const {
@@ -79,7 +83,9 @@ export function ProTable<T extends object>({
     setPagination,
     handleSearch,
     handleReset,
+    formResetKey,
     reload,
+    reloadAndReset,
     dataIdentity,
   } = useProTableData({
     request,
@@ -90,6 +96,8 @@ export function ProTable<T extends object>({
     defaultPageSize: paginationConfig?.defaultPageSize ?? 10,
     defaultCurrent: paginationConfig?.defaultCurrent,
     onPaginationChange: paginationConfig?.onChange,
+    defaultSort,
+    onSortChange,
   })
 
   const loading = loadingProp ?? loadingData
@@ -106,18 +114,37 @@ export function ProTable<T extends object>({
   })
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({})
 
-  // ─── Row selection ───
-  const [rowSelectionState, setRowSelectionState] = useRowSelectionState(dataIdentity)
-
-  // ─── Expand ───
-  const { expandedKeys, toggleExpand } = useExpandedRows()
-
-  // ─── Row key ───
+  // ─── Row key (needed early for row selection) ───
   const getRowKey = useCallback((record: T, index: number): string => {
     if (typeof rowKey === 'function') return rowKey(record)
     const val = (record as Record<string, unknown>)[rowKey as string]
     return val != null ? String(val) : String(index)
   }, [rowKey])
+
+  // ─── Row selection ───
+  const {
+    state: rowSelectionState,
+    handleRowSelectionChange,
+    clearSelection,
+    isControlled: isSelectionControlled,
+    selectedRowsCacheRef,
+  } = useRowSelectionState<T>({
+    dataIdentity,
+    rowSelection,
+    getRowKey,
+    tableData,
+  })
+
+  // ─── Imperative handle (actionRef) ───
+  useImperativeHandle(actionRef, () => ({
+    reload,
+    reloadAndReset,
+    reset: handleReset,
+    clearSelected: clearSelection,
+  }), [reload, reloadAndReset, handleReset, clearSelection])
+
+  // ─── Expand ───
+  const { expandedKeys, toggleExpand } = useExpandedRows()
 
   // ─── Leading expand / selection columns (stable identity) ───
   const hasExpand = !!expandedRowRender
@@ -142,7 +169,7 @@ export function ProTable<T extends object>({
     state: { sorting, pagination, rowSelection: rowSelectionState, columnVisibility, columnPinning },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
-    onRowSelectionChange: setRowSelectionState,
+    onRowSelectionChange: handleRowSelectionChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
@@ -166,6 +193,8 @@ export function ProTable<T extends object>({
     rowSelectionState,
     rowSelection,
     getRowKey,
+    isControlled: isSelectionControlled,
+    selectedRowsCacheRef,
   })
 
   const columnToggles = buildColumnToggles(table.getAllLeafColumns() as Column<unknown, unknown>[])
@@ -176,6 +205,7 @@ export function ProTable<T extends object>({
     <div className="space-y-3">
       {search && (
         <SearchForm
+          key={formResetKey}
           columns={columnDefs}
           onSearch={handleSearch}
           onReset={handleReset}
@@ -267,6 +297,7 @@ export function ProTable<T extends object>({
               expandedRowRender={expandedRowRender}
               rowClassName={rowClassName}
               onRow={onRow}
+              emptyText={emptyText}
             />
           </table>
         </div>
@@ -288,7 +319,7 @@ export function ProTable<T extends object>({
           selectedKeys={selectedKeys}
           selectedOriginals={selectedOriginals}
           bulkActions={bulkActions}
-          onClear={() => setRowSelectionState({})}
+          onClear={clearSelection}
         />
       )}
       </div>
