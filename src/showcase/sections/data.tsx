@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { z } from 'zod'
 import {
   Button, Alert, ConfirmModal,
   ProTable, ProForm, ProFormRow,
   ProFormInput, ProFormTextarea, ProFormNumberField,
   ProFormSelect, ProFormCheckbox, ProFormSwitch, ProFormDatePicker,
+  ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider,
+  ProFormTokenField, ProFormList, ProFormDependency,
 } from '../../components'
-import type { BulkActionDef } from '../../components'
+import type { BulkActionDef, ProFormRef, ProTableActions } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 import { TABLE_COLS, mockRequest, MOCK } from '../mock-data'
@@ -135,6 +137,17 @@ export function ProTableSection() {
         />
       </div>
 
+      {/* actionRef — programmatic reload, reset, clearSelected */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">actionRef — programmatic control</p>
+        <div className="text-xs text-fg-disabled space-y-0.5 mb-2">
+          <p>· <code className="font-mono">actionRef.current.reload()</code> re-fetches the current page (sort/filter preserved)</p>
+          <p>· <code className="font-mono">reset()</code> clears the search form and re-fetches · <code className="font-mono">clearSelected()</code> clears row selection</p>
+          <p>· <code className="font-mono">defaultSort</code> sets the initial sort · <code className="font-mono">emptyText</code> customises the empty state</p>
+        </div>
+        <ActionRefDemo size={size} />
+      </div>
+
       <ConfirmModal
         isOpen={confirmDelete}
         onOpenChange={setConfirmDelete}
@@ -146,6 +159,52 @@ export function ProTableSection() {
           showToast(`Deleted ${selectedKeys.length} users`)
           setConfirmDelete(false)
         }}
+      />
+    </div>
+  )
+}
+
+function ActionRefDemo({ size }: { size: 'sm' | 'md' | 'lg' }) {
+  const actionRef = useRef<ProTableActions>(null)
+  const [reloadCount, setReloadCount] = useState(0)
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        <Button
+          variant="primary"
+          size="sm"
+          onPress={() => {
+            actionRef.current?.reload()
+            setReloadCount(c => c + 1)
+          }}
+        >
+          reload()
+        </Button>
+        <Button variant="secondary" size="sm" onPress={() => actionRef.current?.reloadAndReset()}>
+          reloadAndReset()
+        </Button>
+        <Button variant="ghost" size="sm" onPress={() => actionRef.current?.reset()}>
+          reset()
+        </Button>
+        <Button variant="ghost" size="sm" onPress={() => actionRef.current?.clearSelected()}>
+          clearSelected()
+        </Button>
+        {reloadCount > 0 && (
+          <span className="text-xs text-fg-disabled">Reloaded {reloadCount} time{reloadCount !== 1 ? 's' : ''}</span>
+        )}
+      </div>
+      <ProTable<User>
+        columns={TABLE_COLS.filter(c => c.key !== 'actions')}
+        request={mockRequest}
+        rowKey="id"
+        actionRef={actionRef}
+        defaultSort={{ field: 'name', order: 'asc' }}
+        headerTitle="actionRef demo"
+        size={size}
+        pagination={{ defaultPageSize: 5 }}
+        rowSelection={{ onChange: (keys) => console.log('selected:', keys) }}
+        emptyText="No matching users found."
       />
     </div>
   )
@@ -226,6 +285,111 @@ export function ProFormSection() {
 
       </div>
 
+      {/* Async defaultValues edit form */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Async defaultValues — edit form</p>
+        <div className="text-xs text-fg-disabled mb-2">
+          <p>· <code className="font-mono">defaultValues</code> starts undefined; the form resets when values arrive after a simulated fetch</p>
+          <p>· <code className="font-mono">formRef</code> provides programmatic reset/submit</p>
+        </div>
+        <AsyncEditDemo size={size} onResult={setResult} />
+      </div>
+
+      {/* New field types */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">New fields — DateRange, CheckboxGroup, Slider, TokenField</p>
+        <Demo label="All new field types" center={false}>
+          <ProForm
+            schema={z.object({
+              dateRange: z.object({ start: z.string(), end: z.string() }).optional(),
+              skills: z.array(z.string()).optional(),
+              priority: z.number().min(0).max(100).optional(),
+              tags: z.array(z.string()).optional(),
+            })}
+            onFinish={vals => setResult(vals)}
+            size={size}
+            submitText="Submit"
+          >
+            <ProFormDateRangePicker name="dateRange" label="Date range" />
+            <ProFormCheckboxGroup name="skills" label="Skills" options={[
+              { value: 'react', label: 'React' },
+              { value: 'ts', label: 'TypeScript' },
+              { value: 'node', label: 'Node.js' },
+              { value: 'css', label: 'CSS' },
+            ]} orientation="horizontal" />
+            <ProFormSlider name="priority" label="Priority" min={0} max={100} step={5} />
+            <ProFormTokenField name="tags" label="Tags" placeholder="Type and press comma" />
+          </ProForm>
+        </Demo>
+      </div>
+
+      {/* ProFormList */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">ProFormList — repeatable fields</p>
+        <Demo label="Dynamic order items" center={false}>
+          <ProForm
+            schema={z.object({
+              items: z.array(z.object({
+                product: z.string().min(1, 'Required'),
+                quantity: z.number().min(1),
+              })).min(1, 'At least 1 item'),
+            })}
+            defaultValues={{ items: [{ product: '', quantity: 1 }] }}
+            onFinish={vals => setResult(vals)}
+            size={size}
+            submitText="Place order"
+          >
+            <ProFormList name="items" label="Order items" min={1} max={5} addText="+ Add item">
+              {(field, index, { remove }) => (
+                <ProFormRow>
+                  <ProFormInput name={`${field}.product`} label={`Item ${index + 1}`} placeholder="Product name" required />
+                  <div className="flex gap-2 items-end">
+                    <ProFormNumberField name={`${field}.quantity`} label="Qty" min={1} />
+                    <Button type="button" variant="ghost" size="sm" onPress={remove} className="mb-1 text-danger">✕</Button>
+                  </div>
+                </ProFormRow>
+              )}
+            </ProFormList>
+          </ProForm>
+        </Demo>
+      </div>
+
+      {/* ProFormDependency */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">ProFormDependency — conditional fields</p>
+        <Demo label="Show/hide fields based on role" center={false}>
+          <ProForm
+            schema={z.object({
+              role: z.enum(['admin', 'editor', 'viewer']),
+              permissions: z.array(z.string()).optional(),
+              department: z.string().optional(),
+            })}
+            defaultValues={{ role: 'viewer' }}
+            onFinish={vals => setResult(vals)}
+            size={size}
+            submitText="Save"
+          >
+            <ProFormSelect name="role" label="Role" options={roleOptions} required />
+            <ProFormDependency name={['role']}>
+              {({ role }) => (
+                <>
+                  {role === 'admin' && (
+                    <ProFormCheckboxGroup name="permissions" label="Admin permissions" options={[
+                      { value: 'users', label: 'Manage users' },
+                      { value: 'billing', label: 'Manage billing' },
+                      { value: 'settings', label: 'System settings' },
+                    ]} />
+                  )}
+                  {(role === 'admin' || role === 'editor') && (
+                    <ProFormInput name="department" label="Department" placeholder="e.g. Engineering" />
+                  )}
+                </>
+              )}
+            </ProFormDependency>
+          </ProForm>
+        </Demo>
+      </div>
+
       <Demo label="ProForm — size=sm" center={false}>
         <ProForm
           schema={z.object({ name: z.string().min(2), role: z.enum(['admin','editor','viewer']).optional() })}
@@ -248,6 +412,70 @@ export function ProFormSection() {
         </div>
       )}
     </div>
+  )
+}
+
+function AsyncEditDemo({ size, onResult }: { size: 'sm' | 'md' | 'lg'; onResult: (v: Record<string, unknown>) => void }) {
+  type EditValues = z.infer<typeof profileSchema>
+  const formRef = useRef<ProFormRef<EditValues>>(null)
+  const [defaults, setDefaults] = useState<EditValues | undefined>()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDefaults({
+        name: 'Alice Nguyen',
+        email: 'alice@example.com',
+        role: 'editor',
+        salary: 25000000,
+        bio: 'Full-stack developer',
+        startDate: '2024-03-15',
+        notify: true,
+        active: true,
+      })
+      setLoading(false)
+    }, 1200)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <Demo label={loading ? 'Loading defaults… (1.2s delay)' : 'Edit form — defaults loaded'} center={false}>
+      <ProForm<EditValues>
+        schema={profileSchema}
+        formRef={formRef}
+        defaultValues={defaults}
+        onFinish={vals => onResult(vals)}
+        size={size}
+        submitText="Save changes"
+        submitter={{
+          showReset: true,
+          resetText: 'Discard',
+        }}
+      >
+        <ProFormRow>
+          <ProFormInput name="name" label="Full name" required />
+          <ProFormInput name="email" label="Email" type="email" required />
+        </ProFormRow>
+        <ProFormRow>
+          <ProFormSelect name="role" label="Role" options={roleOptions} />
+          <ProFormNumberField name="salary" label="Salary (₫)" min={0} formatOptions={{ style: 'decimal' }} />
+        </ProFormRow>
+        <ProFormDatePicker name="startDate" label="Start date" />
+        <ProFormTextarea name="bio" label="Bio" rows={2} />
+        <ProFormRow>
+          <ProFormSwitch name="active" label="Active account" />
+          <ProFormCheckbox name="notify" label="Email notifications" />
+        </ProFormRow>
+      </ProForm>
+      <div className="mt-2 flex gap-2">
+        <Button variant="ghost" size="sm" onPress={() => formRef.current?.reset()}>
+          Reset via formRef
+        </Button>
+        <Button variant="ghost" size="sm" onPress={() => formRef.current?.submit()}>
+          Submit via formRef
+        </Button>
+      </div>
+    </Demo>
   )
 }
 

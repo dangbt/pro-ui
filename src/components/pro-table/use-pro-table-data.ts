@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import type { PaginationState, SortingState } from '@tanstack/react-table'
-import type { QueryParams, RequestResult } from './types'
+import type { QueryParams, RequestResult, SortState } from './types'
 
 interface UseProTableDataOptions<T extends object> {
   request?: (params: QueryParams) => Promise<RequestResult<T>>
@@ -12,6 +12,10 @@ interface UseProTableDataOptions<T extends object> {
   defaultPageSize: number
   defaultCurrent?: number
   onPaginationChange?: (page: number, pageSize: number) => void
+  /** Initial sort state applied on mount. */
+  defaultSort?: SortState
+  /** Called when sort changes (user clicks a column header). */
+  onSortChange?: (sort: SortState | undefined) => void
 }
 
 /**
@@ -37,9 +41,13 @@ export interface UseProTableDataReturn<T extends object> {
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
   handleSearch: (params: Record<string, unknown>) => void
   handleReset: () => void
+  /** Monotonic counter incremented by handleReset; use as React key on SearchForm to clear its internal state. */
+  formResetKey: number
   fetchData: (params: QueryParams) => Promise<void>
   /** Re-fetch current page with sort, params, and searchParams preserved */
   reload: () => void
+  /** Re-fetch and reset to page 1 with sort, params, and searchParams preserved */
+  reloadAndReset: () => void
   dataIdentity: string
 }
 
@@ -52,6 +60,8 @@ export function useProTableData<T extends object>({
   defaultPageSize,
   defaultCurrent,
   onPaginationChange,
+  defaultSort,
+  onSortChange,
 }: UseProTableDataOptions<T>): UseProTableDataReturn<T> {
   const isClientMode = !request && dataSource !== undefined
 
@@ -95,7 +105,9 @@ export function useProTableData<T extends object>({
   const [searchParams, setSearchParams] = useState<Record<string, unknown>>({})
 
   // Shared state
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>(
+    defaultSort ? [{ id: defaultSort.field, desc: defaultSort.order === 'desc' }] : [],
+  )
   // `defaultCurrent` seeds the initial state only: re-reading it on every render would let
   // a stale prop drag the user back to the page they just left.
   const [pagination, setPagination] = useState<PaginationState>({
@@ -183,6 +195,24 @@ export function useProTableData<T extends object>({
     }
     onPaginationChangeRef.current?.(pagination.pageIndex + 1, pagination.pageSize)
   }, [pagination.pageIndex, pagination.pageSize])
+
+  // Report sorting outward. Similar pattern to pagination: ref for the callback,
+  // skip initial mount to avoid firing when defaultSort is applied.
+  const onSortChangeRef = useRef(onSortChange)
+  useEffect(() => {
+    onSortChangeRef.current = onSortChange
+  })
+  const sortingIsInitialRef = useRef(true)
+  useEffect(() => {
+    if (sortingIsInitialRef.current) {
+      sortingIsInitialRef.current = false
+      return
+    }
+    const sort = sorting[0]
+    onSortChangeRef.current?.(
+      sort ? { field: sort.id, order: sort.desc ? 'desc' : 'asc' } : undefined,
+    )
+  }, [sorting])
 
   // Monotonically increasing request id: only the most recently issued request is
   // allowed to write state. A slow first request that resolves after a faster second
@@ -274,14 +304,30 @@ export function useProTableData<T extends object>({
     })
   }, [isClientMode, sorting, pagination.pageIndex, pagination.pageSize, searchParams, fetchData])
 
+  // Reload and reset to page 1. Used by actionRef.reloadAndReset().
+  // If already on page 0, setPagination is a no-op (same value → no re-render →
+  // the effect won't fire), so we call reload() which fetches current:1 anyway.
+  // If on another page, setPagination triggers the effect which fetches page 1.
+  const reloadAndReset = useCallback(() => {
+    if (isClientMode) return
+    if (pagination.pageIndex === 0) {
+      reload()
+    } else {
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
+    }
+  }, [isClientMode, pagination.pageIndex, reload])
+
   const handleSearch = useCallback((params: Record<string, unknown>) => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
     setSearchParams(params)
   }, [])
 
+  const [formResetKey, setFormResetKey] = useState(0)
+
   const handleReset = useCallback(() => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
     setSearchParams({})
+    setFormResetKey(k => k + 1)
   }, [])
 
   // In client mode: use filteredClientData; in server mode: use serverData
@@ -310,8 +356,10 @@ export function useProTableData<T extends object>({
     setPagination,
     handleSearch,
     handleReset,
+    formResetKey,
     fetchData,
     reload,
+    reloadAndReset,
     dataIdentity,
   }
 }

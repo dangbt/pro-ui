@@ -23,6 +23,15 @@ export function mockRequest(p: QueryParams) {
     if (p.name)   f = f.filter(u => u.name.toLowerCase().includes(String(p.name).toLowerCase()))
     if (p.status) f = f.filter(u => u.status === p.status)
     if (p.role)   f = f.filter(u => u.role === p.role)
+    if (p.sort) {
+      const key = p.sort as keyof User
+      const dir = p.order === 'desc' ? -1 : 1
+      f.sort((a, b) => {
+        const va = a[key], vb = b[key]
+        if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir
+        return String(va).localeCompare(String(vb)) * dir
+      })
+    }
     const total = f.length
     const s = ((p.current as number) - 1) * (p.pageSize as number)
     ok({ data: f.slice(s, s + (p.pageSize as number)), total, success: true })

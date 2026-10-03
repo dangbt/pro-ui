@@ -45,7 +45,7 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'search', type: 'boolean', required: false, default: 'true', description: 'Set false to hide search form' },
       { name: 'loading', type: 'boolean', required: false, description: 'Override loading state' },
       { name: 'pagination', type: '{ defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void }', required: false, description: 'Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL' },
-      { name: 'rowSelection', type: '{ onChange?: (keys: string[], rows: T[]) => void }', required: false, description: 'Enable row-selection checkboxes. Required for bulkActions to appear — without rowSelection there is no way to select the rows a bulk action operates on.' },
+      { name: 'rowSelection', type: '{ onChange?: (keys: string[], rows: T[]) => void; selectedRowKeys?: string[]; preserveSelectedRowKeys?: boolean }', required: false, description: 'Enable row-selection checkboxes. Required for bulkActions to appear. Pass selectedRowKeys for controlled selection (update via onChange). Set preserveSelectedRowKeys to keep selection across page changes in server mode.' },
       { name: 'bulkActions', type: 'BulkActionDef<T>[]', required: false, description: 'Actions shown when rows are selected. Requires rowSelection to be set.' },
       { name: 'expandedRowRender', type: '(record: T) => ReactNode', required: false, description: 'Render content below expanded row' },
       { name: 'rowClassName', type: '(record: T, index: number) => string', required: false, description: 'Add CSS classes to rows conditionally' },
@@ -55,9 +55,14 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'sticky', type: "boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }", required: false, default: 'false', description: 'Make the table header sticky. true = stick to page scroll (top:0, no horizontal scroll); { offsetTop } = stick with a top offset for a fixed navbar; { maxHeight } = scroll inside a height-limited box (number px, CSS string, or the string "fit" to fill the viewport) with horizontal scroll restored; { windowScroll: true, offsetTop? } = stick to window scroll while keeping horizontal scroll.' },
       { name: 'locale', type: 'string', required: false, default: "'vi-VN'", description: "BCP-47 locale tag used to format date and number/money columns. Defaults to 'vi-VN'; set it to match your audience (e.g. 'en-US') instead of writing a custom render per column." },
       { name: 'currency', type: 'string', required: false, default: "'VND'", description: "ISO-4217 currency code used by valueType: 'money'. Defaults to 'VND'. Pair with locale to control both the currency and its formatting." },
+      { name: 'actionRef', type: 'React.Ref<ProTableActions>', required: false, description: 'Imperative handle for programmatic table control. Use with useRef<ProTableActions>(null). Provides reload() (re-fetch current page), reloadAndReset() (re-fetch from page 1), reset() (clear search form and re-fetch), clearSelected() (clear row selection).' },
+      { name: 'defaultSort', type: '{ field: string; order: "asc" | "desc" }', required: false, description: 'Initial sort state applied on mount. For controlled sorting, combine with onSortChange to persist/restore sort state.' },
+      { name: 'onSortChange', type: '(sort: SortState | undefined) => void', required: false, description: 'Called when the user changes the sort order. Receives the new sort state, or undefined when sorting is cleared.' },
+      { name: 'emptyText', type: 'ReactNode', required: false, description: 'Custom empty state content. Replaces the default "No data" message. Can be a string or any ReactNode.' },
     ],
-    example: `import { ProTable } from '@dangbt/pro-ui'
-import type { ProColumnType } from '@dangbt/pro-ui'
+    example: `import { useRef } from 'react'
+import { ProTable, Button } from '@dangbt/pro-ui'
+import type { ProColumnType, ProTableActions } from '@dangbt/pro-ui'
 
 interface User {
   id: string
@@ -68,8 +73,8 @@ interface User {
 }
 
 const columns: ProColumnType<User>[] = [
-  { title: 'Name', dataIndex: 'name', sortable: true },
-  { title: 'Email', dataIndex: 'email' },
+  { title: 'Name', dataIndex: 'name', sortable: true, pinnable: true, disableHiding: true, ellipsis: true },
+  { title: 'Email', dataIndex: 'email', ellipsis: true },
   {
     title: 'Status',
     dataIndex: 'status',
@@ -78,98 +83,223 @@ const columns: ProColumnType<User>[] = [
       active: { text: 'Active', color: 'success' },
       inactive: { text: 'Inactive', color: 'default' },
     },
+    tooltip: 'User account status',
   },
-  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date', sortable: true, hideInSearch: true },
+  {
+    title: 'Actions', key: 'actions', hideInSearch: true,
+    render: (_val, record) => <Button size="sm" variant="ghost">Edit</Button>,
+  },
 ]
 
+// ── Server-side mode with actionRef, sort, filter ──
 export function UsersPage() {
+  const actionRef = useRef<ProTableActions>(null)
+
+  const handleDelete = async (id: string) => {
+    await fetch(\`/api/users/\${id}\`, { method: 'DELETE' })
+    actionRef.current?.reload() // reload current page preserving sort/filter
+  }
+
   return (
     <ProTable<User>
       headerTitle="Users"
       columns={columns}
       rowKey="id"
-      request={async ({ current, pageSize, ...filters }) => {
-        const res = await fetch(\`/api/users?page=\${current}&limit=\${pageSize}\`)
+      actionRef={actionRef}
+      defaultSort={{ field: 'createdAt', order: 'desc' }}
+      onSortChange={(sort) => console.log('sort changed:', sort)}
+      request={async ({ current, pageSize, sort, order, ...filters }) => {
+        const params = new URLSearchParams({
+          page: String(current),
+          limit: String(pageSize),
+          ...(sort ? { sort, order: order ?? 'asc' } : {}),
+          ...Object.fromEntries(
+            Object.entries(filters).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])
+          ),
+        })
+        const res = await fetch(\`/api/users?\${params}\`)
         const data = await res.json()
         return { data: data.items, total: data.total, success: true }
       }}
+      search={true}
+      pagination={{ defaultPageSize: 10, pageSizeOptions: [10, 20, 50] }}
       toolBarRender={() => [
-        <Button key="add" variant="solid" onPress={() => {}}>Add User</Button>
+        <Button key="reload" variant="secondary" onPress={() => actionRef.current?.reload()}>Reload</Button>,
+        <Button key="reset" variant="ghost" onPress={() => actionRef.current?.reset()}>Reset</Button>,
+        <Button key="add" variant="primary">+ Add User</Button>,
       ]}
-      rowSelection={{ onChange: (keys, rows) => console.log(keys, rows) }}
+      rowSelection={{
+        onChange: (keys, rows) => console.log('selected:', keys),
+        preserveSelectedRowKeys: true,
+      }}
       bulkActions={[
         { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },
       ]}
+      emptyText="No users found. Try adjusting your search filters."
     />
   )
 }`,
+    notes:
+      'ProColumnType props: title, dataIndex, key, valueType ("text"|"number"|"date"|"dateRange"|"select"|"money"|"custom"), valueEnum (Record<string, string | {text, color}>), hideInSearch, hideInTable, disableHiding, pinnable, render(value, record, index), sortable, width, align, ellipsis (truncate with native title tooltip), tooltip (ReactNode shown next to column header). The search form is auto-generated from columns with valueType; set hideInSearch on columns that should not appear in the form. Set search={false} on ProTable to hide the form entirely. Use actionRef for programmatic control: actionRef.current.reload() re-fetches the current page, reloadAndReset() resets to page 1, reset() clears the search form, clearSelected() clears row selection. refreshToken is an alternative for reload-only (bump it after a mutation). The toolbar includes a built-in refresh button in server mode. Column visibility is persisted to localStorage by default (persistColumnVisibility).',
   },
 
   // ─── FORM ─────────────────────────────────────────────────────────────────
   {
     name: 'ProForm',
-    importName: 'ProForm, ProFormInput, ProFormSelect, ProFormDatePicker, ProFormTextarea, ProFormNumberField, ProFormCheckbox, ProFormSwitch, ProFormRadioGroup, ProFormComboBox, ProFormAsyncSelect',
+    importName: 'ProForm, ProFormRow, ProFormInput, ProFormTextarea, ProFormNumberField, ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup, ProFormCheckbox, ProFormSwitch, ProFormDatePicker, ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider, ProFormTokenField, ProFormList, ProFormDependency',
     category: 'form',
     description:
-      'Form builder with Zod validation, grid layout, and a rich set of field components. Uses react-hook-form under the hood.',
+      'Form builder with optional Zod validation, grid layout, and 17 field components. Uses react-hook-form under the hood. Supports async defaultValues, formRef for programmatic control, submitter customisation, and field dependency.',
     useCases: [
       'create/edit form',
       'settings form',
       'login form',
       'form with validation',
       'multi-column form layout',
+      'async edit form',
+      'dynamic form with dependencies',
+      'repeatable list form',
     ],
     props: [
-      { name: 'schema', type: 'ZodSchema', required: true, description: 'Zod schema for validation' },
-      { name: 'onSubmit', type: '(values: T) => void | Promise<void>', required: true, description: 'Submit handler with validated values' },
-      { name: 'defaultValues', type: 'Partial<T>', required: false, description: 'Initial form values' },
-      { name: 'layout', type: "'vertical' | 'horizontal'", required: false, default: "'vertical'", description: 'Label placement' },
-      { name: 'cols', type: 'number', required: false, default: '1', description: 'Grid columns for the form' },
-      { name: 'loading', type: 'boolean', required: false, description: 'Show loading state on submit button' },
+      { name: 'schema', type: 'ZodSchema', required: false, description: 'Zod schema for validation. Optional — omit for no validation.' },
+      { name: 'onFinish', type: '(values: T) => void | Promise<void>', required: true, description: 'Called with validated values on successful submit' },
+      { name: 'onFinishFailed', type: '(errors: FieldErrors<T>) => void', required: false, description: 'Called when validation fails' },
+      { name: 'defaultValues', type: 'DefaultValues<T>', required: false, description: 'Initial form values. Can be undefined initially and set later (async load) — the form resets to the new values when they arrive.' },
+      { name: 'onValuesChange', type: '(changed: Partial<T>, allValues: T) => void', required: false, description: 'Called when any field value changes' },
+      { name: 'onReset', type: '() => void', required: false, description: 'Called when form is reset' },
+      { name: 'layout', type: "'vertical' | 'horizontal'", required: false, default: "'vertical'", description: 'Label placement: vertical (labels above) or horizontal (labels beside)' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: 'Size for all form fields' },
       { name: 'submitText', type: 'string', required: false, default: "'Submit'", description: 'Submit button label' },
-      { name: 'onReset', type: '() => void', required: false, description: 'Called when form resets' },
+      { name: 'submitClassName', type: 'string', required: false, description: 'CSS class for the submit button' },
+      { name: 'showReset', type: 'boolean', required: false, default: 'false', description: 'Show a reset button' },
+      { name: 'resetText', type: 'string', required: false, default: "'Reset'", description: 'Reset button label' },
+      { name: 'submitter', type: 'false | { submitText?; resetText?; showReset?; render?: (props: SubmitterProps) => ReactNode }', required: false, description: 'Submitter config. Pass false to hide submit/reset buttons entirely. Use render for fully custom buttons.' },
+      { name: 'resetOnDefaultValuesChange', type: 'boolean', required: false, default: 'false', description: 'Reset form even when dirty if defaultValues change' },
+      { name: 'formRef', type: 'Ref<ProFormRef<T>>', required: false, description: 'Ref for programmatic access: getFormInstance(), reset(), submit(), getValues(), setValue()' },
+      { name: 'children', type: 'ReactNode', required: true, description: 'Form field components' },
+      { name: 'className', type: 'string', required: false, description: 'CSS class for the form element' },
     ],
     example: `import { z } from 'zod'
-import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker } from '@dangbt/pro-ui'
+import { useRef, useState, useEffect } from 'react'
+import {
+  ProForm, ProFormRow, ProFormInput, ProFormSelect,
+  ProFormDatePicker, ProFormSlider, ProFormCheckboxGroup,
+  ProFormList, ProFormDependency, ProFormTokenField,
+  ProFormNumberField,
+} from '@dangbt/pro-ui'
+import type { ProFormRef } from '@dangbt/pro-ui'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email'),
+  name: z.string().min(1, 'Required'),
+  email: z.string().email(),
   role: z.enum(['admin', 'user', 'viewer']),
   joinDate: z.string().optional(),
+  permissions: z.array(z.string()).optional(),
+  priority: z.number().min(0).max(10).optional(),
+  tags: z.array(z.string()).optional(),
 })
 
 type FormValues = z.infer<typeof schema>
 
+// ── Basic form ──
 export function CreateUserForm() {
   return (
     <ProForm<FormValues>
       schema={schema}
-      onSubmit={async (values) => {
-        await fetch('/api/users', {
-          method: 'POST',
-          body: JSON.stringify(values),
-        })
+      onFinish={async (values) => {
+        await fetch('/api/users', { method: 'POST', body: JSON.stringify(values) })
       }}
       defaultValues={{ role: 'user' }}
-      cols={2}
       submitText="Create User"
+      showReset
     >
-      <ProFormInput name="name" label="Full Name" placeholder="John Doe" />
-      <ProFormInput name="email" label="Email" type="email" />
-      <ProFormSelect
-        name="role"
-        label="Role"
-        options={[
+      <ProFormRow>
+        <ProFormInput name="name" label="Full Name" required />
+        <ProFormInput name="email" label="Email" type="email" required />
+      </ProFormRow>
+      <ProFormRow>
+        <ProFormSelect name="role" label="Role" options={[
           { value: 'admin', label: 'Admin' },
           { value: 'user', label: 'User' },
           { value: 'viewer', label: 'Viewer' },
-        ]}
-      />
-      <ProFormDatePicker name="joinDate" label="Join Date" />
+        ]} />
+        <ProFormDatePicker name="joinDate" label="Join Date" />
+      </ProFormRow>
+      <ProFormSlider name="priority" label="Priority" min={0} max={10} step={1} />
+      <ProFormCheckboxGroup name="permissions" label="Permissions" options={[
+        { value: 'read', label: 'Read' },
+        { value: 'write', label: 'Write' },
+        { value: 'delete', label: 'Delete' },
+      ]} />
+      <ProFormTokenField name="tags" label="Tags" placeholder="Type and press Enter" />
+    </ProForm>
+  )
+}
+
+// ── Edit form with async defaultValues + formRef ──
+export function EditUserForm({ userId }: { userId: string }) {
+  const formRef = useRef<ProFormRef<FormValues>>(null)
+  const [defaults, setDefaults] = useState<FormValues | undefined>()
+
+  useEffect(() => {
+    fetch(\`/api/users/\${userId}\`).then(r => r.json()).then(setDefaults)
+  }, [userId])
+
+  return (
+    <ProForm<FormValues>
+      schema={schema}
+      formRef={formRef}
+      defaultValues={defaults}
+      onFinish={async (values) => {
+        await fetch(\`/api/users/\${userId}\`, { method: 'PUT', body: JSON.stringify(values) })
+      }}
+      submitText="Save Changes"
+    >
+      <ProFormInput name="name" label="Name" required />
+      <ProFormInput name="email" label="Email" type="email" required />
+      <ProFormSelect name="role" label="Role" options={[
+        { value: 'admin', label: 'Admin' },
+        { value: 'user', label: 'User' },
+        { value: 'viewer', label: 'Viewer' },
+      ]} />
+
+      {/* Conditional field: show permissions only for admin */}
+      <ProFormDependency name={['role']}>
+        {({ role }) => role === 'admin' && (
+          <ProFormCheckboxGroup name="permissions" label="Admin Permissions" options={[
+            { value: 'manage_users', label: 'Manage Users' },
+            { value: 'manage_billing', label: 'Manage Billing' },
+          ]} />
+        )}
+      </ProFormDependency>
+    </ProForm>
+  )
+}
+
+// ── ProFormList: repeatable field group ──
+export function OrderForm() {
+  return (
+    <ProForm
+      onFinish={(values) => console.log(values)}
+      submitText="Place Order"
+    >
+      <ProFormList name="items" label="Order Items" min={1} max={5} addText="+ Add Item">
+        {(field, index, { remove }) => (
+          <ProFormRow>
+            <ProFormInput name={\`\${field}.product\`} label={\`Item \${index + 1}\`} required />
+            <div className="flex gap-2 items-end">
+              <ProFormNumberField name={\`\${field}.quantity\`} label="Qty" min={1} />
+              <button type="button" onClick={remove} className="text-danger text-sm mb-2">Remove</button>
+            </div>
+          </ProFormRow>
+        )}
+      </ProFormList>
     </ProForm>
   )
 }`,
+    notes:
+      'Field components: ProFormInput, ProFormTextarea, ProFormNumberField, ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup, ProFormCheckbox, ProFormSwitch, ProFormDatePicker, ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider, ProFormTokenField. All accept name, label, required, description, placeholder, size, isDisabled. Use ProFormRow for side-by-side fields. ProFormList renders repeatable field groups with add/remove. ProFormDependency watches fields and conditionally renders children. The formRef provides: getFormInstance() (react-hook-form methods), reset(), submit(), getValues(), setValue(name, value).',
   },
 
   // ─── LAYOUT ───────────────────────────────────────────────────────────────

@@ -12,6 +12,14 @@ interface SearchFormProps<T> {
   size?: Size
 }
 
+/**
+ * Get a string label from column title. Falls back to key/dataIndex when title is ReactNode.
+ */
+function getColumnLabel<T>(col: ProColumnType<T>): string {
+  if (typeof col.title === 'string') return col.title
+  return (col.key ?? col.dataIndex ?? '') as string
+}
+
 export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: SearchFormProps<T>) {
   const [values, setValues] = useState<Record<string, unknown>>({})
   const dateInputCls = inputCls(size)
@@ -41,6 +49,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {searchable.map(col => {
           const key = (col.key ?? col.dataIndex) as string
+          const label = getColumnLabel(col)
           const vt = col.valueType ?? 'text'
 
           if (vt === 'select' && col.valueEnum) {
@@ -52,8 +61,8 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
               <Select
                 key={key}
                 size={size}
-                label={col.title}
-                placeholder={`All ${col.title}`}
+                label={label}
+                placeholder={`All ${label}`}
                 options={options}
                 selectedKey={(values[key] as string) ?? null}
                 onSelectionChange={v => set(key, v)}
@@ -64,7 +73,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
           if (vt === 'dateRange') {
             return (
               <div key={key} className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-fg-muted">{col.title}</span>
+                <span className="text-xs font-medium text-fg-muted">{label}</span>
                 <div className="flex items-center gap-1">
                   <input
                     type="date"
@@ -89,7 +98,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
               <Input
                 key={key}
                 size={size}
-                label={col.title}
+                label={label}
                 inputMode="numeric"
                 placeholder="0"
                 value={(values[key] as string) ?? ''}
@@ -101,7 +110,7 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
           if (vt === 'date') {
             return (
               <div key={key} className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-fg-muted">{col.title}</span>
+                <span className="text-xs font-medium text-fg-muted">{label}</span>
                 <input
                   type="date"
                   value={(values[key] as string) ?? ''}
@@ -116,8 +125,8 @@ export function SearchForm<T>({ columns, onSearch, onReset, size = 'sm' }: Searc
             <Input
               key={key}
               size={size}
-              label={col.title}
-              placeholder={`Search ${col.title}`}
+              label={label}
+              placeholder={`Search ${label}`}
               value={(values[key] as string) ?? ''}
               onChange={v => set(key, v)}
             />

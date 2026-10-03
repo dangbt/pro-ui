@@ -165,6 +165,28 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ---
 
+## Changelog
+
+### 1.10.0
+
+**New features**
+
+- **ProForm** — 6 new field components: `ProFormDateRangePicker`, `ProFormCheckboxGroup`, `ProFormSlider`, `ProFormTokenField`, `ProFormList` (repeatable field groups), `ProFormDependency` (conditional rendering based on watched fields).
+- **ProForm** — `formRef` for programmatic access (`reset()`, `submit()`, `getValues()`, `setValue()`), `submitter` prop for custom submit/reset rendering, `onValuesChange` callback, async `defaultValues` support.
+- **ProForm** — `schema` prop is now optional (omit for no validation).
+- **ProTable** — `actionRef` for programmatic control (`reload()`, `reloadAndReset()`, `reset()`, `clearSelected()`), `defaultSort`/`onSortChange` for initial and controlled sorting, `emptyText` for custom empty state.
+- **ProTable** — Controlled row selection via `rowSelection.selectedRowKeys` + `preserveSelectedRowKeys` to persist selection across pages.
+- **ProTable** — Column `ellipsis` (text truncation with native tooltip), `tooltip` (header tooltip).
+- MCP `components-data.ts` updated to match actual dist types (17 ProForm fields documented, ProColumnType details, ProTable actionRef).
+- Showcase demos for ProTable actionRef reload, sort, filter, ProForm async edit, new fields, ProFormList, ProFormDependency.
+- Storybook stories for ProTable and ProForm.
+
+**Breaking changes**
+
+- Peer dependency `@tanstack/react-table` is now `^8.21.0` (was `>=8`).
+
+---
+
 ## AI Docs
 
 - [/llms.txt](https://pro-ui.pages.dev/llms.txt) — Summary for AI agents
