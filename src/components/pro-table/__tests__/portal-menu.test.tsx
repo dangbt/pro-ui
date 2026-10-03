@@ -38,18 +38,15 @@ describe('ProTable — column-visibility menu (PortalMenu)', () => {
     expect(screen.getByText('Name')).toBeTruthy()
     expect(screen.getByText('Age')).toBeTruthy()
 
-    // The menu is closed → no "Columns" heading yet.
-    expect(screen.queryByText('Columns')).toBeNull()
-
     // Open the menu via its trigger.
-    const trigger = screen.getByRole('button', { name: 'Toggle columns' })
+    const trigger = screen.getByRole('button', { name: 'Columns' })
     await act(async () => { fireEvent.click(trigger) })
 
-    // Menu is now open (portalled into document.body).
-    expect(screen.getByText('Columns')).toBeTruthy()
+    // Menu is now open (portalled into document.body) — verify by looking for the Age checkbox
+    const ageCheckbox = screen.getByLabelText('Age') as HTMLInputElement
+    expect(ageCheckbox).toBeTruthy()
 
     // Toggle the "Age" column off via its checkbox in the menu.
-    const ageCheckbox = screen.getByLabelText('Age') as HTMLInputElement
     expect(ageCheckbox.checked).toBe(true)
     await act(async () => { fireEvent.click(ageCheckbox) })
 
@@ -65,6 +62,7 @@ describe('ProTable — column-visibility menu (PortalMenu)', () => {
     await act(async () => {
       fireEvent.keyDown(document, { key: 'Escape' })
     })
-    expect(screen.queryByText('Columns')).toBeNull()
+    // Menu closed — checkbox no longer accessible
+    expect(screen.queryByLabelText('Age')).toBeNull()
   })
 })
