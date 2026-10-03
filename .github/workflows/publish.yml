@@ -63,7 +63,7 @@ jobs:
           if npm view "@dangbt/pro-ui@${VERSION}" version > /dev/null 2>&1; then
             echo "v${VERSION} already exists on npm — skipping."
           else
-            pnpm publish --no-git-checks --access public --ignore-scripts
+            pnpm publish --no-git-checks --access public --ignore-scripts --registry https://registry.npmjs.org
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
