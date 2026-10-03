@@ -51,10 +51,15 @@ Import: `import { ProTable } from '@dangbt/pro-ui'`
 | locale | string | — | `'vi-VN'` | BCP-47 locale tag used to format date and number/money columns. Defaults to 'vi-VN'; set it to match your audience (e.g. 'en-US') instead of writing a custom render per column. |
 | currency | string | — | `'VND'` | ISO-4217 currency code used by valueType: 'money'. Defaults to 'VND'. Pair with locale to control both the currency and its formatting. |
 
+### Notes
+
+ProColumnType props: title, dataIndex, key, valueType ("text"|"number"|"date"|"dateRange"|"select"|"money"|"custom"), valueEnum (Record<string, string | {text, color}>), hideInSearch, hideInTable, disableHiding, pinnable, render(value, record, index), sortable, width, align. The search form is auto-generated from columns with valueType; set hideInSearch on columns that should not appear in the form. Set search={false} on ProTable to hide the form entirely. Reload the current page by bumping refreshToken (a primitive compared with Object.is). The toolbar includes a built-in refresh button in server mode. Column visibility is persisted to localStorage by default (persistColumnVisibility).
+
 ### Example
 
 ```tsx
-import { ProTable } from '@dangbt/pro-ui'
+import { useState } from 'react'
+import { ProTable, Button } from '@dangbt/pro-ui'
 import type { ProColumnType } from '@dangbt/pro-ui'
 
 interface User {
@@ -66,7 +71,7 @@ interface User {
 }
 
 const columns: ProColumnType<User>[] = [
-  { title: 'Name', dataIndex: 'name', sortable: true },
+  { title: 'Name', dataIndex: 'name', sortable: true, pinnable: true, disableHiding: true },
   { title: 'Email', dataIndex: 'email' },
   {
     title: 'Status',
@@ -77,24 +82,47 @@ const columns: ProColumnType<User>[] = [
       inactive: { text: 'Inactive', color: 'default' },
     },
   },
-  { title: 'Created', dataIndex: 'createdAt', valueType: 'date' },
+  { title: 'Created', dataIndex: 'createdAt', valueType: 'date', sortable: true, hideInSearch: true },
+  {
+    title: 'Actions', key: 'actions', hideInSearch: true,
+    render: (_val, record) => <Button size="sm" variant="ghost">Edit</Button>,
+  },
 ]
 
+// ── Server-side mode with sort, filter, and reload ──
 export function UsersPage() {
+  const [refreshToken, setRefreshToken] = useState(0)
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/users/${id}`, { method: 'DELETE' })
+    setRefreshToken(t => t + 1) // reload current page
+  }
+
   return (
     <ProTable<User>
       headerTitle="Users"
       columns={columns}
       rowKey="id"
-      request={async ({ current, pageSize, ...filters }) => {
-        const res = await fetch(`/api/users?page=${current}&limit=${pageSize}`)
+      refreshToken={refreshToken}
+      request={async ({ current, pageSize, sort, order, ...filters }) => {
+        const params = new URLSearchParams({
+          page: String(current),
+          limit: String(pageSize),
+          ...(sort ? { sort, order: order ?? 'asc' } : {}),
+          ...Object.fromEntries(
+            Object.entries(filters).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])
+          ),
+        })
+        const res = await fetch(`/api/users?${params}`)
         const data = await res.json()
         return { data: data.items, total: data.total, success: true }
       }}
+      search={true}
+      pagination={{ defaultPageSize: 10, pageSizeOptions: [10, 20, 50] }}
       toolBarRender={() => [
-        <Button key="add" variant="solid" onPress={() => {}}>Add User</Button>
+        <Button key="add" variant="primary">+ Add User</Button>,
       ]}
-      rowSelection={{ onChange: (keys, rows) => console.log(keys, rows) }}
+      rowSelection={{ onChange: (keys, rows) => console.log('selected:', keys) }}
       bulkActions={[
         { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },
       ]}
@@ -161,64 +189,148 @@ import { Table } from '@dangbt/pro-ui'
 
 ## ProForm
 
-Form builder with Zod validation, grid layout, and a rich set of field components. Uses react-hook-form under the hood.
+Form builder with optional Zod validation, grid layout, and 17 field components. Uses react-hook-form under the hood. Supports async defaultValues, formRef for programmatic control, submitter customisation, and field dependency.
 
-Import: `import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker, ProFormTextarea, ProFormNumberField, ProFormCheckbox, ProFormSwitch, ProFormRadioGroup, ProFormComboBox, ProFormAsyncSelect } from '@dangbt/pro-ui'`
+Import: `import { ProForm, ProFormRow, ProFormInput, ProFormTextarea, ProFormNumberField, ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup, ProFormCheckbox, ProFormSwitch, ProFormDatePicker, ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider, ProFormTokenField, ProFormList, ProFormDependency } from '@dangbt/pro-ui'`
 
 ### Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| schema | ZodSchema | ✅ | — | Zod schema for validation |
-| onSubmit | (values: T) => void | Promise<void> | ✅ | — | Submit handler with validated values |
-| defaultValues | Partial<T> | — | — | Initial form values |
-| layout | 'vertical' | 'horizontal' | — | `'vertical'` | Label placement |
-| cols | number | — | `1` | Grid columns for the form |
-| loading | boolean | — | — | Show loading state on submit button |
+| schema | ZodSchema | — | — | Zod schema for validation. Optional — omit for no validation. |
+| onFinish | (values: T) => void | Promise<void> | ✅ | — | Called with validated values on successful submit |
+| onFinishFailed | (errors: FieldErrors<T>) => void | — | — | Called when validation fails |
+| defaultValues | DefaultValues<T> | — | — | Initial form values. Can be undefined initially and set later (async load) — the form resets to the new values when they arrive. |
+| onValuesChange | (changed: Partial<T>, allValues: T) => void | — | — | Called when any field value changes |
+| onReset | () => void | — | — | Called when form is reset |
+| layout | 'vertical' | 'horizontal' | — | `'vertical'` | Label placement: vertical (labels above) or horizontal (labels beside) |
+| size | 'sm' | 'md' | 'lg' | — | `'md'` | Size for all form fields |
 | submitText | string | — | `'Submit'` | Submit button label |
-| onReset | () => void | — | — | Called when form resets |
+| submitClassName | string | — | — | CSS class for the submit button |
+| showReset | boolean | — | `false` | Show a reset button |
+| resetText | string | — | `'Reset'` | Reset button label |
+| submitter | false | { submitText?; resetText?; showReset?; render?: (props: SubmitterProps) => ReactNode } | — | — | Submitter config. Pass false to hide submit/reset buttons entirely. Use render for fully custom buttons. |
+| resetOnDefaultValuesChange | boolean | — | `false` | Reset form even when dirty if defaultValues change |
+| formRef | Ref<ProFormRef<T>> | — | — | Ref for programmatic access: getFormInstance(), reset(), submit(), getValues(), setValue() |
+| children | ReactNode | ✅ | — | Form field components |
+| className | string | — | — | CSS class for the form element |
+
+### Notes
+
+Field components: ProFormInput, ProFormTextarea, ProFormNumberField, ProFormSelect, ProFormAsyncSelect, ProFormComboBox, ProFormRadioGroup, ProFormCheckbox, ProFormSwitch, ProFormDatePicker, ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider, ProFormTokenField. All accept name, label, required, description, placeholder, size, isDisabled. Use ProFormRow for side-by-side fields. ProFormList renders repeatable field groups with add/remove. ProFormDependency watches fields and conditionally renders children. The formRef provides: getFormInstance() (react-hook-form methods), reset(), submit(), getValues(), setValue(name, value).
 
 ### Example
 
 ```tsx
 import { z } from 'zod'
-import { ProForm, ProFormInput, ProFormSelect, ProFormDatePicker } from '@dangbt/pro-ui'
+import { useRef, useState, useEffect } from 'react'
+import {
+  ProForm, ProFormRow, ProFormInput, ProFormSelect,
+  ProFormDatePicker, ProFormSlider, ProFormCheckboxGroup,
+  ProFormList, ProFormDependency, ProFormTokenField,
+} from '@dangbt/pro-ui'
+import type { ProFormRef } from '@dangbt/pro-ui'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email'),
+  name: z.string().min(1, 'Required'),
+  email: z.string().email(),
   role: z.enum(['admin', 'user', 'viewer']),
   joinDate: z.string().optional(),
+  permissions: z.array(z.string()).optional(),
+  priority: z.number().min(0).max(10).optional(),
+  tags: z.array(z.string()).optional(),
 })
 
 type FormValues = z.infer<typeof schema>
 
+// ── Basic form ──
 export function CreateUserForm() {
   return (
     <ProForm<FormValues>
       schema={schema}
-      onSubmit={async (values) => {
-        await fetch('/api/users', {
-          method: 'POST',
-          body: JSON.stringify(values),
-        })
+      onFinish={async (values) => {
+        await fetch('/api/users', { method: 'POST', body: JSON.stringify(values) })
       }}
       defaultValues={{ role: 'user' }}
-      cols={2}
       submitText="Create User"
+      showReset
     >
-      <ProFormInput name="name" label="Full Name" placeholder="John Doe" />
-      <ProFormInput name="email" label="Email" type="email" />
-      <ProFormSelect
-        name="role"
-        label="Role"
-        options={[
+      <ProFormRow>
+        <ProFormInput name="name" label="Full Name" required />
+        <ProFormInput name="email" label="Email" type="email" required />
+      </ProFormRow>
+      <ProFormRow>
+        <ProFormSelect name="role" label="Role" options={[
           { value: 'admin', label: 'Admin' },
           { value: 'user', label: 'User' },
           { value: 'viewer', label: 'Viewer' },
-        ]}
-      />
-      <ProFormDatePicker name="joinDate" label="Join Date" />
+        ]} />
+        <ProFormDatePicker name="joinDate" label="Join Date" />
+      </ProFormRow>
+      <ProFormSlider name="priority" label="Priority" min={0} max={10} step={1} />
+      <ProFormCheckboxGroup name="permissions" label="Permissions" options={[
+        { value: 'read', label: 'Read' },
+        { value: 'write', label: 'Write' },
+        { value: 'delete', label: 'Delete' },
+      ]} />
+      <ProFormTokenField name="tags" label="Tags" placeholder="Type and press Enter" />
+    </ProForm>
+  )
+}
+
+// ── Edit form with async defaultValues + formRef ──
+export function EditUserForm({ userId }: { userId: string }) {
+  const formRef = useRef<ProFormRef<FormValues>>(null)
+  const [defaults, setDefaults] = useState<FormValues | undefined>()
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`).then(r => r.json()).then(setDefaults)
+  }, [userId])
+
+  return (
+    <ProForm<FormValues>
+      schema={schema}
+      formRef={formRef}
+      defaultValues={defaults}
+      onFinish={async (values) => {
+        await fetch(`/api/users/${userId}`, { method: 'PUT', body: JSON.stringify(values) })
+      }}
+      submitText="Save Changes"
+    >
+      <ProFormInput name="name" label="Name" required />
+      <ProFormInput name="email" label="Email" type="email" required />
+
+      {/* Conditional field: show permissions only for admin */}
+      <ProFormDependency name={['role']}>
+        {({ role }) => role === 'admin' && (
+          <ProFormCheckboxGroup name="permissions" label="Admin Permissions" options={[
+            { value: 'manage_users', label: 'Manage Users' },
+            { value: 'manage_billing', label: 'Manage Billing' },
+          ]} />
+        )}
+      </ProFormDependency>
+    </ProForm>
+  )
+}
+
+// ── ProFormList: repeatable field group ──
+export function OrderForm() {
+  return (
+    <ProForm
+      onFinish={(values) => console.log(values)}
+      submitText="Place Order"
+    >
+      <ProFormList name="items" label="Order Items" min={1} max={5} addText="+ Add Item">
+        {(field, index, { remove }) => (
+          <ProFormRow>
+            <ProFormInput name={`${field}.product`} label={`Item ${index + 1}`} required />
+            <div className="flex gap-2 items-end">
+              <ProFormNumberField name={`${field}.quantity`} label="Qty" min={1} />
+              <button type="button" onClick={remove} className="text-danger text-sm mb-2">Remove</button>
+            </div>
+          </ProFormRow>
+        )}
+      </ProFormList>
     </ProForm>
   )
 }
