@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ProTable } from './pro-table'
 import { Button } from '../button'
-import type { ProColumnType, QueryParams } from './types'
+import type { ProColumnType, ProTableActions, QueryParams } from './types'
 
 interface User {
   id: string
@@ -141,6 +141,67 @@ export const ExpandedRows: StoryObj = {
           <strong>Email:</strong> {r.email} · <strong>Role:</strong> {r.role}
         </div>
       )}
+    />
+  ),
+}
+
+export const WithActionRef: StoryObj = {
+  render: function Render() {
+    const actionRef = useRef<ProTableActions>(null)
+    return (
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <Button variant="primary" size="sm" onPress={() => actionRef.current?.reload()}>
+            reload()
+          </Button>
+          <Button variant="secondary" size="sm" onPress={() => actionRef.current?.reloadAndReset()}>
+            reloadAndReset()
+          </Button>
+          <Button variant="ghost" size="sm" onPress={() => actionRef.current?.reset()}>
+            reset()
+          </Button>
+          <Button variant="ghost" size="sm" onPress={() => actionRef.current?.clearSelected()}>
+            clearSelected()
+          </Button>
+        </div>
+        <ProTable<User>
+          columns={columns}
+          request={mockRequest}
+          rowKey="id"
+          actionRef={actionRef}
+          headerTitle="actionRef demo"
+          rowSelection={{ onChange: (keys) => console.log('selected:', keys) }}
+          pagination={{ defaultPageSize: 5 }}
+        />
+      </div>
+    )
+  },
+}
+
+export const DefaultSort: StoryObj = {
+  render: () => (
+    <ProTable<User>
+      columns={columns}
+      request={mockRequest}
+      rowKey="id"
+      headerTitle="Default sort by name (asc)"
+      defaultSort={{ field: 'name', order: 'asc' }}
+      onSortChange={(sort) => console.log('sort:', sort)}
+      search={false}
+      pagination={{ defaultPageSize: 5 }}
+    />
+  ),
+}
+
+export const CustomEmptyText: StoryObj = {
+  render: () => (
+    <ProTable<User>
+      columns={columns}
+      dataSource={[]}
+      rowKey="id"
+      headerTitle="Empty table"
+      search={false}
+      emptyText="No users found. Try adjusting your filters."
     />
   ),
 }

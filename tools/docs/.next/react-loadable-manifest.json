@@ -1,33 +1,33 @@
 {
-  "node_modules/fumadocs-core/dist/search/client.js -> ../algolia-NTWLS6J3.js": {
-    "id": 541,
+  "../../node_modules/.pnpm/fumadocs-core@14.7.7_@types+react@19.2.15_next@15.5.18_@babel+core@7.29.0_react-dom@19._0da7067eabdca6a5838ebc9c2ccd5ab7/node_modules/fumadocs-core/dist/search/client.js -> ../algolia-NTWLS6J3.js": {
+    "id": 7867,
     "files": [
-      "static/chunks/541.2bf75e6a421a3a7c.js"
+      "static/chunks/867.6e9812379afd2698.js"
     ]
   },
-  "node_modules/fumadocs-core/dist/search/client.js -> ../fetch-4K7QOPFM.js": {
-    "id": 3948,
+  "../../node_modules/.pnpm/fumadocs-core@14.7.7_@types+react@19.2.15_next@15.5.18_@babel+core@7.29.0_react-dom@19._0da7067eabdca6a5838ebc9c2ccd5ab7/node_modules/fumadocs-core/dist/search/client.js -> ../fetch-4K7QOPFM.js": {
+    "id": 4898,
     "files": [
-      "static/chunks/948.2a459fb19fff8be1.js"
+      "static/chunks/898.b5518e3e9317431d.js"
     ]
   },
-  "node_modules/fumadocs-core/dist/search/client.js -> ../orama-cloud-HAZVD2ZO.js": {
-    "id": 4083,
+  "../../node_modules/.pnpm/fumadocs-core@14.7.7_@types+react@19.2.15_next@15.5.18_@babel+core@7.29.0_react-dom@19._0da7067eabdca6a5838ebc9c2ccd5ab7/node_modules/fumadocs-core/dist/search/client.js -> ../orama-cloud-HAZVD2ZO.js": {
+    "id": 8277,
     "files": [
-      "static/chunks/83.67e0997008920989.js"
+      "static/chunks/277.8327f95b143e2379.js"
     ]
   },
-  "node_modules/fumadocs-core/dist/search/client.js -> ../static-KPGOHAZ2.js": {
-    "id": 9253,
+  "../../node_modules/.pnpm/fumadocs-core@14.7.7_@types+react@19.2.15_next@15.5.18_@babel+core@7.29.0_react-dom@19._0da7067eabdca6a5838ebc9c2ccd5ab7/node_modules/fumadocs-core/dist/search/client.js -> ../static-KPGOHAZ2.js": {
+    "id": 8655,
     "files": [
-      "static/chunks/253.c40988e22dbca4c7.js"
+      "static/chunks/655.9a22bb627e530fb4.js"
     ]
   },
-  "node_modules/fumadocs-ui/dist/provider.js -> ./components/dialog/search-default": {
-    "id": 4935,
+  "../../node_modules/.pnpm/fumadocs-ui@14.7.7_@types+react-dom@19.2.3_@types+react@19.2.15__@types+react@19.2.15_f_e4397de62d512c4b8e6f7b84faf51919/node_modules/fumadocs-ui/dist/provider.js -> ./components/dialog/search-default": {
+    "id": 7010,
     "files": [
-      "static/chunks/354-d5c40d7a507b53c2.js",
-      "static/chunks/935.f949ceaf53b3c5a6.js"
+      "static/chunks/997-865c588a05a7bd91.js",
+      "static/chunks/10.d97be5dd1f6884ed.js"
     ]
   }
 }

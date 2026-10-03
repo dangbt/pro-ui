@@ -45,7 +45,7 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'search', type: 'boolean', required: false, default: 'true', description: 'Set false to hide search form' },
       { name: 'loading', type: 'boolean', required: false, description: 'Override loading state' },
       { name: 'pagination', type: '{ defaultPageSize?: number; defaultCurrent?: number; pageSizeOptions?: number[]; onChange?: (page: number, pageSize: number) => void }', required: false, description: 'Pagination config. defaultCurrent (1-based) is the page to open on, read once on mount; onChange fires on user paging only, never on mount — pair them to persist paging to the URL' },
-      { name: 'rowSelection', type: '{ onChange?: (keys: string[], rows: T[]) => void }', required: false, description: 'Enable row-selection checkboxes. Required for bulkActions to appear — without rowSelection there is no way to select the rows a bulk action operates on.' },
+      { name: 'rowSelection', type: '{ onChange?: (keys: string[], rows: T[]) => void; selectedRowKeys?: string[]; preserveSelectedRowKeys?: boolean }', required: false, description: 'Enable row-selection checkboxes. Required for bulkActions to appear. Pass selectedRowKeys for controlled selection (update via onChange). Set preserveSelectedRowKeys to keep selection across page changes in server mode.' },
       { name: 'bulkActions', type: 'BulkActionDef<T>[]', required: false, description: 'Actions shown when rows are selected. Requires rowSelection to be set.' },
       { name: 'expandedRowRender', type: '(record: T) => ReactNode', required: false, description: 'Render content below expanded row' },
       { name: 'rowClassName', type: '(record: T, index: number) => string', required: false, description: 'Add CSS classes to rows conditionally' },
@@ -55,10 +55,14 @@ export const COMPONENTS: ComponentInfo[] = [
       { name: 'sticky', type: "boolean | { offsetTop?: number; maxHeight?: number | string; windowScroll?: boolean }", required: false, default: 'false', description: 'Make the table header sticky. true = stick to page scroll (top:0, no horizontal scroll); { offsetTop } = stick with a top offset for a fixed navbar; { maxHeight } = scroll inside a height-limited box (number px, CSS string, or the string "fit" to fill the viewport) with horizontal scroll restored; { windowScroll: true, offsetTop? } = stick to window scroll while keeping horizontal scroll.' },
       { name: 'locale', type: 'string', required: false, default: "'vi-VN'", description: "BCP-47 locale tag used to format date and number/money columns. Defaults to 'vi-VN'; set it to match your audience (e.g. 'en-US') instead of writing a custom render per column." },
       { name: 'currency', type: 'string', required: false, default: "'VND'", description: "ISO-4217 currency code used by valueType: 'money'. Defaults to 'VND'. Pair with locale to control both the currency and its formatting." },
+      { name: 'actionRef', type: 'React.Ref<ProTableActions>', required: false, description: 'Imperative handle for programmatic table control. Use with useRef<ProTableActions>(null). Provides reload() (re-fetch current page), reloadAndReset() (re-fetch from page 1), reset() (clear search form and re-fetch), clearSelected() (clear row selection).' },
+      { name: 'defaultSort', type: '{ field: string; order: "asc" | "desc" }', required: false, description: 'Initial sort state applied on mount. For controlled sorting, combine with onSortChange to persist/restore sort state.' },
+      { name: 'onSortChange', type: '(sort: SortState | undefined) => void', required: false, description: 'Called when the user changes the sort order. Receives the new sort state, or undefined when sorting is cleared.' },
+      { name: 'emptyText', type: 'ReactNode', required: false, description: 'Custom empty state content. Replaces the default "No data" message. Can be a string or any ReactNode.' },
     ],
-    example: `import { useState } from 'react'
+    example: `import { useRef } from 'react'
 import { ProTable, Button } from '@dangbt/pro-ui'
-import type { ProColumnType } from '@dangbt/pro-ui'
+import type { ProColumnType, ProTableActions } from '@dangbt/pro-ui'
 
 interface User {
   id: string
@@ -69,8 +73,8 @@ interface User {
 }
 
 const columns: ProColumnType<User>[] = [
-  { title: 'Name', dataIndex: 'name', sortable: true, pinnable: true, disableHiding: true },
-  { title: 'Email', dataIndex: 'email' },
+  { title: 'Name', dataIndex: 'name', sortable: true, pinnable: true, disableHiding: true, ellipsis: true },
+  { title: 'Email', dataIndex: 'email', ellipsis: true },
   {
     title: 'Status',
     dataIndex: 'status',
@@ -79,6 +83,7 @@ const columns: ProColumnType<User>[] = [
       active: { text: 'Active', color: 'success' },
       inactive: { text: 'Inactive', color: 'default' },
     },
+    tooltip: 'User account status',
   },
   { title: 'Created', dataIndex: 'createdAt', valueType: 'date', sortable: true, hideInSearch: true },
   {
@@ -87,13 +92,13 @@ const columns: ProColumnType<User>[] = [
   },
 ]
 
-// ── Server-side mode with sort, filter, and reload ──
+// ── Server-side mode with actionRef, sort, filter ──
 export function UsersPage() {
-  const [refreshToken, setRefreshToken] = useState(0)
+  const actionRef = useRef<ProTableActions>(null)
 
   const handleDelete = async (id: string) => {
     await fetch(\`/api/users/\${id}\`, { method: 'DELETE' })
-    setRefreshToken(t => t + 1) // reload current page
+    actionRef.current?.reload() // reload current page preserving sort/filter
   }
 
   return (
@@ -101,7 +106,9 @@ export function UsersPage() {
       headerTitle="Users"
       columns={columns}
       rowKey="id"
-      refreshToken={refreshToken}
+      actionRef={actionRef}
+      defaultSort={{ field: 'createdAt', order: 'desc' }}
+      onSortChange={(sort) => console.log('sort changed:', sort)}
       request={async ({ current, pageSize, sort, order, ...filters }) => {
         const params = new URLSearchParams({
           page: String(current),
@@ -118,17 +125,23 @@ export function UsersPage() {
       search={true}
       pagination={{ defaultPageSize: 10, pageSizeOptions: [10, 20, 50] }}
       toolBarRender={() => [
+        <Button key="reload" variant="secondary" onPress={() => actionRef.current?.reload()}>Reload</Button>,
+        <Button key="reset" variant="ghost" onPress={() => actionRef.current?.reset()}>Reset</Button>,
         <Button key="add" variant="primary">+ Add User</Button>,
       ]}
-      rowSelection={{ onChange: (keys, rows) => console.log('selected:', keys) }}
+      rowSelection={{
+        onChange: (keys, rows) => console.log('selected:', keys),
+        preserveSelectedRowKeys: true,
+      }}
       bulkActions={[
         { label: 'Delete selected', danger: true, onClick: (keys) => console.log('delete', keys) },
       ]}
+      emptyText="No users found. Try adjusting your search filters."
     />
   )
 }`,
     notes:
-      'ProColumnType props: title, dataIndex, key, valueType ("text"|"number"|"date"|"dateRange"|"select"|"money"|"custom"), valueEnum (Record<string, string | {text, color}>), hideInSearch, hideInTable, disableHiding, pinnable, render(value, record, index), sortable, width, align. The search form is auto-generated from columns with valueType; set hideInSearch on columns that should not appear in the form. Set search={false} on ProTable to hide the form entirely. Reload the current page by bumping refreshToken (a primitive compared with Object.is). The toolbar includes a built-in refresh button in server mode. Column visibility is persisted to localStorage by default (persistColumnVisibility).',
+      'ProColumnType props: title, dataIndex, key, valueType ("text"|"number"|"date"|"dateRange"|"select"|"money"|"custom"), valueEnum (Record<string, string | {text, color}>), hideInSearch, hideInTable, disableHiding, pinnable, render(value, record, index), sortable, width, align, ellipsis (truncate with native title tooltip), tooltip (ReactNode shown next to column header). The search form is auto-generated from columns with valueType; set hideInSearch on columns that should not appear in the form. Set search={false} on ProTable to hide the form entirely. Use actionRef for programmatic control: actionRef.current.reload() re-fetches the current page, reloadAndReset() resets to page 1, reset() clears the search form, clearSelected() clears row selection. refreshToken is an alternative for reload-only (bump it after a mutation). The toolbar includes a built-in refresh button in server mode. Column visibility is persisted to localStorage by default (persistColumnVisibility).',
   },
 
   // ─── FORM ─────────────────────────────────────────────────────────────────
@@ -244,6 +257,11 @@ export function EditUserForm({ userId }: { userId: string }) {
     >
       <ProFormInput name="name" label="Name" required />
       <ProFormInput name="email" label="Email" type="email" required />
+      <ProFormSelect name="role" label="Role" options={[
+        { value: 'admin', label: 'Admin' },
+        { value: 'user', label: 'User' },
+        { value: 'viewer', label: 'Viewer' },
+      ]} />
 
       {/* Conditional field: show permissions only for admin */}
       <ProFormDependency name={['role']}>

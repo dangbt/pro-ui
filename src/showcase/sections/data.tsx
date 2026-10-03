@@ -8,7 +8,7 @@ import {
   ProFormDateRangePicker, ProFormCheckboxGroup, ProFormSlider,
   ProFormTokenField, ProFormList, ProFormDependency,
 } from '../../components'
-import type { BulkActionDef, ProFormRef } from '../../components'
+import type { BulkActionDef, ProFormRef, ProTableActions } from '../../components'
 import { Demo, SectionHeader } from '../shared'
 import { useShowcaseSize } from '../context'
 import { TABLE_COLS, mockRequest, MOCK } from '../mock-data'
@@ -137,14 +137,15 @@ export function ProTableSection() {
         />
       </div>
 
-      {/* Server mode with sort + filter + refreshToken reload */}
+      {/* actionRef — programmatic reload, reset, clearSelected */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">Reload pattern — <code className="font-mono normal-case">refreshToken</code></p>
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">actionRef — programmatic control</p>
         <div className="text-xs text-fg-disabled space-y-0.5 mb-2">
-          <p>· Bump <code className="font-mono">refreshToken</code> after a mutation to reload the current page without resetting to page 1</p>
-          <p>· Click "Simulate mutation" to trigger a reload — sort and filter state is preserved</p>
+          <p>· <code className="font-mono">actionRef.current.reload()</code> re-fetches the current page (sort/filter preserved)</p>
+          <p>· <code className="font-mono">reset()</code> clears the search form and re-fetches · <code className="font-mono">clearSelected()</code> clears row selection</p>
+          <p>· <code className="font-mono">defaultSort</code> sets the initial sort · <code className="font-mono">emptyText</code> customises the empty state</p>
         </div>
-        <ReloadDemo size={size} />
+        <ActionRefDemo size={size} />
       </div>
 
       <ConfirmModal
@@ -163,22 +164,31 @@ export function ProTableSection() {
   )
 }
 
-function ReloadDemo({ size }: { size: 'sm' | 'md' | 'lg' }) {
-  const [refreshToken, setRefreshToken] = useState(0)
+function ActionRefDemo({ size }: { size: 'sm' | 'md' | 'lg' }) {
+  const actionRef = useRef<ProTableActions>(null)
   const [reloadCount, setReloadCount] = useState(0)
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Button
           variant="primary"
           size="sm"
           onPress={() => {
-            setRefreshToken(t => t + 1)
+            actionRef.current?.reload()
             setReloadCount(c => c + 1)
           }}
         >
-          Simulate mutation (reload)
+          reload()
+        </Button>
+        <Button variant="secondary" size="sm" onPress={() => actionRef.current?.reloadAndReset()}>
+          reloadAndReset()
+        </Button>
+        <Button variant="ghost" size="sm" onPress={() => actionRef.current?.reset()}>
+          reset()
+        </Button>
+        <Button variant="ghost" size="sm" onPress={() => actionRef.current?.clearSelected()}>
+          clearSelected()
         </Button>
         {reloadCount > 0 && (
           <span className="text-xs text-fg-disabled">Reloaded {reloadCount} time{reloadCount !== 1 ? 's' : ''}</span>
@@ -188,11 +198,13 @@ function ReloadDemo({ size }: { size: 'sm' | 'md' | 'lg' }) {
         columns={TABLE_COLS.filter(c => c.key !== 'actions')}
         request={mockRequest}
         rowKey="id"
-        refreshToken={refreshToken}
-        headerTitle="refreshToken demo"
+        actionRef={actionRef}
+        defaultSort={{ field: 'name', order: 'asc' }}
+        headerTitle="actionRef demo"
         size={size}
-        search={false}
         pagination={{ defaultPageSize: 5 }}
+        rowSelection={{ onChange: (keys) => console.log('selected:', keys) }}
+        emptyText="No matching users found."
       />
     </div>
   )

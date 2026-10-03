@@ -173,16 +173,17 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 - **ProForm** — 6 new field components: `ProFormDateRangePicker`, `ProFormCheckboxGroup`, `ProFormSlider`, `ProFormTokenField`, `ProFormList` (repeatable field groups), `ProFormDependency` (conditional rendering based on watched fields).
 - **ProForm** — `formRef` for programmatic access (`reset()`, `submit()`, `getValues()`, `setValue()`), `submitter` prop for custom submit/reset rendering, `onValuesChange` callback, async `defaultValues` support.
+- **ProTable** — `actionRef` for programmatic control (`reload()`, `reloadAndReset()`, `reset()`, `clearSelected()`), `defaultSort`/`onSortChange` for initial and controlled sorting, `emptyText` for custom empty state.
+- **ProTable** — Controlled row selection via `rowSelection.selectedRowKeys` + `preserveSelectedRowKeys` to persist selection across pages.
+- **ProTable** — Column features: `pinnable`, `disableHiding`, `hideInSearch`, `hideInTable`, `ellipsis` (text truncation with native tooltip), `tooltip` (header tooltip), column visibility persistence to localStorage.
 - **ProTable** — `refreshToken` prop for reloading the current page after mutations without resetting to page 1.
-- **ProTable** — Column features: `pinnable`, `disableHiding`, `hideInSearch`, `hideInTable`, column visibility persistence to localStorage.
-- MCP `components-data.ts` updated to match actual dist types (17 ProForm fields documented, ProColumnType details).
-- Showcase demos for ProTable reload pattern, ProForm async edit, new fields, ProFormList, ProFormDependency.
+- MCP `components-data.ts` updated to match actual dist types (17 ProForm fields documented, ProColumnType details, ProTable actionRef).
+- Showcase demos for ProTable actionRef reload, sort, filter, ProForm async edit, new fields, ProFormList, ProFormDependency.
 - Storybook stories for ProTable and ProForm.
 
 **Breaking changes**
 
-- Peer dependency `@tanstack/react-table` is now `^8.21.0` (was `^8`).
-- ProForm `onSubmit` renamed to `onFinish` (aligns with react-hook-form convention).
+- Peer dependency `@tanstack/react-table` is now `^8.21.0` (was `>=8`).
 - ProForm `schema` is now optional (omit for no validation).
 
 ---
