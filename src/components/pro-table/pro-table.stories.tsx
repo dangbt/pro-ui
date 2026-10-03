@@ -54,6 +54,15 @@ function mockRequest(p: QueryParams) {
       if (p.name) filtered = filtered.filter((u) => u.name.toLowerCase().includes(String(p.name).toLowerCase()))
       if (p.status) filtered = filtered.filter((u) => u.status === p.status)
       if (p.role) filtered = filtered.filter((u) => u.role === p.role)
+      if (p.sort) {
+        const key = p.sort as keyof User
+        const dir = p.order === 'desc' ? -1 : 1
+        filtered.sort((a, b) => {
+          const va = a[key], vb = b[key]
+          if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir
+          return String(va).localeCompare(String(vb)) * dir
+        })
+      }
       const start = ((p.current as number) - 1) * (p.pageSize as number)
       resolve({ data: filtered.slice(start, start + (p.pageSize as number)), total: filtered.length, success: true })
     }, 300),
