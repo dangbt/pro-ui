@@ -167,6 +167,20 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ## Changelog
 
+### 1.11.0
+
+**New features**
+
+- **ProTable** — Search form now uses pro-ui `DatePicker` (date / dateRange) and `NumberField` (number / money); Select fields can be cleared back to "All"; pressing Enter in any field submits.
+- **ProTable** — Search form collapses to one row when there are more than 3 fields, with an Expand/Collapse toggle. `search` now accepts `boolean | SearchConfig` (`defaultCollapsed`, `collapsedRows`, `collapseThreshold`, `visibleFields`, `searchText`, `resetText`, `expandText`, `collapseText`).
+- **ProTable** — New `valueType: 'option'` for action columns: hidden from the search form and the Columns toggle, not sortable, rendered without `renderValue`.
+- **ProTable** — New `texts` prop (`ProTableTexts`) to override built-in strings (search, toolbar, pagination, empty/loading states, bulk actions). Defaults stay English. `emptyText` still takes precedence over `texts.noData`.
+
+**Behavior changes**
+
+- **ProTable** — `number` / `money` search fields now emit a `number` instead of a string.
+- **ProTable** — The Columns toggle button's `aria-label` changed from `Toggle columns` to `Columns`.
+
 ### 1.10.0
 
 **New features**
