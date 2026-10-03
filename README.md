@@ -165,6 +165,28 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ---
 
+## Changelog
+
+### 1.10.0
+
+**New features**
+
+- **ProForm** — 6 new field components: `ProFormDateRangePicker`, `ProFormCheckboxGroup`, `ProFormSlider`, `ProFormTokenField`, `ProFormList` (repeatable field groups), `ProFormDependency` (conditional rendering based on watched fields).
+- **ProForm** — `formRef` for programmatic access (`reset()`, `submit()`, `getValues()`, `setValue()`), `submitter` prop for custom submit/reset rendering, `onValuesChange` callback, async `defaultValues` support.
+- **ProTable** — `refreshToken` prop for reloading the current page after mutations without resetting to page 1.
+- **ProTable** — Column features: `pinnable`, `disableHiding`, `hideInSearch`, `hideInTable`, column visibility persistence to localStorage.
+- MCP `components-data.ts` updated to match actual dist types (17 ProForm fields documented, ProColumnType details).
+- Showcase demos for ProTable reload pattern, ProForm async edit, new fields, ProFormList, ProFormDependency.
+- Storybook stories for ProTable and ProForm.
+
+**Breaking changes**
+
+- Peer dependency `@tanstack/react-table` is now `^8.21.0` (was `^8`).
+- ProForm `onSubmit` renamed to `onFinish` (aligns with react-hook-form convention).
+- ProForm `schema` is now optional (omit for no validation).
+
+---
+
 ## AI Docs
 
 - [/llms.txt](https://pro-ui.pages.dev/llms.txt) — Summary for AI agents
