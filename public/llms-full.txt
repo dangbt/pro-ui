@@ -241,6 +241,7 @@ import {
   ProForm, ProFormRow, ProFormInput, ProFormSelect,
   ProFormDatePicker, ProFormSlider, ProFormCheckboxGroup,
   ProFormList, ProFormDependency, ProFormTokenField,
+  ProFormNumberField,
 } from '@dangbt/pro-ui'
 import type { ProFormRef } from '@dangbt/pro-ui'
 
