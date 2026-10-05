@@ -167,6 +167,12 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ## Changelog
 
+### 1.12.0
+
+**New features**
+
+- **AsyncSelect** — New `emptyText`, `loadErrorText` and `retryText` props to override the built-in "No results found", "Failed to load" and "Tap to retry" strings. Defaults stay English.
+
 ### 1.11.0
 
 **New features**

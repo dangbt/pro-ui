@@ -31,6 +31,12 @@ interface AsyncSelectProps<T extends AsyncSelectOption = AsyncSelectOption> {
   isDisabled?: boolean
   isInvalid?: boolean
   onBlur?: () => void
+  /** Text shown when the search returns no options */
+  emptyText?: string
+  /** Text shown when fetching options fails */
+  loadErrorText?: string
+  /** Label of the retry button shown after a failed fetch */
+  retryText?: string
 }
 
 export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
@@ -48,6 +54,9 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
   isDisabled = false,
   isInvalid = false,
   onBlur,
+  emptyText = 'No results found',
+  loadErrorText = 'Failed to load',
+  retryText = 'Tap to retry',
 }: AsyncSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
   const [fetchParams, setFetchParams] = useState({ search: '', page: 1 })
@@ -266,17 +275,17 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
           </div>
         ) : fetchError ? (
           <div className="flex flex-col items-center gap-2 py-6">
-            <p className={cn('text-danger', inputText[size])}>Failed to load</p>
+            <p className={cn('text-danger', inputText[size])}>{loadErrorText}</p>
             <button
               type="button"
               onClick={() => setFetchParams(p => ({ ...p }))}
               className="text-xs text-primary hover:text-primary-600 font-medium transition-colors"
             >
-              Tap to retry
+              {retryText}
             </button>
           </div>
         ) : options.length === 0 ? (
-          <div className={cn('py-8 text-center text-fg-disabled', inputText[size])}>No results found</div>
+          <div className={cn('py-8 text-center text-fg-disabled', inputText[size])}>{emptyText}</div>
         ) : (
           <>
             {options.map((opt, idx) => {
