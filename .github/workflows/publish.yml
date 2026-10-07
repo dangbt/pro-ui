@@ -67,35 +67,3 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-
-      - name: Publish to GitHub Packages (skip if already published)
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          if npm view "@dangbt/pro-ui@${VERSION}" version > /dev/null 2>&1; then
-            echo "v${VERSION} already exists on GitHub Packages — skipping."
-          else
-            pnpm publish --no-git-checks --ignore-scripts
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
