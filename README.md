@@ -167,6 +167,12 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ## Changelog
 
+### 1.12.1
+
+**Bug fixes**
+
+- **DatePicker / DateRangePicker** — Today's date is now highlighted in the calendar (primary ring + bold text), and stays distinguishable when selected or at a range start/end.
+
 ### 1.12.0
 
 **New features**
