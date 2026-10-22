@@ -68,6 +68,9 @@ const calendarCellCls = cn(
   'disabled:text-fg-disabled disabled:cursor-not-allowed hover:disabled:bg-transparent hover:disabled:text-fg-disabled',
   'unavailable:text-danger-400 unavailable:line-through',
   'outside-month:text-fg-disabled',
+  // today: primary ring + bold text; when selected, offset ring keeps it distinguishable (RAC sets data-today)
+  'data-today:font-semibold data-today:text-primary data-today:ring-1 data-today:ring-inset data-today:ring-primary',
+  'data-today:selected:text-white data-today:selected:ring-2 data-today:selected:ring-surface',
 )
 
 const calendarNavBtnCls = 'p-1 hover:bg-surface-subtle rounded-[var(--base-radius)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary text-fg-muted hover:text-fg-2 transition-colors'
@@ -196,6 +199,9 @@ function RangeCalendarInner({ showMonthYearPicker }: { showMonthYearPicker?: boo
               className={cn(
                 calendarCellCls,
                 'selected:bg-primary-100 selected:text-primary-700 selected:rounded-none',
+                'data-today:selected:text-primary-700 data-today:selected:ring-primary',
+                'data-today:selection-start:text-white data-today:selection-end:text-white',
+                'data-today:selection-start:ring-surface data-today:selection-end:ring-surface',
                 'selection-start:bg-primary selection-start:text-white selection-start:rounded-l-[var(--base-radius)]',
                 'selection-end:bg-primary selection-end:text-white selection-end:rounded-r-[var(--base-radius)]',
               )}
