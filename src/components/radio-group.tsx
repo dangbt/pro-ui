@@ -74,7 +74,7 @@ export function RadioGroup({
           <RARadioField key={opt.value} value={opt.value} isDisabled={opt.disabled}>
             <RARadioButton
               className={cn(
-                'group flex items-start gap-2 cursor-pointer select-none',
+                'group relative flex items-start gap-2 cursor-pointer select-none',
                 'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
               )}
             >

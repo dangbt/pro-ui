@@ -275,12 +275,12 @@ export function ProTable<T extends object>({
           }}
           className={
             stickyWindowScroll
-              ? 'overflow-x-auto'
+              ? 'relative overflow-x-auto'
               : stickyMaxHeight
-                ? 'overflow-auto'
+                ? 'relative overflow-auto'
                 : stickyEnabled
-                  ? 'overflow-x-clip'
-                  : 'overflow-x-auto'
+                  ? 'relative overflow-x-clip'
+                  : 'relative overflow-x-auto'
           }
           style={effectiveMaxHeight ? { maxHeight: effectiveMaxHeight } : undefined}
           onScroll={stickyWindowScroll ? wsHandleScroll : undefined}

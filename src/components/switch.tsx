@@ -47,7 +47,7 @@ export const Switch = forwardRef<HTMLLabelElement, SwitchProps>(function Switch(
       <RASwitchButton
         ref={ref}
         className={cn(
-          'group flex items-center gap-2 cursor-pointer select-none',
+          'group relative flex items-center gap-2 cursor-pointer select-none',
           'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
           className,
         )}
