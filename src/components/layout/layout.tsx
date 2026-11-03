@@ -2,18 +2,11 @@ import { useState, useRef, createContext, useContext, useCallback, type ReactNod
 import { ChevronLeft, ChevronDown, Menu as MenuIcon, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { useClickOutside } from '../../lib/use-click-outside'
+import { SiderCtx, useSider } from './sider-context'
+import { SiderNav, SiderNavGroup, SiderNavItem } from './sider-nav'
 
-/* ── Sider context ────────────────────────────────────────────────────────── */
+export { useSider }
 
-interface SiderCtxValue {
-  collapsed: boolean
-  collapsedWidth: number
-  width: number
-}
-
-const SiderCtx = createContext<SiderCtxValue>({ collapsed: false, collapsedWidth: 64, width: 240 })
-
-export const useSider = () => useContext(SiderCtx)
 
 /* ── Layout (root) ────────────────────────────────────────────────────────── */
 
@@ -189,79 +182,6 @@ function Footer({ children, className, bordered = true }: FooterProps) {
     >
       {children}
     </footer>
-  )
-}
-
-/* ── SiderNav helpers ─────────────────────────────────────────────────────── */
-
-interface SiderNavProps {
-  children: ReactNode
-  className?: string
-}
-
-function SiderNav({ children, className }: SiderNavProps) {
-  return (
-    <nav className={cn('py-3', className)}>
-      {children}
-    </nav>
-  )
-}
-
-interface SiderNavGroupProps {
-  label: string
-  children: ReactNode
-}
-
-function SiderNavGroup({ label, children }: SiderNavGroupProps) {
-  const { collapsed } = useSider()
-  return (
-    <div className="mb-4">
-      {!collapsed && (
-        <p className="px-4 mb-1 text-[10px] font-semibold uppercase tracking-widest text-fg-disabled whitespace-nowrap overflow-hidden">
-          {label}
-        </p>
-      )}
-      {collapsed && <div className="mx-3 my-1 border-t border-border-subtle" />}
-      <ul className="space-y-0.5 px-2">
-        {children}
-      </ul>
-    </div>
-  )
-}
-
-interface SiderNavItemProps {
-  icon: ReactNode
-  label: string
-  active?: boolean
-  onClick?: () => void
-  badge?: ReactNode
-}
-
-function SiderNavItem({ icon, label, active = false, onClick, badge }: SiderNavItemProps) {
-  const { collapsed } = useSider()
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onClick}
-        title={collapsed ? label : undefined}
-        className={cn(
-          'flex items-center w-full rounded-[var(--base-radius)] transition-colors text-sm',
-          collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2',
-          active
-            ? 'bg-primary-50 text-primary font-medium'
-            : 'text-fg-muted hover:bg-surface-subtle hover:text-fg-2',
-        )}
-      >
-        <span className="shrink-0 w-4 h-4 flex items-center justify-center">{icon}</span>
-        {!collapsed && (
-          <>
-            <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">{label}</span>
-            {badge && <span className="shrink-0">{badge}</span>}
-          </>
-        )}
-      </button>
-    </li>
   )
 }
 
