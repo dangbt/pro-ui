@@ -253,7 +253,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
             onChange={e => setFetchParams({ search: e.target.value, page: 1 })}
             onKeyDown={handleKeyDown}
             placeholder={searchPlaceholder}
-            className={cn('flex-1 bg-transparent outline-none text-fg placeholder:text-fg-disabled', inputText[size])}
+            className={cn('flex-1 min-w-0 w-full bg-transparent outline-none text-fg placeholder:text-fg-disabled', inputText[size])}
           />
           {fetchParams.search && (
             <button
@@ -350,7 +350,7 @@ export function AsyncSelect<T extends AsyncSelectOption = AsyncSelectOption>({
           isOpen && 'outline-2 outline-primary outline-offset-0 border-transparent',
         )}
       >
-        <span className={cn('truncate', displayLabel ? 'text-fg-2' : 'text-fg-disabled')}>
+        <span className={cn('flex-1 min-w-0 truncate text-left', displayLabel ? 'text-fg-2' : 'text-fg-disabled')}>
           {displayLabel ?? placeholder}
         </span>
         <div className="flex items-center gap-1 shrink-0 ml-1">
