@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.13.1",
+  "version": "1.13.2",
   "type": "module",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "keywords": [
@@ -43,7 +43,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist/server && node prerender.mjs",
-    "build:lib": "vite build -c vite.lib.config.ts && tsc -p tsconfig.lib.json",
+    "build:lib": "vite build -c vite.lib.config.ts && tsc -p tsconfig.lib.json && node scripts/fix-dts-extensions.mjs dist",
     "prepublishOnly": "pnpm build:lib",
     "preview": "vite preview",
     "tools:build": "pnpm -r --filter './tools/**' build",

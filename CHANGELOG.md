@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.2
+
+- fix(types): published `.d.ts` files now use explicit extensions on relative imports (`./button.js`, `./pro-table/index.js`). With `"type": "module"`, TypeScript `moduleResolution: "node16"` / `"nodenext"` could not resolve the extensionless re-exports (TS2834) and every export became `any`. Types now resolve under `nodenext`, `bundler` and `node10` (#13).
+- ci: tag pushes now also create the GitHub Release from the matching CHANGELOG entry.
+
 ## 1.13.1
 
 - docs(readme): render correctly on npm.io's new dark UI — logo wordmark readable on dark/light backgrounds, comparison table uses text instead of emoji (npm.io strips emoji), absolute links for CHANGELOG/ROADMAP/SPONSORS/LICENSE.

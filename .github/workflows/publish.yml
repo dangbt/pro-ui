@@ -67,3 +67,30 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  github-release:
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release from CHANGELOG (skip if exists)
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping."
+            exit 0
+          fi
+          # Lấy mục "## <version>" trong CHANGELOG.md (tới heading "## " kế tiếp).
+          awk -v v="$VERSION" '$0 == "## " v { on = 1; next } /^## / && on { exit } on' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md thiếu mục '## $VERSION'"
+            exit 1
+          fi
+          printf '\n---\n\nInstall: `npm i @dangbt/pro-ui@%s` · [npm](https://www.npmjs.com/package/@dangbt/pro-ui/v/%s) · [Full changelog](https://github.com/dangbt/pro-ui/blob/main/CHANGELOG.md)\n' "$VERSION" "$VERSION" >> notes.md
+          gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag --latest
+        env:
+          GH_TOKEN: ${{ github.token }}
