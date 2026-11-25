@@ -1,0 +1,76 @@
+---
+title: Link
+description: Accessible text link with variants and active styling via aria-current — works with any router.
+---
+
+## Import
+
+```tsx
+import { Link } from '@dangbt/pro-ui'
+```
+
+## Basic link
+
+```tsx
+<Link href="/settings">Account settings</Link>
+<Link href="https://github.com/dangbt/pro-ui" target="_blank">GitHub</Link>
+```
+
+Without `href`, `Link` renders as a button-like link — use `onPress`:
+
+```tsx
+<Link onPress={() => setShowAll(true)}>Show all</Link>
+```
+
+## Variants
+
+```tsx
+<Link href="#" variant="default">Default</Link>
+<Link href="#" variant="muted">Muted</Link>
+<Link href="#" variant="danger">Delete account</Link>
+```
+
+## Active link (`aria-current`)
+
+Set `aria-current="page"` (or `true`) on the link for the current location. Every variant switches to its active style — semibold, darker color, no underline — and screen readers announce it as the current page.
+
+```tsx
+<nav className="flex gap-4">
+  <Link href="/" aria-current={pathname === '/' ? 'page' : undefined}>Home</Link>
+  <Link href="/orders" aria-current={pathname === '/orders' ? 'page' : undefined}>Orders</Link>
+  <Link href="/reports" aria-current={pathname === '/reports' ? 'page' : undefined}>Reports</Link>
+</nav>
+```
+
+Use `aria-current="true"` for a selected item that is not a page, such as the active step in a list of links.
+
+## With a router
+
+`Link` is a React Aria link, so client-side navigation works once you wrap the app in React Aria's `RouterProvider`:
+
+```tsx
+import { RouterProvider } from 'react-aria-components'
+import { useNavigate, useHref } from 'react-router-dom'
+
+function App() {
+  const navigate = useNavigate()
+  return (
+    <RouterProvider navigate={navigate} useHref={useHref}>
+      {/* <Link href="/orders"> now navigates without a full page load */}
+    </RouterProvider>
+  )
+}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `href` | `string` | — | Destination. Without it the link behaves like a button |
+| `variant` | `'default' \| 'muted' \| 'danger'` | `'default'` | Color style |
+| `aria-current` | `'page' \| 'step' \| 'location' \| 'date' \| 'time' \| boolean` | — | Marks the current item; `'page'` and `true` apply the active style |
+| `target` | `string` | — | e.g. `'_blank'` |
+| `onPress` | `(e: PressEvent) => void` | — | Press handler |
+| `isDisabled` | `boolean` | `false` | Disable the link |
+| `className` | `string` | — | Extra classes |
+| `children` | `ReactNode` | — | Link text |

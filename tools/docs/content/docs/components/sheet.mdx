@@ -1,0 +1,129 @@
+---
+title: Sheet
+description: Swipe-to-dismiss overlay from any edge — bottom sheets with snap points, side panels, stacked sheets. Built on React Aria 1.22 Sheet.
+---
+
+> **Requires `react-aria-components` 1.22+.** `Sheet` wraps the React Aria `Sheet` added in 1.22; since pro-ui 1.13.0 the peer dependency is `react-aria-components >=1.22.0`.
+
+## Import
+
+```tsx
+import { Sheet, Button } from '@dangbt/pro-ui'
+```
+
+## Basic sheet
+
+Pass `triggerElement` and the sheet manages its own open state. It opens from the bottom by default, shows a drag handle and can be dismissed by swiping, pressing <kbd>Esc</kbd>, the close button or the backdrop.
+
+```tsx
+<Sheet
+  title="Share"
+  triggerElement={<Button variant="primary">Open sheet</Button>}
+>
+  <p>Swipe down, press Escape or use the close button to dismiss.</p>
+</Sheet>
+```
+
+## Positions
+
+```tsx
+<Sheet position="bottom">...</Sheet>   {/* default */}
+<Sheet position="top">...</Sheet>
+<Sheet position="left">...</Sheet>
+<Sheet position="right">...</Sheet>
+<Sheet position="start">...</Sheet>    {/* left in LTR, right in RTL */}
+<Sheet position="end">...</Sheet>      {/* right in LTR, left in RTL */}
+<Sheet position="center" showHandle={false}>...</Sheet>
+```
+
+`size` controls the width for side and center sheets, and the max height for top and bottom sheets: `'sm' | 'md' | 'lg' | 'xl' | 'full'` (default `'md'`).
+
+## Snap points
+
+A bottom sheet can rest at several heights. The user drags between them; the last point is fully open.
+
+```tsx
+<Sheet
+  title="Snap points"
+  position="bottom"
+  size="xl"
+  snapPoints={['40%', '100%']}
+  triggerElement={<Button>Open bottom sheet</Button>}
+>
+  {/* long content */}
+</Sheet>
+```
+
+## Footer and render props
+
+`children` and `footer` can be functions receiving `close`, so actions can dismiss the sheet.
+
+```tsx
+<Sheet
+  title="Confirm order"
+  position="center"
+  showHandle={false}
+  triggerElement={<Button>Checkout</Button>}
+  footer={({ close }) => (
+    <>
+      <Button variant="secondary" onPress={close}>Cancel</Button>
+      <Button variant="primary" onPress={() => { placeOrder(); close() }}>Place order</Button>
+    </>
+  )}
+>
+  <p>3 items · $129.00</p>
+</Sheet>
+```
+
+## Controlled
+
+Omit `triggerElement` and control it with `isOpen` / `onOpenChange`.
+
+```tsx
+const [open, setOpen] = useState(false)
+
+<Button onPress={() => setOpen(true)}>Filters</Button>
+
+<Sheet isOpen={open} onOpenChange={setOpen} title="Filters" position="right" size="lg">
+  {/* filter form */}
+</Sheet>
+```
+
+## Preventing dismissal
+
+Use `preventDismissal` while a task must be finished (for example an unsaved form). Swiping, <kbd>Esc</kbd> and backdrop clicks are ignored; close it from your own button.
+
+```tsx
+<Sheet isOpen={open} onOpenChange={setOpen} title="Edit profile" preventDismissal>
+  {({ close }) => <ProfileForm onSaved={close} />}
+</Sheet>
+```
+
+## Sheet vs Drawer
+
+| | `Sheet` | `Drawer` |
+|---|---|---|
+| Gestures | Swipe to dismiss, snap points | None |
+| Edges | bottom, top, left, right, start, end, center | left, right, bottom |
+| Best for | Mobile-first panels, action sheets, stacked sheets | Desktop filter panels and detail views |
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | — | Header title (also the accessible name) |
+| `children` | `ReactNode \| ({ close }) => ReactNode` | required | Sheet body |
+| `footer` | `ReactNode \| ({ close }) => ReactNode` | — | Footer area, typically action buttons |
+| `position` | `'bottom' \| 'top' \| 'left' \| 'right' \| 'start' \| 'end' \| 'center'` | `'bottom'` | Edge the sheet slides in from |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'` | `'md'` | Width (side/center) or max height (top/bottom) |
+| `snapPoints` | `Array<number \| string>` | — | Resting heights, e.g. `['40%', '100%']` |
+| `swipeDirection` | `'bottom' \| 'top' \| 'vertical' \| 'left' \| 'right' \| 'start' \| 'end' \| 'horizontal'` | from `position` | Direction that dismisses the sheet |
+| `preventDismissal` | `boolean` | `false` | Ignore swipe, Esc and backdrop dismissal |
+| `withBackdrop` | `boolean` | `true` | Show the dimmed backdrop |
+| `showHandle` | `boolean` | `true` for top/bottom | Show the drag handle bar |
+| `triggerElement` | `ReactNode` | — | Element that opens the sheet (uncontrolled mode) |
+| `isOpen` | `boolean` | — | Controlled open state |
+| `defaultOpen` | `boolean` | — | Initial open state (uncontrolled) |
+| `onOpenChange` | `(isOpen: boolean) => void` | — | Called when the sheet opens or closes |
+| `aria-label` | `string` | `'Sheet'` | Accessible name when there is no `title` |
+| `className` | `string` | — | Extra classes for the panel |
