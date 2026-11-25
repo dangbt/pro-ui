@@ -32,6 +32,8 @@ export { Tree }                         from './tree'
 /* ── Overlay & Navigation ──────────────────────────────── */
 export { Modal, ConfirmModal }          from './modal'
 export { Drawer }                       from './drawer'
+export { Sheet }                        from './sheet'
+export type { SheetProps }              from './sheet'
 export { Tooltip }                      from './tooltip'
 export { PreviewCard }                  from './preview-card'
 export { Menu }                         from './menu'
