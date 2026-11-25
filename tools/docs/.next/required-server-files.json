@@ -101,7 +101,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/dangbt/pro-ui",
+    "outputFileTracingRoot": "/home/dangbt/pro-ui",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -160,7 +160,7 @@
       "middlewarePrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 9,
+      "cpus": 3,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -297,7 +297,7 @@
             {
               "loader": "fumadocs-mdx/loader-mdx",
               "options": {
-                "configPath": "/Users/dangbt/pro-ui/tools/docs/source.config.ts",
+                "configPath": "/home/dangbt/pro-ui/tools/docs/source.config.ts",
                 "outDir": ".source"
               }
             }
@@ -305,10 +305,10 @@
           "as": "*.js"
         }
       },
-      "root": "/Users/dangbt/pro-ui"
+      "root": "/home/dangbt/pro-ui"
     }
   },
-  "appDir": "/Users/dangbt/pro-ui/tools/docs",
+  "appDir": "/home/dangbt/pro-ui/tools/docs",
   "relativeAppDir": "tools/docs",
   "files": [
     ".next/routes-manifest.json",

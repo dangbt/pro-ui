@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://pro-ui-docs.pages.dev'),
+  applicationName: 'pro-ui',
   title: {
     template: '%s | pro-ui docs',
     default: 'pro-ui — React UI library for admin dashboards',
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [{ url: 'https://pro-ui.pages.dev/og-image.png', width: 1200, height: 630 }],
     url: 'https://pro-ui-docs.pages.dev',
-    siteName: 'pro-ui docs',
+    siteName: 'pro-ui',
   },
   twitter: {
     card: 'summary_large_image',

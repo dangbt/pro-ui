@@ -1,4 +1,4 @@
-// File: /Users/dangbt/pro-ui/tools/docs/app/docs/layout.tsx
+// File: /home/dangbt/pro-ui/tools/docs/app/docs/layout.tsx
 import * as entry from '../../../../app/docs/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

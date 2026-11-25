@@ -1,4 +1,4 @@
-// File: /Users/dangbt/pro-ui/tools/docs/app/docs/[[...slug]]/page.tsx
+// File: /home/dangbt/pro-ui/tools/docs/app/docs/[[...slug]]/page.tsx
 import * as entry from '../../../../../app/docs/[[...slug]]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

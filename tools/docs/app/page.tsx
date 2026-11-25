@@ -1,8 +1,25 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+}
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'pro-ui',
+  alternateName: ['pro-ui docs', 'Pro UI', '@dangbt/pro-ui'],
+  url: 'https://pro-ui-docs.pages.dev/',
+}
 
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-12 px-4 text-center pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
 
       {/* Hero */}
       <div className="flex flex-col items-center gap-4 max-w-2xl pt-8">
