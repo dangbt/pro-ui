@@ -1,21 +1,21 @@
 <div align="center">
 
-<img src="src/assets/logo-full.svg" alt="pro-ui" height="48" />
+<img src="https://raw.githubusercontent.com/dangbt/pro-ui/main/src/assets/logo-readme.svg" alt="pro-ui" height="48" />
 
 <br/>
 <br/>
 
-**AI-native React UI library — 30+ accessible components built for Claude Code & Cursor**
+**AI-native React UI library — 70+ accessible components built for Claude Code & Cursor**
 
 [![npm version](https://img.shields.io/npm/v/@dangbt/pro-ui?style=flat-square&color=6366f1&logo=npm&logoColor=white)](https://www.npmjs.com/package/@dangbt/pro-ui)
 [![npm downloads](https://img.shields.io/npm/dm/@dangbt/pro-ui?style=flat-square&color=10b981&logo=npm&logoColor=white)](https://www.npmjs.com/package/@dangbt/pro-ui)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![React Aria](https://img.shields.io/badge/React_Aria-accessible-e9501e?style=flat-square)](https://react-spectrum.adobe.com/react-aria/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![License: MIT](https://img.shields.io/badge/license-MIT-6366f1?style=flat-square)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-6366f1?style=flat-square)](https://github.com/dangbt/pro-ui/blob/main/LICENSE)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/dangbt?style=flat-square&color=ea4aaa&logo=github-sponsors&logoColor=white&label=sponsor)](https://github.com/sponsors/dangbt)
 
-[**Docs →**](https://pro-ui-docs.pages.dev) · [**Live Showcase →**](https://pro-ui.pages.dev) · [npm](https://www.npmjs.com/package/@dangbt/pro-ui) · [MCP Server](https://www.npmjs.com/package/mcp-pro-ui) · [Pro Template →](https://pro-admin-demo.pages.dev) · [**Sponsor ☕**](https://github.com/sponsors/dangbt)
+[**Docs →**](https://pro-ui-docs.pages.dev) · [**Live Showcase →**](https://pro-ui.pages.dev) · [npm](https://www.npmjs.com/package/@dangbt/pro-ui) · [MCP Server](https://www.npmjs.com/package/mcp-pro-ui) · [Pro Template →](https://pro-admin-demo.pages.dev) · [**Sponsor**](https://github.com/sponsors/dangbt)
 
 </div>
 
@@ -33,14 +33,14 @@ The only React UI library with a **built-in MCP server** — letting Claude Code
 
 | Feature | **pro-ui** | shadcn/ui | MUI | Chakra |
 |---|:---:|:---:|:---:|:---:|
-| 🤖 MCP Server (AI-native) | ✅ | ❌ | ❌ | ❌ |
-| 🎨 Tailwind CSS v4 | ✅ | ✅ | ❌ | ❌ |
-| ♿ React Aria (accessible) | ✅ | ❌ | partial | partial |
-| 📊 ProTable (server-side) | ✅ | ❌ | ❌ | ❌ |
-| 📝 ProForm (schema-driven) | ✅ | ❌ | ❌ | ❌ |
-| 🏗️ CLI scaffold | ✅ | ❌ | ❌ | ❌ |
-| 🌙 Dark mode (CSS vars) | ✅ | ✅ | ✅ | ✅ |
-| 📦 Zero runtime CSS-in-JS | ✅ | ✅ | ❌ | ❌ |
+| MCP Server (AI-native) | **Yes** | No | No | No |
+| Tailwind CSS v4 | **Yes** | Yes | No | No |
+| React Aria (accessible) | **Yes** | No | Partial | Partial |
+| ProTable (server-side) | **Yes** | No | No | No |
+| ProForm (schema-driven) | **Yes** | No | No | No |
+| CLI scaffold | **Yes** | No | No | No |
+| Dark mode (CSS vars) | **Yes** | Yes | Yes | Yes |
+| Zero runtime CSS-in-JS | **Yes** | Yes | No | No |
 
 ---
 
@@ -72,7 +72,7 @@ npx create-pro-ui-app my-app
 
 ---
 
-## 🤖 AI Integration (MCP Server)
+## AI Integration (MCP Server)
 
 Let Claude Code, Cursor, or Windsurf build pages using the correct component APIs — zero hallucinated props.
 
@@ -97,7 +97,7 @@ Let Claude Code, Cursor, or Windsurf build pages using the correct component API
 }
 ```
 
-Then ask: *"scaffold me an admin dashboard page using pro-ui"* ✨
+Then ask: *"scaffold me an admin dashboard page using pro-ui"*
 
 **MCP tools:** `list_components` · `get_component_api` · `get_component_example` · `search_components` · `scaffold_page`
 
@@ -105,24 +105,32 @@ Then ask: *"scaffold me an admin dashboard page using pro-ui"* ✨
 
 ## Components
 
-### 🏗️ Pro Components
+70+ components. Full API: [Docs](https://pro-ui-docs.pages.dev) · [Live Showcase](https://pro-ui.pages.dev) · [llms-full.txt](https://pro-ui.pages.dev/llms-full.txt)
+
+### Pro Components
 | Component | Description |
 |---|---|
-| `ProTable` | Server-side data table — search, filter, sort, pagination, row selection, bulk actions |
-| `ProForm` | Schema-driven form with Zod — 10+ field types, grid layout, validation |
+| `ProTable` | Server-side data table — search form, filter, sort, pagination, row selection, bulk actions, `actionRef` |
+| `ProForm` | Schema-driven form with Zod — 20+ field types (incl. `ProFormList`, `ProFormDependency`), grid layout, validation |
 | `Layout` | App shell — `Sider` (collapsible sidebar) or `TopNav` (pill/line/bold variants + sub-nav) |
 
-### 📋 Form
-`Button` · `Input` · `Select` · `ComboBox` · `DatePicker` · `Checkbox` · `Switch` · `RadioGroup` · `Slider` · `TagField` · `FileUpload` · `DropZone` · `Autocomplete`
+### Form & Input
+`Button` · `ToggleButton` · `ToggleButtonGroup` · `Input` · `Textarea` · `NumberField` · `SearchField` · `InputOTP` · `Select` · `AsyncSelect` · `ComboBox` · `Autocomplete` · `Checkbox` · `CheckboxGroup` · `RadioGroup` · `Switch` · `Slider` · `Segmented` · `DatePicker` · `DateRangePicker` · `DateField` · `TimeField` · `Calendar` · `RangeCalendar` · `TagGroup` · `TokenField` · `ColorPicker` · `ColorSwatch` · `ColorSwatchPicker` · `FileTrigger` · `Upload` · `DropZone` · `Transfer`
 
-### 🪟 Overlay
-`Modal` · `Drawer` · `Popover` · `Tooltip` · `DropdownMenu`
+### Overlay
+`Modal` · `ConfirmModal` · `Drawer` · `Sheet` · `Popover` · `Tooltip` · `PreviewCard` · `Menu` · `Dropdown`
 
-### 📊 Display
-`Badge` · `Alert` · `Card` · `Avatar` · `Statistic` · `Empty` · `Steps` · `Progress` · `Skeleton` · `Divider` · `ColorPicker`
+### Navigation
+`Tabs` · `Breadcrumbs` · `Link` · `Pagination` · `Steps` · `NavigationTree` · `Tree` · `Toolbar`
 
-### 🔧 Utilities
-`ThemeProvider` · `useTheme` · `ToastProvider` · `toast`
+### Data Display
+`Table` · `ListBox` · `GridList` · `Descriptions` · `Timeline` · `Statistic` · `Badge` · `Card` · `Avatar` · `AvatarGroup` · `Disclosure` · `Accordion` · `Divider` · `Title` · `Text` · `Paragraph`
+
+### Feedback
+`Alert` · `toast` / `ToastProvider` · `ProgressBar` · `Meter` · `Spinner` · `Skeleton` · `Empty` · `Result` · `ErrorBoundary`
+
+### Utilities
+`ThemeProvider` · `useTheme` · `getThemeInitScript` · `useSider`
 
 ---
 
@@ -155,7 +163,7 @@ const columns: ProColumnType<User>[] = [
 
 ---
 
-## 🚀 Pro Admin Template
+## Pro Admin Template
 
 Complete admin dashboard — 8 pages, Recharts charts, auth flow, dark mode.
 
@@ -167,49 +175,13 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 ## Changelog
 
-### 1.12.1
+**Latest — 1.13.0**
 
-**Bug fixes**
+- New `Sheet` component (React Aria 1.22) — swipe-to-dismiss overlay from any edge, `snapPoints`, stacked sheets.
+- `Link` — active styling via `aria-current`.
+- Peer `react-aria-components` raised to `>=1.22.0`.
 
-- **DatePicker / DateRangePicker** — Today's date is now highlighted in the calendar (primary ring + bold text), and stays distinguishable when selected or at a range start/end.
-
-### 1.12.0
-
-**New features**
-
-- **AsyncSelect** — New `emptyText`, `loadErrorText` and `retryText` props to override the built-in "No results found", "Failed to load" and "Tap to retry" strings. Defaults stay English.
-
-### 1.11.0
-
-**New features**
-
-- **ProTable** — Search form now uses pro-ui `DatePicker` (date / dateRange) and `NumberField` (number / money); Select fields can be cleared back to "All"; pressing Enter in any field submits.
-- **ProTable** — Search form collapses to one row when there are more than 3 fields, with an Expand/Collapse toggle. `search` now accepts `boolean | SearchConfig` (`defaultCollapsed`, `collapsedRows`, `collapseThreshold`, `visibleFields`, `searchText`, `resetText`, `expandText`, `collapseText`).
-- **ProTable** — New `valueType: 'option'` for action columns: hidden from the search form and the Columns toggle, not sortable, rendered without `renderValue`.
-- **ProTable** — New `texts` prop (`ProTableTexts`) to override built-in strings (search, toolbar, pagination, empty/loading states, bulk actions). Defaults stay English. `emptyText` still takes precedence over `texts.noData`.
-
-**Behavior changes**
-
-- **ProTable** — `number` / `money` search fields now emit a `number` instead of a string.
-- **ProTable** — The Columns toggle button's `aria-label` changed from `Toggle columns` to `Columns`.
-
-### 1.10.0
-
-**New features**
-
-- **ProForm** — 6 new field components: `ProFormDateRangePicker`, `ProFormCheckboxGroup`, `ProFormSlider`, `ProFormTokenField`, `ProFormList` (repeatable field groups), `ProFormDependency` (conditional rendering based on watched fields).
-- **ProForm** — `formRef` for programmatic access (`reset()`, `submit()`, `getValues()`, `setValue()`), `submitter` prop for custom submit/reset rendering, `onValuesChange` callback, async `defaultValues` support.
-- **ProForm** — `schema` prop is now optional (omit for no validation).
-- **ProTable** — `actionRef` for programmatic control (`reload()`, `reloadAndReset()`, `reset()`, `clearSelected()`), `defaultSort`/`onSortChange` for initial and controlled sorting, `emptyText` for custom empty state.
-- **ProTable** — Controlled row selection via `rowSelection.selectedRowKeys` + `preserveSelectedRowKeys` to persist selection across pages.
-- **ProTable** — Column `ellipsis` (text truncation with native tooltip), `tooltip` (header tooltip).
-- MCP `components-data.ts` updated to match actual dist types (17 ProForm fields documented, ProColumnType details, ProTable actionRef).
-- Showcase demos for ProTable actionRef reload, sort, filter, ProForm async edit, new fields, ProFormList, ProFormDependency.
-- Storybook stories for ProTable and ProForm.
-
-**Breaking changes**
-
-- Peer dependency `@tanstack/react-table` is now `^8.21.0` (was `>=8`).
+Full history: **[CHANGELOG.md →](https://github.com/dangbt/pro-ui/blob/main/CHANGELOG.md)**
 
 ---
 
@@ -224,7 +196,7 @@ Dashboard · Analytics · Users · Settings · Login · Register · Forgot Passw
 
 Pro components (RichTextEditor, KanbanBoard, GanttChart, AdvancedFilters, DataGrid…) are planned for v2.0.
 
-**[View full roadmap →](ROADMAP.md)**
+**[View full roadmap →](https://github.com/dangbt/pro-ui/blob/main/ROADMAP.md)**
 
 ---
 
@@ -234,9 +206,9 @@ pro-ui is MIT-licensed and free forever. If it saves you time, please consider s
 
 | Tier | Price | Benefits |
 |---|---|---|
-| ☕ Coffee | $5/mo | Name in SPONSORS.md |
-| 🚀 Pro Supporter | $15/mo | Early access to Pro components |
-| 🏢 Team | $50/mo | Logo on README + priority support |
+| Coffee | $5/mo | Name in SPONSORS.md |
+| Pro Supporter | $15/mo | Early access to Pro components |
+| Team | $50/mo | Logo on README + priority support |
 
 **[Become a sponsor →](https://github.com/sponsors/dangbt)**
 
@@ -244,8 +216,8 @@ pro-ui is MIT-licensed and free forever. If it saves you time, please consider s
 
 ## License
 
-MIT © [Dâng Bùi Tấn](https://github.com/dangbt) · [SPONSORS.md](SPONSORS.md)
+MIT © [Dâng Bùi Tấn](https://github.com/dangbt) · [SPONSORS.md](https://github.com/dangbt/pro-ui/blob/main/SPONSORS.md)
 
 <div align="center">
-  <sub>If pro-ui saves you time, consider <a href="https://github.com/sponsors/dangbt">sponsoring ☕</a></sub>
+  <sub>If pro-ui saves you time, consider <a href="https://github.com/sponsors/dangbt">sponsoring</a></sub>
 </div>

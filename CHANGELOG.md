@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.1
+
+- docs(readme): render correctly on npm.io's new dark UI — logo wordmark readable on dark/light backgrounds, comparison table uses text instead of emoji (npm.io strips emoji), absolute links for CHANGELOG/ROADMAP/SPONSORS/LICENSE.
+- docs(readme): component list updated to the real 70+ exports (Sheet, AsyncSelect, Descriptions, Timeline, Transfer, InputOTP…); README changelog now shows the latest release and links to CHANGELOG.md.
+
 ## 1.13.0
 
 - feat(sheet): new `Sheet` component wrapping React Aria 1.22 `Sheet` — swipe-to-dismiss overlay from any edge (`position` bottom/top/left/right/start/end/center), `snapPoints`, `preventDismissal`, drag handle, stacked sheets; Drawer-like API (`title`, `footer`, `triggerElement` or controlled `isOpen`/`onOpenChange`) (PROUI-19).
