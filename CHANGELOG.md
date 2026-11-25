@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.13.0
+
+- feat(sheet): new `Sheet` component wrapping React Aria 1.22 `Sheet` — swipe-to-dismiss overlay from any edge (`position` bottom/top/left/right/start/end/center), `snapPoints`, `preventDismissal`, drag handle, stacked sheets; Drawer-like API (`title`, `footer`, `triggerElement` or controlled `isOpen`/`onOpenChange`) (PROUI-19).
+- feat(link): active styling via `aria-current` (`page`/`true`) for every variant (PROUI-20).
+- docs(ai-dx): `Sheet` and `Link` `aria-current` added to MCP components data, `llms.txt`, `llms-full.txt`, `registry.json` (PROUI-21).
+- **peer**: `react-aria-components` raised to `>=1.22.0` (required by `Sheet`).
+
 ## 1.12.5
 
 - chore(deps): `tailwind-merge` 3.3.1 → 3.7.0 (runtime dependency).
