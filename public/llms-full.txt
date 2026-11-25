@@ -1,7 +1,7 @@
 # @dangbt/pro-ui — Full API Reference
 
 > Complete component reference for AI agents. See /llms.txt for summary.
-> Generated from mcp-pro-ui components-data. Total: 54 components.
+> Generated from mcp-pro-ui components-data. Total: 55 components.
 
 ## App Setup
 
@@ -1306,6 +1306,74 @@ export function FilterDrawer() {
 
 ---
 
+## Sheet
+
+Swipeable overlay that slides in from an edge (bottom sheet, side drawer, top banner, or centered). Wraps React Aria Sheet (react-aria-components >= 1.22). Supports snap points and swipe-to-dismiss. Self-managed via triggerElement, or controlled via isOpen/onOpenChange.
+
+Import: `import { Sheet } from '@dangbt/pro-ui'`
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| title | string | — | — | Header title. When omitted, set aria-label for accessibility. |
+| children | ReactNode | ((props: { close: () => void }) => ReactNode) | ✅ | — | Sheet body. Function form receives close(). |
+| footer | ReactNode | ((props: { close: () => void }) => ReactNode) | — | — | Footer content. Function form receives close(). |
+| position | 'bottom' | 'top' | 'left' | 'right' | 'start' | 'end' | 'center' | — | `'bottom'` | Edge the sheet slides in from (start/end mirror in RTL) |
+| size | 'sm' | 'md' | 'lg' | 'xl' | 'full' | — | `'md'` | Width (left/right/start/end/center) or max-height (bottom/top) |
+| withBackdrop | boolean | — | `true` | Show the dimmed backdrop |
+| showHandle | boolean | — | — | Show drag handle bar (default true for bottom/top) |
+| snapPoints | (number | string)[] | — | — | Snap points the sheet stops at (pixels, or percentages of sheet size). Opens at the first snap point. |
+| swipeDirection | 'bottom' | 'top' | 'vertical' | 'left' | 'right' | 'start' | 'end' | 'horizontal' | — | — | Direction the sheet can be swiped. Defaults to the direction of position. |
+| preventDismissal | boolean | — | `false` | Prevent closing by swipe, Escape, or outside interaction |
+| isOpen | boolean | — | — | Controlled open state (when no triggerElement) |
+| defaultOpen | boolean | — | — | Uncontrolled initial open state |
+| onOpenChange | (isOpen: boolean) => void | — | — | Called when open state changes |
+| triggerElement | ReactNode | — | — | Trigger element; Sheet then manages its own open state via SheetTrigger |
+| aria-label | string | — | `'Sheet'` | Accessible name used when there is no title |
+| className | string | — | — | Extra classes for the sheet panel |
+
+### Notes
+
+Requires react-aria-components >= 1.22.0. Controlled usage: <Sheet isOpen={open} onOpenChange={setOpen} title="...">. For non-swipeable slide-in panels use Drawer.
+
+### Example
+
+```tsx
+import { Sheet, Button } from '@dangbt/pro-ui'
+
+// Bottom sheet with snap points (swipe up to expand, down to dismiss)
+export function FilterSheet() {
+  return (
+    <Sheet
+      title="Filters"
+      position="bottom"
+      snapPoints={['50%', '100%']}
+      triggerElement={<Button variant="outline">Open filters</Button>}
+      footer={({ close }) => <Button onPress={close}>Apply</Button>}
+    >
+      {/* filter form content */}
+    </Sheet>
+  )
+}
+
+// Drawer swiped from the left
+export function NavSheet() {
+  return (
+    <Sheet
+      title="Menu"
+      position="left"
+      size="sm"
+      triggerElement={<Button variant="ghost">Menu</Button>}
+    >
+      {/* navigation links */}
+    </Sheet>
+  )
+}
+```
+
+---
+
 ## Popover
 
 Floating popover panel anchored to a trigger element. Good for contextual menus and info panels.
@@ -2030,6 +2098,7 @@ Import: `import { Link } from '@dangbt/pro-ui'`
 | href | string | — | — | Link URL |
 | variant | 'default' | 'muted' | 'danger' | — | `'default'` | Link color |
 | target | string | — | — | HTML target (_blank for new tab) |
+| aria-current | 'page' | 'step' | 'location' | 'date' | 'time' | boolean | 'true' | 'false' | — | — | Marks the link as the current item. 'page' and true render the active style (bolder text, no underline). |
 | children | ReactNode | ✅ | — | Link text or content |
 
 ### Example
@@ -2040,6 +2109,20 @@ import { Link } from '@dangbt/pro-ui'
 <Link href="/dashboard">Go to Dashboard</Link>
 <Link href="https://example.com" target="_blank" variant="muted">External link</Link>
 <Link variant="danger" onPress={handleDelete}>Delete account</Link>
+
+// Active nav item via aria-current
+<nav className="flex gap-4">
+  {items.map((item) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      variant="muted"
+      aria-current={pathname === item.href ? 'page' : undefined}
+    >
+      {item.label}
+    </Link>
+  ))}
+</nav>
 ```
 
 ---

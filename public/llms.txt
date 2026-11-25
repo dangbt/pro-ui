@@ -23,6 +23,7 @@ npm install @dangbt/pro-ui
 - Layout: App shell with collapsible sidebar navigation and header.
 - Modal: Accessible dialog. Use inside DialogTrigger from react-aria-components.
 - Drawer: Slide-in panel (left/right/bottom). Use inside DialogTrigger.
+- Sheet: Swipeable overlay from any edge (bottom sheet with snapPoints, left/right drawer). Wraps RAC Sheet (>=1.22); use triggerElement or isOpen/onOpenChange.
 - Popover: Floating anchored panel.
 - Tooltip: Hover/focus tooltip.
 - PreviewCard: Hover/focus/long-press popover with interactive content (GitHub-style preview card).

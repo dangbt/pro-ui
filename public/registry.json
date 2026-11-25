@@ -1,6 +1,6 @@
 {
   "name": "@dangbt/pro-ui",
-  "version": "1.12.1",
+  "version": "1.12.5",
   "description": "React UI component library built on React Aria Components + Tailwind CSS v4",
   "homepage": "https://pro-ui.pages.dev",
   "docs": "https://pro-ui.pages.dev/docs",
@@ -449,6 +449,125 @@
         }
       ],
       "example": "import { Drawer, Button } from '@dangbt/pro-ui'\nimport { DialogTrigger } from 'react-aria-components'\n\nexport function FilterDrawer() {\n  return (\n    <DialogTrigger>\n      <Button variant=\"outline\">Filters</Button>\n      <Drawer title=\"Filter Options\" placement=\"right\">\n        {/* filter form content */}\n      </Drawer>\n    </DialogTrigger>\n  )\n}"
+    },
+    {
+      "name": "Sheet",
+      "import": "Sheet",
+      "package": "@dangbt/pro-ui",
+      "category": "overlay",
+      "description": "Swipeable overlay that slides in from an edge (bottom sheet, side drawer, top banner, or centered). Wraps React Aria Sheet (react-aria-components >= 1.22). Supports snap points and swipe-to-dismiss. Self-managed via triggerElement, or controlled via isOpen/onOpenChange.",
+      "useCases": [
+        "mobile bottom sheet",
+        "swipeable drawer",
+        "side panel with swipe to close",
+        "action sheet",
+        "filter sheet"
+      ],
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "Header title. When omitted, set aria-label for accessibility."
+        },
+        {
+          "name": "children",
+          "type": "ReactNode | ((props: { close: () => void }) => ReactNode)",
+          "required": true,
+          "description": "Sheet body. Function form receives close()."
+        },
+        {
+          "name": "footer",
+          "type": "ReactNode | ((props: { close: () => void }) => ReactNode)",
+          "required": false,
+          "description": "Footer content. Function form receives close()."
+        },
+        {
+          "name": "position",
+          "type": "'bottom' | 'top' | 'left' | 'right' | 'start' | 'end' | 'center'",
+          "required": false,
+          "default": "'bottom'",
+          "description": "Edge the sheet slides in from (start/end mirror in RTL)"
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg' | 'xl' | 'full'",
+          "required": false,
+          "default": "'md'",
+          "description": "Width (left/right/start/end/center) or max-height (bottom/top)"
+        },
+        {
+          "name": "withBackdrop",
+          "type": "boolean",
+          "required": false,
+          "default": "true",
+          "description": "Show the dimmed backdrop"
+        },
+        {
+          "name": "showHandle",
+          "type": "boolean",
+          "required": false,
+          "description": "Show drag handle bar (default true for bottom/top)"
+        },
+        {
+          "name": "snapPoints",
+          "type": "(number | string)[]",
+          "required": false,
+          "description": "Snap points the sheet stops at (pixels, or percentages of sheet size). Opens at the first snap point."
+        },
+        {
+          "name": "swipeDirection",
+          "type": "'bottom' | 'top' | 'vertical' | 'left' | 'right' | 'start' | 'end' | 'horizontal'",
+          "required": false,
+          "description": "Direction the sheet can be swiped. Defaults to the direction of position."
+        },
+        {
+          "name": "preventDismissal",
+          "type": "boolean",
+          "required": false,
+          "default": "false",
+          "description": "Prevent closing by swipe, Escape, or outside interaction"
+        },
+        {
+          "name": "isOpen",
+          "type": "boolean",
+          "required": false,
+          "description": "Controlled open state (when no triggerElement)"
+        },
+        {
+          "name": "defaultOpen",
+          "type": "boolean",
+          "required": false,
+          "description": "Uncontrolled initial open state"
+        },
+        {
+          "name": "onOpenChange",
+          "type": "(isOpen: boolean) => void",
+          "required": false,
+          "description": "Called when open state changes"
+        },
+        {
+          "name": "triggerElement",
+          "type": "ReactNode",
+          "required": false,
+          "description": "Trigger element; Sheet then manages its own open state via SheetTrigger"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "required": false,
+          "default": "'Sheet'",
+          "description": "Accessible name used when there is no title"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "required": false,
+          "description": "Extra classes for the sheet panel"
+        }
+      ],
+      "notes": "Requires react-aria-components >= 1.22.0. Controlled usage: <Sheet isOpen={open} onOpenChange={setOpen} title=\"...\">. For non-swipeable slide-in panels use Drawer.",
+      "example": "import { Sheet, Button } from '@dangbt/pro-ui'\n\n// Bottom sheet with snap points (swipe up to expand, down to dismiss)\nexport function FilterSheet() {\n  return (\n    <Sheet\n      title=\"Filters\"\n      position=\"bottom\"\n      snapPoints={['50%', '100%']}\n      triggerElement={<Button variant=\"outline\">Open filters</Button>}\n      footer={({ close }) => <Button onPress={close}>Apply</Button>}\n    >\n      {/* filter form content */}\n    </Sheet>\n  )\n}\n\n// Drawer swiped from the left\nexport function NavSheet() {\n  return (\n    <Sheet\n      title=\"Menu\"\n      position=\"left\"\n      size=\"sm\"\n      triggerElement={<Button variant=\"ghost\">Menu</Button>}\n    >\n      {/* navigation links */}\n    </Sheet>\n  )\n}"
     },
     {
       "name": "Popover",
@@ -2630,13 +2749,19 @@
           "description": "HTML target (_blank for new tab)"
         },
         {
+          "name": "aria-current",
+          "type": "'page' | 'step' | 'location' | 'date' | 'time' | boolean | 'true' | 'false'",
+          "required": false,
+          "description": "Marks the link as the current item. 'page' and true render the active style (bolder text, no underline)."
+        },
+        {
           "name": "children",
           "type": "ReactNode",
           "required": true,
           "description": "Link text or content"
         }
       ],
-      "example": "import { Link } from '@dangbt/pro-ui'\n\n<Link href=\"/dashboard\">Go to Dashboard</Link>\n<Link href=\"https://example.com\" target=\"_blank\" variant=\"muted\">External link</Link>\n<Link variant=\"danger\" onPress={handleDelete}>Delete account</Link>"
+      "example": "import { Link } from '@dangbt/pro-ui'\n\n<Link href=\"/dashboard\">Go to Dashboard</Link>\n<Link href=\"https://example.com\" target=\"_blank\" variant=\"muted\">External link</Link>\n<Link variant=\"danger\" onPress={handleDelete}>Delete account</Link>\n\n// Active nav item via aria-current\n<nav className=\"flex gap-4\">\n  {items.map((item) => (\n    <Link\n      key={item.href}\n      href={item.href}\n      variant=\"muted\"\n      aria-current={pathname === item.href ? 'page' : undefined}\n    >\n      {item.label}\n    </Link>\n  ))}\n</nav>"
     },
     {
       "name": "Divider",
